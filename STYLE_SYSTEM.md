@@ -23,8 +23,8 @@ without copying another prediction market's component styling.
   their appearance.
 - Dynamic curve geometry may use SVG attributes derived from real indexed data;
   colors, line weights, dimensions, and states remain in `app/globals.css`.
-- The entire system uses only `--xbid-type-body` and `--xbid-type-heading`.
-  Weight, spacing, case, and color—not extra sizes—create hierarchy.
+- The entire system uses one `--xbid-type: 12px` size. Weight, spacing, case,
+  and color—not additional sizes—create hierarchy.
 - Change the `:root` tokens to recolor the complete system, or edit component
   selectors in the same file for a deeper theme change.
 
