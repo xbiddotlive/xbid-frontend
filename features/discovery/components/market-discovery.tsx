@@ -31,7 +31,7 @@ export function MarketDiscovery({ contests, apiAvailable }: MarketDiscoveryProps
           <span className="sectionNote">The arena drawing attention now</span>
         </div>
         {featured ? (
-          <ContestCard contest={featured} featured />
+          <ContestCard contest={featured} featured rank={1} />
         ) : (
           <div className="emptyState" data-testid="contest-empty-state">
             <strong>{apiAvailable ? "No featured contest yet" : "Live data is temporarily unavailable"}</strong>
@@ -70,8 +70,8 @@ export function MarketDiscovery({ contests, apiAvailable }: MarketDiscoveryProps
         </div>
 
         <div className="marketCollection" data-view={view}>
-          {visibleContests.map((contest) => (
-            <ContestCard key={contest.contestId} contest={contest} />
+          {visibleContests.map((contest, index) => (
+            <ContestCard key={contest.contestId} contest={contest} rank={index + 1} />
           ))}
         </div>
 

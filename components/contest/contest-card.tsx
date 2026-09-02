@@ -4,10 +4,12 @@ import { formatUnits } from "viem";
 import type { IndexedContest } from "@/lib/api/contests";
 import { demoContest } from "@/lib/blockchain/contracts";
 import { DominanceMeter } from "./dominance-meter";
+import { DuelCurve } from "./duel-curve";
 
 type ContestCardProps = {
   contest: IndexedContest;
   featured?: boolean;
+  rank?: number;
 };
 
 function compactUsdc(units: string) {
@@ -25,7 +27,7 @@ function dominance(contest: IndexedContest) {
   return Number((a * 10_000n) / total) / 100;
 }
 
-export function ContestCard({ contest, featured = false }: ContestCardProps) {
+export function ContestCard({ contest, featured = false, rank = 1 }: ContestCardProps) {
   const sideAPercent = dominance(contest);
   const sideBPercent = 100 - sideAPercent;
   const market = contest.market;
@@ -36,7 +38,8 @@ export function ContestCard({ contest, featured = false }: ContestCardProps) {
       data-testid="contest-card"
     >
       <Link className="contestCardLead" href={`/contest/${contest.contestId}`}>
-        <div className="contestMark" aria-hidden="true"><span>A</span><span>B</span></div>
+        <span className="rankStamp">{String(rank).padStart(2, "0")}</span>
+        <div className="contestMark" aria-hidden="true"><span>A</span><i>VS</i><span>B</span></div>
       </Link>
       <div className="contestCardBody">
         <div className="contestMeta">
@@ -45,15 +48,16 @@ export function ContestCard({ contest, featured = false }: ContestCardProps) {
           <span>Market v{contest.marketVersion}</span>
         </div>
         <Link href={`/contest/${contest.contestId}`}><h3>{demoContest.title}</h3></Link>
+        <DuelCurve compact history={market?.history ?? []} />
         <DominanceMeter sideAPercent={sideAPercent} sideBPercent={sideBPercent} />
         <div className="sideActions" aria-label="Contest sides">
           <Link className="sideActionA" href={`/contest/${contest.contestId}`}>Back Side A</Link>
           <Link className="sideActionB" href={`/contest/${contest.contestId}`}>Back Side B</Link>
         </div>
         <div className="contestStats">
-          <span>${compactUsdc(market?.cumulativeVolumeUnits ?? "0")} volume</span>
+          <span>${compactUsdc(market?.cumulativeVolumeUnits ?? "0")} matched</span>
           <span>{market?.tradeCount ?? "0"} trades</span>
-          <span>Block {market?.updatedBlock ?? contest.createdBlock}</span>
+          <span>{market?.crownActivated ? `Crown · Side ${market.crownSide === 0 ? "A" : "B"}` : "Crown open"}</span>
         </div>
       </div>
       <Link className="cardArrow" href={`/contest/${contest.contestId}`} aria-label="Open contest">↗</Link>

@@ -8,6 +8,19 @@ export type IndexedMarket = {
   crownSide: number | null;
   crownActivated: boolean;
   updatedBlock: string;
+  history: IndexedTradePoint[];
+};
+
+export type IndexedTradePoint = {
+  transactionHash: string;
+  logIndex: number;
+  kind: string;
+  side: number;
+  qAAfterWei: string;
+  qBAfterWei: string;
+  reserveAfterUnits: string;
+  blockNumber: string;
+  blockTimestamp: string;
 };
 
 export type IndexedContest = {
