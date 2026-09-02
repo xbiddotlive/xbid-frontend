@@ -3,6 +3,7 @@
 import { formatUnits } from "viem";
 import { useReadContracts } from "wagmi";
 
+import { DominanceMeter } from "@/components/contest/dominance-meter";
 import { TradeTicket } from "@/features/trading/components/trade-ticket";
 import {
   contracts,
@@ -61,10 +62,11 @@ export function ContestDetail() {
             <div><p className="eyebrow">Live dominance</p><h2>Market balance</h2></div>
             <span className="muted">Onchain · refreshes every 8s</span>
           </div>
-          <div className="dominanceBar dominanceLarge">
-            <div className="dominanceA" style={{ width: `${Math.max(aShare, 15)}%` }}>Side A · {aShare.toFixed(1)}%</div>
-            <div className="dominanceB" style={{ width: `${Math.max(bShare, 15)}%` }}>Side B · {bShare.toFixed(1)}%</div>
-          </div>
+          <DominanceMeter
+            large
+            sideAPercent={Number(aShare.toFixed(1))}
+            sideBPercent={Number(bShare.toFixed(1))}
+          />
           <div className="chartPlaceholder">
             <div className="chartLine chartLineA" />
             <div className="chartLine chartLineB" />

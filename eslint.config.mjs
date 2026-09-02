@@ -5,5 +5,34 @@ import nextTs from "eslint-config-next/typescript";
 export default defineConfig([
   ...nextVitals,
   ...nextTs,
+  {
+    files: ["**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["*.css", "**/*.css"],
+              message: "Import the single app/globals.css theme only from app/layout.tsx.",
+            },
+          ],
+        },
+      ],
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "JSXAttribute[name.name='style']",
+          message: "Inline UI styles are forbidden. Add a semantic class to app/globals.css.",
+        },
+      ],
+    },
+  },
+  {
+    files: ["app/layout.tsx"],
+    rules: {
+      "no-restricted-imports": "off",
+    },
+  },
   globalIgnores([".next/**", "out/**", "next-env.d.ts"]),
 ]);

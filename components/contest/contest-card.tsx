@@ -3,9 +3,11 @@ import { formatUnits } from "viem";
 
 import type { IndexedContest } from "@/lib/api/contests";
 import { demoContest } from "@/lib/blockchain/contracts";
+import { DominanceMeter } from "./dominance-meter";
 
 type ContestCardProps = {
   contest: IndexedContest;
+  featured?: boolean;
 };
 
 function compactUsdc(units: string) {
@@ -23,44 +25,38 @@ function dominance(contest: IndexedContest) {
   return Number((a * 10_000n) / total) / 100;
 }
 
-export function ContestCard({ contest }: ContestCardProps) {
+export function ContestCard({ contest, featured = false }: ContestCardProps) {
   const sideAPercent = dominance(contest);
   const sideBPercent = 100 - sideAPercent;
   const market = contest.market;
 
   return (
-    <Link
-      className="contestCard"
-      href={`/contest/${contest.contestId}`}
+    <article
+      className={featured ? "contestCard contestCardFeatured" : "contestCard"}
       data-testid="contest-card"
     >
-      <div className="contestMark">X</div>
+      <Link className="contestCardLead" href={`/contest/${contest.contestId}`}>
+        <div className="contestMark" aria-hidden="true"><span>A</span><span>B</span></div>
+      </Link>
       <div className="contestCardBody">
         <div className="contestMeta">
+          <span className="liveBadge">Live</span>
           <span>{demoContest.category}</span>
           <span>Market v{contest.marketVersion}</span>
-          <span>Indexed at block {market?.updatedBlock ?? contest.createdBlock}</span>
         </div>
-        <h3>{demoContest.title}</h3>
-        <div
-          className="dominanceBar"
-          aria-label={`Side A ${sideAPercent}%, Side B ${sideBPercent}%`}
-        >
-          <div className="dominanceA" style={{ width: `${sideAPercent}%` }}>
-            Side A · {sideAPercent}%
-          </div>
-          <div className="dominanceB" style={{ width: `${sideBPercent}%` }}>
-            Side B · {sideBPercent}%
-          </div>
+        <Link href={`/contest/${contest.contestId}`}><h3>{demoContest.title}</h3></Link>
+        <DominanceMeter sideAPercent={sideAPercent} sideBPercent={sideBPercent} />
+        <div className="sideActions" aria-label="Contest sides">
+          <Link className="sideActionA" href={`/contest/${contest.contestId}`}>Back Side A</Link>
+          <Link className="sideActionB" href={`/contest/${contest.contestId}`}>Back Side B</Link>
         </div>
         <div className="contestStats">
           <span>${compactUsdc(market?.cumulativeVolumeUnits ?? "0")} volume</span>
           <span>{market?.tradeCount ?? "0"} trades</span>
-          <span>${compactUsdc(market?.reserveUnits ?? "0")} reserve</span>
-          <span>Live comments</span>
+          <span>Block {market?.updatedBlock ?? contest.createdBlock}</span>
         </div>
       </div>
-      <span className="cardArrow" aria-hidden="true">→</span>
-    </Link>
+      <Link className="cardArrow" href={`/contest/${contest.contestId}`} aria-label="Open contest">↗</Link>
+    </article>
   );
 }

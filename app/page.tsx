@@ -1,4 +1,6 @@
-import { ContestCard } from "@/components/contest/contest-card";
+import Link from "next/link";
+
+import { MarketDiscovery } from "@/features/discovery/components/market-discovery";
 import { listContests, type IndexedContest } from "@/lib/api/contests";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
 
@@ -16,40 +18,27 @@ export default async function HomePage() {
 
   return (
     <main className="pageShell">
-      <section className="heroSection">
-        <div>
-          <p className="eyebrow">Robinhood Chain Testnet</p>
-          <h1>The live contest market</h1>
+      <section className="heroSection heroArena">
+        <div className="heroContent">
+          <p className="eyebrow">XBID live arena · Robinhood Testnet</p>
+          <h1>Pick a side.<br /><em>Move the crowd.</em></h1>
           <p className="heroCopy">
-            Back a side, move its live price, and compete for the crown. Every
-            transaction below settles against real XBID Testnet contracts.
+            Two sides enter. Every back, sell, and flip moves the live contest.
+            Follow the signal—or create the next rivalry.
           </p>
+          <div className="heroActions">
+            <a className="button buttonPrimary" href="#all-markets-heading">Explore markets</a>
+            <Link className="button buttonInverse" href="/launch">Launch a contest</Link>
+          </div>
         </div>
-        <div className={apiAvailable ? "networkPill" : "statusWarning"}>
-          {apiAvailable && <i />} {apiAvailable ? "Testnet live" : "Indexer reconnecting"}
+        <div className="heroSignal" aria-hidden="true">
+          <span className="signalSideA">A</span>
+          <span className="signalX">×</span>
+          <span className="signalSideB">B</span>
+          <small>{apiAvailable ? "LIVE SIGNAL" : "RECONNECTING"}</small>
         </div>
       </section>
-
-      <section>
-        <div className="sectionHeading">
-          <div>
-            <p className="eyebrow">Featured contest</p>
-            <h2>Live market</h2>
-          </div>
-          <span className="muted">{contests.length} contest{contests.length === 1 ? "" : "s"}</span>
-        </div>
-
-        {contests.map((contest) => (
-          <ContestCard key={contest.contestId} contest={contest} />
-        ))}
-
-        {contests.length === 0 && (
-          <div className="emptyState" data-testid="contest-empty-state">
-            <strong>{apiAvailable ? "No contests indexed yet" : "Live data is temporarily unavailable"}</strong>
-            <span>{apiAvailable ? "The first registered market will appear automatically." : "The page will recover when the local API reconnects."}</span>
-          </div>
-        )}
-      </section>
+      <MarketDiscovery contests={contests} apiAvailable={apiAvailable} />
     </main>
   );
 }
