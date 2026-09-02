@@ -38,8 +38,8 @@ export function ContestCard({ contest, featured = false, rank = 1 }: ContestCard
       data-testid="contest-card"
     >
       <Link className="contestCardLead" href={`/contest/${contest.contestId}`}>
-        <span className="rankStamp">{String(rank).padStart(2, "0")}</span>
-        <div className="contestMark" aria-hidden="true"><span>A</span><i>VS</i><span>B</span></div>
+        <span className="rankStamp">#{String(rank).padStart(2, "0")}</span>
+        <div className="contestMark" aria-hidden="true"><span>A</span><span>B</span></div>
       </Link>
       <div className="contestCardBody">
         <div className="contestMeta">

@@ -8,7 +8,7 @@ export function GlobalHeader() {
       <header className="globalHeader">
         <div className="headerInner">
           <Link className="wordmark" href="/">
-            <b aria-hidden="true">X</b> xbid<span>.live</span>
+            <b aria-hidden="true"><i /><i /></b> xbid<span>.live</span>
           </Link>
           <div className="searchShell" aria-label="Search contests">
             <span aria-hidden="true">⌕</span>
@@ -22,8 +22,8 @@ export function GlobalHeader() {
       </header>
       <nav className="categoryNav" aria-label="Contest categories">
         <div className="categoryInner">
-          <Link className="categoryActive" href="/">Trending</Link>
-          <Link href="/?category=live">Live now</Link>
+          <Link className="categoryActive" href="/">Markets</Link>
+          <Link href="/?category=live">Live</Link>
           <span>Crypto</span>
           <span>Sports</span>
           <span>Culture</span>

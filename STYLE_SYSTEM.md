@@ -1,4 +1,4 @@
-# XBID REDLINE frontend style system
+# XBID PULSE frontend style system
 
 The frontend has one visual source of truth:
 
@@ -8,10 +8,11 @@ It owns design tokens, colors, typography, spacing, radii, shadows, responsive
 breakpoints, and every component state. `app/layout.tsx` is the only file that
 imports CSS.
 
-REDLINE is XBID's own visual language: warm off-white surfaces, carbon control
-panels, a signal-red system accent, and equally weighted red/blue contest sides.
-It takes its information rhythm from live motorsport and esports telemetry
-without copying another prediction market's component styling.
+PULSE is XBID's visual language. Its core identifier is one continuous line
+pulled between two opposing signals: warm red for Side A and cool blue for Side
+B. The market curve—not decorative chrome—is the primary visual. Deep graphite
+surfaces, hairline boundaries, restrained color, and dense real-time data make
+the product feel active without borrowing another trading product's identity.
 
 ## Rules
 

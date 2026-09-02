@@ -25,10 +25,10 @@ export function MarketDiscovery({ contests, apiAvailable }: MarketDiscoveryProps
       <section className="featuredSection" aria-labelledby="featured-heading">
         <div className="sectionHeading">
           <div>
-            <p className="eyebrow">Signal board</p>
-            <h2 id="featured-heading">Recommended</h2>
+            <p className="eyebrow">Highest pressure</p>
+            <h2 id="featured-heading">Moving now</h2>
           </div>
-          <span className="sectionNote">The arena drawing attention now</span>
+          <span className="sectionNote">The contest attracting the strongest live flow</span>
         </div>
         {featured ? (
           <ContestCard contest={featured} featured rank={1} />
@@ -43,8 +43,8 @@ export function MarketDiscovery({ contests, apiAvailable }: MarketDiscoveryProps
       <section className="allMarketsSection" aria-labelledby="all-markets-heading">
         <div className="marketToolbar">
           <div>
-            <p className="eyebrow">Explore every arena</p>
-            <h2 id="all-markets-heading">All markets</h2>
+            <p className="eyebrow">Discover</p>
+            <h2 id="all-markets-heading">All contests</h2>
           </div>
           <div className="viewToggle" aria-label="Market layout">
             <button aria-pressed={view === "list"} onClick={() => setView("list")} type="button">

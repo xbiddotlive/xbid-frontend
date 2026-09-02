@@ -20,11 +20,11 @@ export default async function HomePage() {
     <main className="pageShell">
       <section className="heroSection heroArena">
         <div className="heroContent">
-          <p className="eyebrow"><span className="livePulse" /> XBID Redline · Robinhood Testnet</p>
-          <h1>Choose a side. <em>Shift the line.</em></h1>
+          <p className="eyebrow"><span className="livePulse" /> Live on Robinhood Testnet</p>
+          <h1>The market is a live argument. <em>Pick your side.</em></h1>
           <p className="heroCopy">
-            Every back, sell, and atomic flip moves a live two-sided contest.
-            Read the momentum, enter the arena, and fight for the crown.
+            Two positions. One shared curve. Every back, sell, and atomic flip
+            changes the balance in real time.
           </p>
           <div className="heroActions">
             <a className="button buttonPrimary" href="#all-markets-heading">Explore markets</a>
@@ -32,10 +32,9 @@ export default async function HomePage() {
           </div>
         </div>
         <div className="heroSignal" aria-label="Live arena status">
-          <span className="signalLabel">LIVE CONTROL</span>
-          <strong>{String(contests.length).padStart(2, "0")}</strong>
-          <span>ACTIVE ARENAS</span>
-          <div><span>{apiAvailable ? "FEED ONLINE" : "RECONNECTING"}</span><span>MARKET V1</span></div>
+          <div className="pulseIdentity" aria-hidden="true"><span>A</span><i /><span>B</span></div>
+          <strong>{String(contests.length).padStart(2, "0")} markets moving now</strong>
+          <span>{apiAvailable ? "Live feed connected" : "Feed reconnecting"}</span>
         </div>
       </section>
       <MarketDiscovery contests={contests} apiAvailable={apiAvailable} />
