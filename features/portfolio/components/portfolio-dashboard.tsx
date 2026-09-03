@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { formatUnits } from "viem";
 import { useAccount } from "wagmi";
 
 import { WalletButton } from "@/features/wallet/components/wallet-button";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
+import { formatUsdcUnits } from "@/lib/formatters/usdc";
 import { useWalletPortfolio } from "@/lib/queries/portfolio";
 
 type PortfolioTab = "positions" | "created" | "activity";
@@ -15,10 +15,6 @@ function dollars(value: string, signed = false) {
   const amount = Number(value);
   const prefix = signed && amount > 0 ? "+" : "";
   return `${prefix}$${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
-function usdcUnits(value: string) {
-  return Number(formatUnits(BigInt(value), 6)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function eventTime(timestamp: string) {
@@ -44,9 +40,9 @@ export function PortfolioDashboard() {
   const summary = [
     { label: "position value", value: dollars(data.summary.positionValueUsdc), tone: "" },
     { label: "unrealized pnl", value: dollars(data.summary.unrealizedPnlUsdc, true), tone: Number(data.summary.unrealizedPnlUsdc) >= 0 ? "positive" : "negative" },
-    { label: "claimable", value: `$${usdcUnits(data.summary.claimableUnits)}`, tone: "crown" },
-    { label: "creator earned", value: `$${usdcUnits(data.summary.creatorEarnedUnits)}`, tone: "positive" },
-    { label: "referral earned", value: `$${usdcUnits(data.summary.referralEarnedUnits)}`, tone: "positive" },
+    { label: "claimable", value: `$${formatUsdcUnits(data.summary.claimableUnits)}`, tone: "crown" },
+    { label: "creator earned", value: `$${formatUsdcUnits(data.summary.creatorEarnedUnits)}`, tone: "positive" },
+    { label: "referral earned", value: `$${formatUsdcUnits(data.summary.referralEarnedUnits)}`, tone: "positive" },
   ];
 
   return <>
@@ -58,8 +54,8 @@ export function PortfolioDashboard() {
 
     {activeTab === "positions" && <div className="portfolioTableWrap"><div className="portfolioPositionTable"><div className="portfolioTableHead"><span>market / position</span><span>tokens</span><span>avg. entry</span><span>current</span><span>24h</span><span>value</span><span>unrealized pnl</span></div>{data.positions.length ? data.positions.map((position) => <div className="portfolioTableRow" key={position.id}><div><Link href={`/contest/${position.contestId}`}><strong>{position.marketTitle}</strong></Link><span>side {position.side === 0 ? "a" : "b"} · {position.tokenSymbol}</span></div><span>{Number(position.tokenBalance).toLocaleString()}</span><span>{dollars(position.averageEntryPriceUsdc)}</span><span>{dollars(position.currentPriceUsdc)}</span><strong data-tone={position.change24hPercent < 0 ? "negative" : "positive"}>{position.change24hPercent >= 0 ? "+" : ""}{position.change24hPercent.toFixed(2)}%</strong><span>{dollars(position.marketValueUsdc)}</span><strong data-tone={Number(position.unrealizedPnlUsdc) < 0 ? "negative" : "positive"}>{dollars(position.unrealizedPnlUsdc, true)}</strong></div>) : <div className="terminalEmpty"><strong>no live positions</strong><span>back either side of a contest to see it here.</span></div>}</div></div>}
 
-    {activeTab === "created" && <div className="portfolioTableWrap"><div className="portfolioSimpleTable"><div className="portfolioSimpleHead"><span>contest</span><span>status</span><span>liquidity</span><span>trades</span><span>creator earned</span></div>{data.created.length ? data.created.map((contest) => <div className="portfolioSimpleRow" key={contest.contestId}><Link href={`/contest/${contest.contestId}`}><strong>{contest.title}</strong></Link><span>{contest.status}</span><span>{usdcUnits(contest.liquidityUnits)} usdc</span><span>{contest.tradeCount}</span><strong data-tone="positive">${usdcUnits(contest.creatorEarnedUnits)}</strong></div>) : <div className="terminalEmpty"><strong>no contests created</strong><span>launch your first live rivalry to track it here.</span></div>}</div></div>}
+    {activeTab === "created" && <div className="portfolioTableWrap"><div className="portfolioSimpleTable"><div className="portfolioSimpleHead"><span>contest</span><span>status</span><span>liquidity</span><span>trades</span><span>creator earned</span></div>{data.created.length ? data.created.map((contest) => <div className="portfolioSimpleRow" key={contest.contestId}><Link href={`/contest/${contest.contestId}`}><strong>{contest.title}</strong></Link><span>{contest.status}</span><span>{formatUsdcUnits(contest.liquidityUnits)} usdc</span><span>{contest.tradeCount}</span><strong data-tone="positive">${formatUsdcUnits(contest.creatorEarnedUnits)}</strong></div>) : <div className="terminalEmpty"><strong>no contests created</strong><span>launch your first live rivalry to track it here.</span></div>}</div></div>}
 
-    {activeTab === "activity" && <div className="portfolioTableWrap"><div className="portfolioSimpleTable"><div className="portfolioSimpleHead"><span>time</span><span>action</span><span>market</span><span>amount</span><span>transaction</span></div>{data.activity.length ? data.activity.map((event) => <div className="portfolioSimpleRow" key={`${event.transactionHash}-${event.blockTimestamp}`}><span>{eventTime(event.blockTimestamp)} utc</span><strong>{event.kind.toLowerCase()} side {event.side === 0 ? "a" : "b"}</strong><Link href={`/contest/${event.contestId}`}>{event.marketTitle}</Link><span>{usdcUnits(event.grossUnits)} usdc</span><a className="explorerLink" href={`${robinhoodTestnet.blockExplorers.default.url}/tx/${event.transactionHash}`} rel="noreferrer" target="_blank">view ↗</a></div>) : <div className="terminalEmpty"><strong>no indexed activity</strong><span>confirmed testnet trades will appear here.</span></div>}</div></div>}
+    {activeTab === "activity" && <div className="portfolioTableWrap"><div className="portfolioSimpleTable"><div className="portfolioSimpleHead"><span>time</span><span>action</span><span>market</span><span>amount</span><span>transaction</span></div>{data.activity.length ? data.activity.map((event) => <div className="portfolioSimpleRow" key={`${event.transactionHash}-${event.blockTimestamp}`}><span>{eventTime(event.blockTimestamp)} utc</span><strong>{event.kind.toLowerCase()} side {event.side === 0 ? "a" : "b"}</strong><Link href={`/contest/${event.contestId}`}>{event.marketTitle}</Link><span>{formatUsdcUnits(event.grossUnits)} usdc</span><a className="explorerLink" href={`${robinhoodTestnet.blockExplorers.default.url}/tx/${event.transactionHash}`} rel="noreferrer" target="_blank">view ↗</a></div>) : <div className="terminalEmpty"><strong>no indexed activity</strong><span>confirmed testnet trades will appear here.</span></div>}</div></div>}
   </>;
 }

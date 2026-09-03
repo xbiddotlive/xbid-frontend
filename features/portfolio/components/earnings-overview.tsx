@@ -1,17 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { formatUnits } from "viem";
 import { useAccount } from "wagmi";
 
 import { WalletButton } from "@/features/wallet/components/wallet-button";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
+import { formatUsdcUnits } from "@/lib/formatters/usdc";
 import { useWalletPortfolio } from "@/lib/queries/portfolio";
 import { EarningsClaimPanel } from "./earnings-claim-panel";
-
-function units(value: string) {
-  return Number(formatUnits(BigInt(value), 6)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
-}
 
 export function EarningsOverview() {
   const { address, isConnected } = useAccount();
@@ -24,9 +20,9 @@ export function EarningsOverview() {
   const { summary } = portfolio.data;
   return <section className="earningsPanel">
     <div className="earningsBreakdown">
-      <div><span>creator earnings · lifetime</span><strong>{units(summary.creatorEarnedUnits)} usdc</strong></div>
-      <div><span>referral rewards · lifetime</span><strong>{units(summary.referralEarnedUnits)} usdc</strong></div>
-      <div><span>claimable now</span><strong data-tone="crown">{units(summary.claimableUnits)} usdc</strong></div>
+      <div><span>creator earnings · lifetime</span><strong>{formatUsdcUnits(summary.creatorEarnedUnits)} usdc</strong></div>
+      <div><span>referral rewards · lifetime</span><strong>{formatUsdcUnits(summary.referralEarnedUnits)} usdc</strong></div>
+      <div><span>claimable now</span><strong data-tone="crown">{formatUsdcUnits(summary.claimableUnits)} usdc</strong></div>
     </div>
     <p>lifetime sources are indexed from fee vault events. the claimable balance is read directly from the live testnet contract.</p>
     <EarningsClaimPanel onConfirmed={() => void portfolio.refetch()} />

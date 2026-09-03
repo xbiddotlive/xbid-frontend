@@ -2,18 +2,12 @@
 
 import { useChainModal, useConnectModal } from "@rainbow-me/rainbowkit";
 import { useState } from "react";
-import { formatUnits, zeroAddress, type Hash } from "viem";
+import { zeroAddress, type Hash } from "viem";
 import { useAccount, usePublicClient, useReadContract, useWriteContract } from "wagmi";
 
 import { networkLabel, robinhoodTestnet } from "@/lib/blockchain/chain";
 import { contracts, feeVaultAbi } from "@/lib/blockchain/contracts";
-
-function displayUsdc(value: bigint) {
-  const [whole, fraction = ""] = formatUnits(value, 6).split(".");
-  const trimmed = fraction.replace(/0+$/, "").slice(0, 4);
-  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return `${grouped}${trimmed ? `.${trimmed}` : ""}`;
-}
+import { formatUsdcUnits } from "@/lib/formatters/usdc";
 
 function claimError(error: unknown) {
   if (!(error instanceof Error)) return "claim failed. please try again.";
@@ -50,7 +44,7 @@ export function EarningsClaimPanel({ onConfirmed }: { onConfirmed?: () => void }
     query: { refetchInterval: 8_000 },
   });
 
-  const amount = displayUsdc(claimable);
+  const amount = formatUsdcUnits(claimable);
   let actionLabel = `claim ${amount} usdc`;
   let disabled = isPending || isFetching || claimPaused || claimable === 0n;
   if (!isConnected) {

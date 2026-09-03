@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { formatUnits, isAddress, type Address } from "viem";
+import { isAddress, type Address } from "viem";
 
 import { ProfileIcon } from "@/components/ui/icons";
 import { getWalletPortfolio } from "@/lib/api/portfolio";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
+import { formatUsdcUnits } from "@/lib/formatters/usdc";
 
 export const dynamic = "force-dynamic";
 
 function usdc(value: string) {
-  return `$${Number(formatUnits(BigInt(value), 6)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return `$${formatUsdcUnits(value)}`;
 }
 
 export default async function ProfilePage({ params }: { params: Promise<{ address: string }> }) {
