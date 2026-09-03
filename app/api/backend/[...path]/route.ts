@@ -25,7 +25,13 @@ async function proxy(request: NextRequest, context: RouteContext<"/api/backend/[
   const responseHeaders = new Headers();
   const responseType = response.headers.get("content-type");
   if (responseType) responseHeaders.set("content-type", responseType);
-  responseHeaders.set("cache-control", "no-store");
+  const immutableAsset = request.method === "GET"
+    && path[1] === "assets"
+    && /^0x[0-9a-fA-F]{64}$/.test(path[2] ?? "");
+  responseHeaders.set(
+    "cache-control",
+    immutableAsset ? "public, max-age=31536000, immutable" : "no-store",
+  );
   return new Response(response.body, { status: response.status, headers: responseHeaders });
 }
 

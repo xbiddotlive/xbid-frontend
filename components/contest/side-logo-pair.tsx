@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useState } from "react";
 
+import { displayAssetUrl } from "@/lib/api/assets";
+
 export type SideLogoData = {
   imageUrl?: string;
   name: string;
@@ -13,13 +15,14 @@ function initialFor(name: string) {
 }
 
 export function SideLogo({ imageUrl, name, tone }: SideLogoData & { tone: "a" | "b" }) {
+  const resolvedImageUrl = displayAssetUrl(imageUrl);
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
-  const showImage = Boolean(imageUrl && failedUrl !== imageUrl);
+  const showImage = Boolean(resolvedImageUrl && failedUrl !== resolvedImageUrl);
 
   return (
     <span className="sideLogo" data-tone={tone}>
-      {imageUrl && showImage
-        ? <Image alt="" height={64} onError={() => setFailedUrl(imageUrl)} src={imageUrl} unoptimized width={64} />
+      {resolvedImageUrl && showImage
+        ? <Image alt="" height={64} onError={() => setFailedUrl(resolvedImageUrl)} src={resolvedImageUrl} unoptimized width={64} />
         : <b aria-hidden="true">{initialFor(name)}</b>}
     </span>
   );
