@@ -10,7 +10,7 @@ import { PlusIcon } from "@/components/ui/icons";
 import type { IndexedContest } from "@/lib/api/contests";
 import { referenceContest } from "@/lib/blockchain/contracts";
 import { contestCategories } from "@/lib/product/contest-categories";
-import { robinhoodTestnet } from "@/lib/blockchain/chain";
+import { networkLabel, robinhoodTestnet, settlementTokenLabel } from "@/lib/blockchain/chain";
 import { useLaunchContest } from "../hooks/use-launch-contest";
 
 const logoTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -155,7 +155,7 @@ export function LaunchBuilder() {
           <label className="field"><span>category <em aria-label="required" className="fieldRequirement" data-kind="required">※</em></span><select name="category" onChange={(event) => setCategory(event.target.value)} required value={category}>{contestCategories.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
           <label className="field"><span>reference link <em className="fieldRequirement">optional</em></span><input maxLength={500} name="reference" onChange={(event) => setReferenceUrl(event.target.value)} placeholder="https://…" type="url" value={referenceUrl} /></label>
           <label className="field fieldWide"><span>initial position <em className="fieldRequirement">optional</em></span><div className="initialPosition"><select aria-label="initial side" onChange={(event) => setInitialSide(event.target.value as "none" | "a" | "b")} value={initialSide}><option value="none">no initial position</option><option value="a">side a</option><option value="b">side b</option></select><input disabled={initialSide === "none"} inputMode="decimal" min="0.01" name="initialAmount" onChange={(event) => setInitialAmount(event.target.value)} placeholder="0 usdc" required={initialSide !== "none"} type="number" value={initialAmount} /></div></label>
-          <div className="launchSummary"><div><span>network</span><strong>robinhood testnet</strong></div><div><span>wallet balance</span><strong>{launchContest.isConnected ? `${walletBalance} test usdc` : "connect to read"}</strong></div><div><span>market curve</span><strong>b = 270k</strong></div></div>
+          <div className="launchSummary"><div><span>network</span><strong>{networkLabel}</strong></div><div><span>wallet balance</span><strong>{launchContest.isConnected ? `${walletBalance} ${settlementTokenLabel}` : "connect to read"}</strong></div><div><span>market curve</span><strong>b = 270k</strong></div></div>
           <button className="button launchSubmit" disabled={launchContest.isBusy} type="submit">{launchContest.isBusy ? "launching…" : launchContest.isConnected && launchContest.chainId !== robinhoodTestnet.id ? "switch network & launch" : launchContest.isConnected ? "launch contest" : "connect wallet to launch"}</button>
           <p aria-live="polite" className="formFootnote">{launchContest.status}</p>
           {launchContest.transactionHash ? <a className="explorerLink" href={`${robinhoodTestnet.blockExplorers.default.url}/tx/${launchContest.transactionHash}`} rel="noreferrer" target="_blank">view latest transaction ↗</a> : null}

@@ -8,7 +8,7 @@ import { useAccount, useConnect, usePublicClient, useReadContract, useSwitchChai
 
 import { CloseIcon, InfoIcon } from "@/components/ui/icons";
 import type { IndexedContest } from "@/lib/api/contests";
-import { robinhoodTestnet } from "@/lib/blockchain/chain";
+import { networkLabel, robinhoodTestnet, settlementTokenLabel } from "@/lib/blockchain/chain";
 import { contracts, erc20Abi, marketVaultAbi } from "@/lib/blockchain/contracts";
 import { normalizeSlippageBps, SlippageControl } from "./slippage-control";
 
@@ -136,7 +136,7 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
       address: activeToken, abi: erc20Abi, functionName: "approve",
       args: [marketVault, input], chainId: robinhoodTestnet.id,
     });
-    await submitAndWait(hash, `approve ${amount || "0"} ${mode === "buy" ? "test usdc" : `side ${side === 0 ? "a" : "b"}`}`);
+    await submitAndWait(hash, `approve ${amount || "0"} ${mode === "buy" ? settlementTokenLabel : `side ${side === 0 ? "a" : "b"}`}`);
     await refetchAllowance();
   }
 
@@ -156,7 +156,7 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
           address: contracts.settlementToken, abi: erc20Abi, functionName: "mint",
           args: [address, parseUnits("10000", 6)], chainId: robinhoodTestnet.id,
         });
-        await submitAndWait(hash, "test usdc mint");
+        await submitAndWait(hash, `${settlementTokenLabel} mint`);
         await refetchBalance();
         return;
       }
@@ -191,8 +191,9 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
   const formattedOutput = Number(formatUnits(output, outputDecimals)).toLocaleString(undefined, { maximumFractionDigits: 4 });
   let actionLabel = mode === "buy" ? `buy ${formattedOutput} ${effectiveSymbol}` : mode === "sell" ? `sell for ${formattedOutput} ${effectiveSymbol}` : `flip into ${formattedOutput} ${effectiveSymbol}`;
   if (!isConnected) actionLabel = "connect wallet";
-  else if (chainId !== robinhoodTestnet.id) actionLabel = "switch to robinhood testnet";
-  else if (mode === "buy" && balance < input) actionLabel = "mint 10,000 test usdc";
+  else if (chainId !== robinhoodTestnet.id) actionLabel = `switch to ${networkLabel}`;
+  else if (mode === "buy" && balance < input && robinhoodTestnet.testnet) actionLabel = `mint 10,000 ${settlementTokenLabel}`;
+  else if (mode === "buy" && balance < input) actionLabel = `insufficient ${settlementTokenLabel} balance`;
   else if (mode !== "buy" && balance < input) actionLabel = "insufficient token balance";
   else if (allowance < input) actionLabel = mode === "buy" ? `approve & buy ${formattedOutput} ${effectiveSymbol}` : `approve & ${mode} ${sourceSymbol}`;
   const isDirectTrade = isConnected && chainId === robinhoodTestnet.id && balance >= input && allowance >= input;
@@ -234,7 +235,7 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
           <div><span>deadline</span><span>10 minutes</span></div>
           {mode === "buy" && referrer !== zeroAddress && <div><span>referrer</span><span>{referrer.slice(0, 6)}…{referrer.slice(-4)}</span></div>}
           {mode === "flip" && <p>one atomic transaction · source is burned only if destination output succeeds</p>}
-          <small>real testnet transaction · minimum received is protected onchain</small>
+          <small>real onchain transaction · minimum received is protected</small>
         </div>}
         {(status !== defaultStatus || lastHash) && <p className="ticketStatus" aria-live="polite">{status}</p>}
         {lastHash ? <a className="explorerLink" href={`${robinhoodTestnet.blockExplorers.default.url}/tx/${lastHash}`} rel="noreferrer" target="_blank">view transaction ↗</a> : null}
@@ -257,7 +258,7 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
         <button className={side === 0 ? "tradeAction actionA" : "tradeAction actionB"} disabled={isActing || input <= 0n || (mode !== "buy" && balance < input)} onClick={() => void act()} type="button">{isActing ? actingLabel : actionLabel}</button>
         <p className="ticketStatus" aria-live="polite">{status}</p>
         {lastHash ? <a className="explorerLink" href={`${robinhoodTestnet.blockExplorers.default.url}/tx/${lastHash}`} rel="noreferrer" target="_blank">view transaction ↗</a> : null}
-        <div className="ticketFootnote">real testnet transaction · minimum received is protected onchain</div>
+        <div className="ticketFootnote">real onchain transaction · minimum received is protected</div>
       </>}
     </div>
   );

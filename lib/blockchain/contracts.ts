@@ -1,11 +1,11 @@
 import type { Address, Hex } from "viem";
 
 export const contracts = {
-  factory: "0x8f9208FD358c62FB4052e4C2FBbCA3152A17E4b6",
-  registry: "0x0B68fD82965Fd853907CA4E2f7E6E6d478Aaef8b",
-  riskController: "0xfeebdbB42de39B95f8dE5FcdBDd11e986443c278",
-  feeVault: "0x82D9159cB488175cAcdcD145A7285d80563e69d0",
-  settlementToken: "0xAc80194dc1aE8eF52df73e7e1864fB3C62290fe0",
+  factory: (process.env.NEXT_PUBLIC_XBID_FACTORY_ADDRESS ?? "0x8f9208FD358c62FB4052e4C2FBbCA3152A17E4b6") as Address,
+  registry: (process.env.NEXT_PUBLIC_XBID_REGISTRY_ADDRESS ?? "0x0B68fD82965Fd853907CA4E2f7E6E6d478Aaef8b") as Address,
+  riskController: (process.env.NEXT_PUBLIC_XBID_RISK_CONTROLLER_ADDRESS ?? "0xfeebdbB42de39B95f8dE5FcdBDd11e986443c278") as Address,
+  feeVault: (process.env.NEXT_PUBLIC_XBID_FEE_VAULT_ADDRESS ?? "0x82D9159cB488175cAcdcD145A7285d80563e69d0") as Address,
+  settlementToken: (process.env.NEXT_PUBLIC_XBID_SETTLEMENT_TOKEN_ADDRESS ?? "0xAc80194dc1aE8eF52df73e7e1864fB3C62290fe0") as Address,
 } as const satisfies Record<string, Address>;
 
 export const contestCreationFeeUnits = 5_000_000n;
@@ -71,9 +71,9 @@ export const referenceContest = {
   category: "live testnet contest",
   sideA: { name: "side a", symbol: "xbida" },
   sideB: { name: "side b", symbol: "xbidb" },
-  marketVault: "0xB48B4B842c0fCbc18Fd616d3F89DE87562A8c494",
-  sideAToken: "0xFdFf0F040681b38A7275F8398338956296a8055C",
-  sideBToken: "0x5530BA151C61FCB21Ba55D3f116B60cb402FCd14",
+  marketVault: (process.env.NEXT_PUBLIC_REFERENCE_MARKET_VAULT_ADDRESS ?? "0xB48B4B842c0fCbc18Fd616d3F89DE87562A8c494") as Address,
+  sideAToken: (process.env.NEXT_PUBLIC_REFERENCE_SIDE_A_TOKEN_ADDRESS ?? "0xFdFf0F040681b38A7275F8398338956296a8055C") as Address,
+  sideBToken: (process.env.NEXT_PUBLIC_REFERENCE_SIDE_B_TOKEN_ADDRESS ?? "0x5530BA151C61FCB21Ba55D3f116B60cb402FCd14") as Address,
   marketVersion: 1,
 } as const satisfies {
   contestId: Hex;

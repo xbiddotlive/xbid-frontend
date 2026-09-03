@@ -144,7 +144,7 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
               <p className="eyebrow"><span className="livePulse" />arena 01 · {contest.metadata.category}</p>
               <h1>{contest.metadata.title}</h1>
               <a
-                aria-label={`View MarketVault ${contest.marketVault} on Robinhood Testnet Explorer`}
+                aria-label={`View MarketVault ${contest.marketVault} on ${robinhoodTestnet.blockExplorers.default.name}`}
                 className="contestAddressLink mono"
                 href={`${robinhoodTestnet.blockExplorers.default.url}/address/${contest.marketVault}`}
                 rel="noreferrer"

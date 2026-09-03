@@ -5,7 +5,7 @@ import { useState } from "react";
 import { formatUnits, zeroAddress, type Hash } from "viem";
 import { useAccount, usePublicClient, useReadContract, useWriteContract } from "wagmi";
 
-import { robinhoodTestnet } from "@/lib/blockchain/chain";
+import { networkLabel, robinhoodTestnet } from "@/lib/blockchain/chain";
 import { contracts, feeVaultAbi } from "@/lib/blockchain/contracts";
 
 function displayUsdc(value: bigint) {
@@ -102,7 +102,7 @@ export function EarningsClaimPanel({ onConfirmed }: { onConfirmed?: () => void }
     <div className="earningsClaim">
       <div className="earningsClaimValue">
         <div><span>live fee vault claimable</span><strong>{isConnected ? amount : "—"} usdc</strong></div>
-        <small>robinhood testnet</small>
+        <small>{networkLabel}</small>
       </div>
       <div className="earningsClaimActions">
         <button className="button buttonPrimary" disabled={disabled} onClick={claim} type="button">{actionLabel}</button>

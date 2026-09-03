@@ -80,7 +80,7 @@ export function ContestTerminal({ contest, history }: { contest: IndexedContest;
                 </div>
                 <div className="battleCapital"><strong>{amountMoved(move)}</strong><span>{amountVerb(move)}</span></div>
                 <div className="battleImpact" data-impact={impact.isLeadMove ? "lead" : "control"}><strong>{impact.headline}</strong><span>{impact.detail}</span></div>
-                <a aria-label={`view ${compactAddress(move.transactionHash)} on explorer`} className="battleTx" href={`https://explorer.testnet.chain.robinhood.com/tx/${move.transactionHash}`} rel="noreferrer" target="_blank">↗</a>
+                <a aria-label={`view ${compactAddress(move.transactionHash)} on explorer`} className="battleTx" href={`${robinhoodTestnet.blockExplorers.default.url}/tx/${move.transactionHash}`} rel="noreferrer" target="_blank">↗</a>
               </div>;
             }) : <div className="terminalEmpty"><strong>no trades in the last 24 hours</strong><span>new indexed transactions will appear here automatically.</span></div>}
           </div>

@@ -24,7 +24,7 @@ export const wagmiConfig = walletConnectEnabled
       ssr: true,
       storage,
       transports: {
-        [robinhoodTestnet.id]: http(process.env.NEXT_PUBLIC_ROBINHOOD_TESTNET_RPC_URL),
+        [robinhoodTestnet.id]: http(robinhoodTestnet.rpcUrls.default.http[0]),
       },
     })
   : createConfig({
@@ -33,8 +33,6 @@ export const wagmiConfig = walletConnectEnabled
       ssr: true,
       storage,
       transports: {
-        [robinhoodTestnet.id]: http(
-          process.env.NEXT_PUBLIC_ROBINHOOD_TESTNET_RPC_URL,
-        ),
+        [robinhoodTestnet.id]: http(robinhoodTestnet.rpcUrls.default.http[0]),
       },
     });
