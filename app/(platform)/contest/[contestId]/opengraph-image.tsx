@@ -47,7 +47,7 @@ export default async function ContestOpenGraphImage({ params }: { params: Promis
         <span style={{ fontSize: 42, fontWeight: 850, letterSpacing: -1.5, lineHeight: 1.08, marginTop: 8 }}>{contest.metadata.title.slice(0, 100)}</span>
       </div>
 
-      <div style={{ display: "flex", gap: 16, marginTop: 22, position: "relative", width: "100%" }}>
+      <div style={{ display: "flex", gap: 12, marginTop: 22, position: "relative", width: "100%" }}>
         <div style={{ background: "linear-gradient(135deg, #173f86, #101a31 72%)", border: "3px solid #3478f6", borderRadius: 16, boxShadow: "0 0 30px rgba(52,120,246,.3)", display: "flex", flex: 1, flexDirection: "column", overflow: "hidden" }}>
           <div style={{ display: "flex", flexDirection: "column", padding: "18px 22px 14px" }}>
             <div style={{ alignItems: "center", display: "flex" }}>
@@ -61,7 +61,11 @@ export default async function ContestOpenGraphImage({ params }: { params: Promis
           <div style={{ alignItems: "center", background: "#3478f6", color: "#071020", display: "flex", fontSize: 20, fontWeight: 900, justifyContent: "center", letterSpacing: 1, padding: "12px 18px", textTransform: "uppercase" }}>back {contest.metadata.sideA.symbol} →</div>
         </div>
 
-        <div style={{ alignItems: "center", background: "#080b12", border: "2px solid #343a48", borderRadius: 999, display: "flex", fontSize: 16, fontWeight: 900, height: 46, justifyContent: "center", left: 528, position: "absolute", textTransform: "uppercase", top: 82, width: 46 }}>vs</div>
+        <div style={{ alignItems: "center", alignSelf: "stretch", display: "flex", flexDirection: "column", flexShrink: 0, justifyContent: "center", width: 46 }}>
+          <span style={{ background: "linear-gradient(180deg, rgba(52,120,246,0), #3478f6)", display: "flex", flex: 1, width: 2 }} />
+          <span style={{ alignItems: "center", background: "#0b0e16", border: "2px solid #4a5161", borderRadius: 999, boxShadow: "0 0 18px rgba(0,0,0,.65)", color: "#f7f9ff", display: "flex", flexShrink: 0, fontSize: 15, fontWeight: 900, height: 46, justifyContent: "center", margin: "8px 0", textTransform: "uppercase", width: 46 }}>vs</span>
+          <span style={{ background: "linear-gradient(180deg, #ff603d, rgba(255,96,61,0))", display: "flex", flex: 1, width: 2 }} />
+        </div>
 
         <div style={{ background: "linear-gradient(225deg, #7a281e, #2d1519 72%)", border: "3px solid #ff603d", borderRadius: 16, boxShadow: "0 0 30px rgba(255,96,61,.28)", display: "flex", flex: 1, flexDirection: "column", overflow: "hidden" }}>
           <div style={{ display: "flex", flexDirection: "column", padding: "18px 22px 14px" }}>
