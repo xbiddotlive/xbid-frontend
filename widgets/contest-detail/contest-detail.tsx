@@ -21,6 +21,8 @@ import { formatChange, marketPrices } from "@/lib/product/market-metrics";
 import { contestKeys, useContestDetail, useContestTrades } from "@/lib/queries/contest";
 import { siteUrl } from "@/lib/seo/site";
 
+const shareCardVersion = "2";
+
 function compactUsdc(value: bigint) {
   return new Intl.NumberFormat("en", { maximumFractionDigits: 2, notation: "compact" })
     .format(Number(formatUnits(value, 6)));
@@ -119,7 +121,8 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
   const sideBTrades24h = marketStats?.sideBTradeCount24h;
   const sideANetFlow24h = marketStats?.sideANetFlow24hUnits;
   const sideBNetFlow24h = marketStats?.sideBNetFlow24hUnits;
-  const contestUrl = `${siteUrl}/contest/${contest.contestId}`;
+  const shareRevision = marketStats?.updatedBlock ?? contest.createdBlock;
+  const contestUrl = `${siteUrl}/contest/${contest.contestId}?share=${shareCardVersion}-${shareRevision}`;
   const shareText = `${contest.metadata.title}\n\n${contest.metadata.sideA.name} vs ${contest.metadata.sideB.name} — back your side and move the live market.\n\n@xbid_live`;
   const xShareUrl = `https://x.com/intent/post?${new URLSearchParams({ text: shareText, url: contestUrl }).toString()}`;
 
