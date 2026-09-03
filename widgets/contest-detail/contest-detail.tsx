@@ -16,6 +16,7 @@ import type { TradeMode } from "@/features/trading/components/trade-ticket";
 import type { IndexedContest, IndexedTradePoint } from "@/lib/api/contests";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
 import { contracts, marketVaultAbi, riskControllerAbi } from "@/lib/blockchain/contracts";
+import { formatChange, marketPrices } from "@/lib/product/market-metrics";
 import { contestKeys, useContestDetail, useContestTrades } from "@/lib/queries/contest";
 import { siteUrl } from "@/lib/seo/site";
 
@@ -40,18 +41,6 @@ function countLabel(value: string | undefined, singular: string, plural = `${sin
   return `${value} ${value === "1" ? singular : plural}`;
 }
 
-function marketPrices(qAWei: bigint, qBWei: bigint) {
-  const x = Number(formatUnits(qAWei, 18)) / 270_000;
-  const y = Number(formatUnits(qBWei, 18)) / 270_000;
-  const neutral = Math.log(98);
-  const maximum = Math.max(x, y, neutral);
-  const a = Math.exp(x - maximum);
-  const b = Math.exp(y - maximum);
-  const n = Math.exp(neutral - maximum);
-  const totalWeight = a + b + n;
-  return [a / totalWeight, b / totalWeight] as const;
-}
-
 function percentChange(current: number, previous: number) {
   return previous === 0 ? null : ((current / previous) - 1) * 100;
 }
@@ -60,14 +49,8 @@ function formatPrice(value: number) {
   return `$${value.toFixed(3)}`;
 }
 
-function formatChange(value: number | null) {
-  if (value === null) return "—";
-  const normalized = Math.abs(value) < 0.05 ? 0 : value;
-  return `${normalized >= 0 ? "+" : ""}${normalized.toFixed(2)}%`;
-}
-
 function changeTone(value: number | null) {
-  if (value === null || Math.abs(value) < 0.05) return "muted";
+  if (value === null || Number(value.toFixed(2)) === 0) return "muted";
   return value > 0 ? "positive" : "negative";
 }
 
@@ -109,7 +92,7 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
   const sideALabel = contest.metadata.sideA.name === "side a" ? contest.metadata.sideA.symbol : contest.metadata.sideA.name;
   const sideBLabel = contest.metadata.sideB.name === "side b" ? contest.metadata.sideB.symbol : contest.metadata.sideB.name;
   const history = tradesQuery.data;
-  const [priceA, priceB] = marketPrices(qA, qB);
+  const [priceA, priceB] = marketPrices(qA.toString(), qB.toString());
   const dayAgo = nowSeconds === null ? null : nowSeconds - 24 * 60 * 60;
   const anchorPoint = dayAgo === null ? undefined : history.filter((point) => Number(point.blockTimestamp) <= dayAgo).at(-1);
   const createdAt = contest.createdAt ? Date.parse(contest.createdAt) / 1_000 : Number.NaN;
@@ -125,7 +108,7 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
     : dayAgo !== null && ((Number.isFinite(createdAt) && createdAt > dayAgo) || completeHistory)
       ? [0n, 0n] as const
       : null);
-  const anchorPrices = anchorQuantities ? marketPrices(...anchorQuantities) : null;
+  const anchorPrices = anchorQuantities ? marketPrices(anchorQuantities[0].toString(), anchorQuantities[1].toString()) : null;
   const priceChangeA = !displayLoading && anchorPrices ? percentChange(priceA, anchorPrices[0]) : null;
   const priceChangeB = !displayLoading && anchorPrices ? percentChange(priceB, anchorPrices[1]) : null;
   const volume24h = marketStats?.volume24hUnits;
@@ -169,14 +152,14 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
               <div className="arenaSide arenaSideA">
                 <div className="arenaSideSummary">
                   <span>side a · {sideALabel}</span><strong>{Number(aShare.toFixed(1))}%</strong>
-                  <small className="arenaSideQuote"><span>{contest.metadata.sideA.symbol}</span><b>{displayLoading ? "—" : formatPrice(priceA)}</b><em aria-label="24 hour price change" className={changeTone(priceChangeA)}>{formatChange(priceChangeA)} · 24h</em></small>
+                  <small className="arenaSideQuote"><span>{contest.metadata.sideA.symbol}</span><b>{displayLoading ? "—" : formatPrice(priceA)}</b><em aria-label="24 hour price change" className={changeTone(priceChangeA)}>{priceChangeA === null ? "—" : formatChange(priceChangeA)} · 24h</em></small>
                 </div>
               </div>
               <div className="arenaVersus"><span><i />live</span><small>current control</small></div>
               <div className="arenaSide arenaSideB">
                 <div className="arenaSideSummary">
                   <span>side b · {sideBLabel}</span><strong>{Number(bShare.toFixed(1))}%</strong>
-                  <small className="arenaSideQuote"><span>{contest.metadata.sideB.symbol}</span><b>{displayLoading ? "—" : formatPrice(priceB)}</b><em aria-label="24 hour price change" className={changeTone(priceChangeB)}>{formatChange(priceChangeB)} · 24h</em></small>
+                  <small className="arenaSideQuote"><span>{contest.metadata.sideB.symbol}</span><b>{displayLoading ? "—" : formatPrice(priceB)}</b><em aria-label="24 hour price change" className={changeTone(priceChangeB)}>{priceChangeB === null ? "—" : formatChange(priceChangeB)} · 24h</em></small>
                 </div>
               </div>
             </div>
