@@ -125,7 +125,7 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
   const shareVersion = `${shareCardVersion}-${shareRevision}`;
   const contestUrl = `${siteUrl}/contest/${contest.contestId}?share=${shareVersion}`;
   const shareImageUrl = `${siteUrl}/share/contest/${contest.contestId}/${shareVersion}/card.jpg`;
-  const shareText = `${contest.metadata.title}\n\n${contest.metadata.sideA.name} vs ${contest.metadata.sideB.name} — back your side and move the live market.\n\n@xbid_live`;
+  const shareText = `${contest.metadata.title}\n\n${contest.metadata.sideA.name} vs ${contest.metadata.sideB.name} — back your side. move the market. profit when your side takes the lead.\n\n@xbid_live`;
   const xShareUrl = `https://x.com/intent/post?${new URLSearchParams({ text: shareText, url: contestUrl }).toString()}`;
 
   function warmShareImage() {

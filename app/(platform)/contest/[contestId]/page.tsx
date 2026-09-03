@@ -24,7 +24,7 @@ export async function generateMetadata({
   try {
     const contest = await getPageContest(contestId);
     const title = contest.metadata.title;
-    const description = `${contest.metadata.sideA.name} vs ${contest.metadata.sideB.name} — back a side and move the live onchain market.`;
+    const description = `${contest.metadata.sideA.name} vs ${contest.metadata.sideB.name} — back your side. move the market. profit when your side takes the lead.`;
     const path = `/contest/${contestId}`;
     const shareRevision = contest.market?.updatedBlock ?? contest.createdBlock;
     const shareVersion = /^[234567]-[0-9]+$/.test(query.share ?? "") ? query.share! : `7-${shareRevision}`;
