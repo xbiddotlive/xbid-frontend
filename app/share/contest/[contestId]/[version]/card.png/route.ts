@@ -1,7 +1,7 @@
 import { contestCardResponse } from "@/lib/share/contest-card-image";
 
 const contestIdPattern = /^0x[0-9a-fA-F]{64}$/;
-const versionPattern = /^2-[0-9]+$/;
+const versionPattern = /^[23]-[0-9]+$/;
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
