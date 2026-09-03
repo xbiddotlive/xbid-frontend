@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { formatUnits, type Address } from "viem";
 import { useReadContracts } from "wagmi";
 
@@ -21,7 +21,7 @@ import { formatChange, marketPrices } from "@/lib/product/market-metrics";
 import { contestKeys, useContestDetail, useContestTrades } from "@/lib/queries/contest";
 import { siteUrl } from "@/lib/seo/site";
 
-const shareCardVersion = "3";
+const shareCardVersion = "4";
 
 function compactUsdc(value: bigint) {
   return new Intl.NumberFormat("en", { maximumFractionDigits: 2, notation: "compact" })
@@ -124,12 +124,34 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
   const shareRevision = marketStats?.updatedBlock ?? contest.createdBlock;
   const shareVersion = `${shareCardVersion}-${shareRevision}`;
   const contestUrl = `${siteUrl}/contest/${contest.contestId}?share=${shareVersion}`;
-  const shareImageUrl = `${siteUrl}/share/contest/${contest.contestId}/${shareVersion}/card.png`;
+  const shareImageUrl = `${siteUrl}/share/contest/${contest.contestId}/${shareVersion}/card.jpg`;
   const shareText = `${contest.metadata.title}\n\n${contest.metadata.sideA.name} vs ${contest.metadata.sideB.name} — back your side and move the live market.\n\n@xbid_live`;
   const xShareUrl = `https://x.com/intent/post?${new URLSearchParams({ text: shareText, url: contestUrl }).toString()}`;
 
   function warmShareImage() {
     void fetch(shareImageUrl, { cache: "force-cache" }).catch(() => undefined);
+  }
+
+  async function openXShare(event: MouseEvent<HTMLAnchorElement>) {
+    event.preventDefault();
+    const shareWindow = window.open("about:blank", "_blank");
+    if (shareWindow) shareWindow.opener = null;
+
+    try {
+      const response = await fetch(shareImageUrl, {
+        cache: "reload",
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (!response.ok) throw new Error(`share card returned ${response.status}`);
+    } catch {
+      // Still allow sharing if the prewarm fails; X may succeed on its own retry.
+    }
+
+    if (shareWindow) {
+      shareWindow.location.href = xShareUrl;
+    } else {
+      window.open(xShareUrl, "_blank", "noopener,noreferrer");
+    }
   }
 
   return (
@@ -152,7 +174,7 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
               </a>
             </div>
             <div className="contestTitleActions">
-              <a aria-label="share this contest on x" className="contestShareButton" href={xShareUrl} onClick={warmShareImage} onFocus={warmShareImage} onPointerEnter={warmShareImage} onTouchStart={warmShareImage} rel="noreferrer" target="_blank"><XIcon /><span>share</span></a>
+              <a aria-label="share this contest on x" className="contestShareButton" href={xShareUrl} onClick={openXShare} onFocus={warmShareImage} onPointerEnter={warmShareImage} onTouchStart={warmShareImage} rel="noreferrer" target="_blank"><XIcon /><span>share</span></a>
               <span className={riskMode === 0 ? "statusOk" : "statusWarning"}>{riskMode === 0 ? "trading active" : `risk mode ${riskMode}`}</span>
             </div>
           </div>

@@ -4,6 +4,8 @@ import { getContest, type IndexedContest } from "@/lib/api/contests";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
 import { formatUsdc, marketPrices } from "@/lib/product/market-metrics";
 
+type ContestCardFormat = "jpeg" | "png";
+
 const cardCache = new Map<string, Promise<Buffer>>();
 const maximumCachedCards = 48;
 
@@ -115,22 +117,27 @@ function buildContestCardSvg(contest: IndexedContest) {
   </svg>`;
 }
 
-async function renderContestCard(contestId: string) {
+async function renderContestCard(contestId: string, format: ContestCardFormat) {
   const contest = await getContest(robinhoodTestnet.id, contestId, AbortSignal.timeout(8_000));
-  return sharp(Buffer.from(buildContestCardSvg(contest)))
-    .png({ adaptiveFiltering: true, compressionLevel: 6 })
-    .toBuffer();
+  const card = sharp(Buffer.from(buildContestCardSvg(contest))).flatten({ background: "#080b12" });
+  return format === "jpeg"
+    ? card.jpeg({ quality: 90, chromaSubsampling: "4:4:4", progressive: false }).toBuffer()
+    : card.png({ adaptiveFiltering: true, compressionLevel: 6 }).toBuffer();
 }
 
-export async function contestCardResponse(contestId: string, version: string) {
-  const cacheKey = `${contestId}:${version}`;
+export async function contestCardResponse(
+  contestId: string,
+  version: string,
+  format: ContestCardFormat = "png",
+) {
+  const cacheKey = `${contestId}:${version}:${format}`;
   let card = cardCache.get(cacheKey);
   if (!card) {
     if (cardCache.size >= maximumCachedCards) {
       const oldestKey = cardCache.keys().next().value;
       if (oldestKey) cardCache.delete(oldestKey);
     }
-    card = renderContestCard(contestId);
+    card = renderContestCard(contestId, format);
     cardCache.set(cacheKey, card);
     card.catch(() => cardCache.delete(cacheKey));
   }
@@ -138,9 +145,12 @@ export async function contestCardResponse(contestId: string, version: string) {
   const png = await card;
   return new Response(new Uint8Array(png), {
     headers: {
+      "Accept-Ranges": "bytes",
       "Cache-Control": "public, max-age=31536000, s-maxage=31536000, immutable, no-transform",
       "CDN-Cache-Control": "public, max-age=31536000, immutable",
-      "Content-Type": "image/png",
+      "Content-Length": String(png.byteLength),
+      "Content-Type": format === "jpeg" ? "image/jpeg" : "image/png",
+      "Cross-Origin-Resource-Policy": "cross-origin",
       "X-Content-Type-Options": "nosniff",
     },
   });
