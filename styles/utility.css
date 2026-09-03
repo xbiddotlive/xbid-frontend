@@ -51,6 +51,8 @@
 .launchSummary span, .launchSummary strong { display: block; }
 .launchSummary span { color: var(--muted); }
 .launchSubmit { grid-column: 1 / -1; min-height: 40px; }
+.launchSubmit:not(:disabled) { color: #090b10; background: var(--side-b); }
+.launchSubmit:hover:not(:disabled) { background: #ff7354; }
 .formFootnote { grid-column: 1 / -1; margin: -3px 0 0; color: var(--faint); text-align: center; }
 .launchPreview { position: sticky; top: calc(var(--header-height) + 12px); padding: 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
 .launchPreview .contestCard { pointer-events: none; }
