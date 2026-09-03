@@ -4,8 +4,8 @@
 .homeIntroLead, .homeIntroStatus, .homeIntroStatus > div { display: flex; align-items: center; }
 .homeIntroLead { min-width: 0; gap: 10px; }
 .homeIntroLead > div { min-width: 0; }
-.homeIntroIcon { display: grid; width: 34px; height: 34px; flex: 0 0 34px; place-items: center; border: 1px solid rgb(52 120 246 / 36%); border-radius: var(--radius); color: #8ab3ff; background: linear-gradient(145deg, rgb(52 120 246 / 13%), rgb(27 232 194 / 4%)); box-shadow: inset 0 1px rgb(255 255 255 / 4%); }
-.homeIntroIcon svg { width: 17px; height: 17px; }
+.homeIntroIcon { display: grid; width: 30px; height: 30px; flex: 0 0 30px; place-items: center; color: var(--crown); }
+.homeIntroIcon svg { width: 30px; height: 30px; }
 .homeIntro h1 { overflow: hidden; margin: 0; font-weight: 850; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
 .homeIntroStatus { flex: 0 0 auto; gap: 14px; color: var(--muted); }
 .homeIntroStatus > div { gap: 6px; }
@@ -20,22 +20,26 @@
 .homeSparkline { width: 42px; height: 24px; }
 .homeSparkline polyline { fill: none; stroke: #1be8c2; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1; vector-effect: non-scaling-stroke; }
 .featuredCarousel { position: relative; margin-top: 14px; touch-action: pan-y; }
+.featuredCarouselToolbar { display: flex; align-items: center; justify-content: space-between; min-height: 32px; margin-bottom: 6px; padding: 0 2px; }
+.featuredCarouselToolbar > strong { color: var(--muted); font-weight: 750; letter-spacing: .02em; }
 .featuredBattle { display: grid; grid-template-columns: minmax(0, 1fr) 396px; gap: 28px; min-height: 238px; margin-top: 14px; padding: 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
 .featuredCarousel .featuredBattle { margin-top: 0; }
 .featuredSlide { animation: featuredReveal 220ms ease-out; }
-.featuredCarouselControls { position: absolute; z-index: 3; top: 11px; right: 11px; display: flex; align-items: center; gap: 3px; padding: 2px; border: 1px solid var(--line); border-radius: var(--radius); background: rgb(9 11 16 / 92%); backdrop-filter: blur(10px); }
-.featuredCarouselControls > span { min-width: 46px; color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
+.featuredCarouselControls { display: flex; align-items: center; gap: 2px; }
+.featuredCarouselControls > span { min-width: 50px; margin-right: 2px; color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
 .featuredCarouselControls button { display: grid; width: 28px; height: 28px; padding: 0; place-items: center; border: 0; border-radius: 4px; color: var(--muted); background: transparent; cursor: pointer; }
 .featuredCarouselControls button:hover { color: var(--text); background: var(--panel-raised); }
 .featuredCarouselControls button:first-of-type svg { transform: rotate(180deg); }
 .featuredCarouselControls svg { width: 14px; height: 14px; }
 .featuredCopy { min-width: 0; }
-.featuredBadges { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; padding-right: 116px; }
+.featuredBadges { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
 .featuredBadges span, .featuredBadges i { padding: 2px 7px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--muted); background: #0b0e14; font-style: normal; font-weight: 450; }
 .featuredBadges span:first-child { border-color: rgb(255 96 61 / 55%); color: #ff9a83; }
 .featuredBadges span:nth-child(2) { border-color: rgb(52 120 246 / 55%); color: #8ab3ff; }
 .featuredBadges span:nth-child(3), .featuredBadges i { border-color: rgb(255 200 87 / 55%); color: var(--crown); }
 .featuredBattle h2 { margin: 0 0 3px; font-weight: 850; }
+.featuredTitleRow { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; gap: 8px; }
+.featuredTitleRow .sideLogoPair { align-self: center; }
 .featuredBattle p { margin-bottom: 12px; color: var(--muted); }
 .featuredSides, .homeCardSides { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .featuredSides a, .homeCardSides a { min-width: 0; padding: 0; border: 0; border-radius: var(--radius); background: transparent; cursor: pointer; }

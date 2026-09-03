@@ -98,7 +98,44 @@ export function MarketDiscovery({ contests, apiAvailable }: { contests: IndexedC
     </section>
     <section className="homeStats" aria-label="live protocol stats">{stats.map((stat, index) => <article key={stat.label}><div><span>{stat.label}</span><strong>{stat.value}</strong></div><div><Sparkline points={index % 2 ? "1,20 9,17 17,18 25,10 32,12 39,4" : "1,18 9,16 17,17 25,11 32,13 39,5"} /><b>{stat.change}</b></div></article>)}</section>
 
-    {featuredMarket ? <section aria-label="featured contests" aria-roledescription="carousel" className="featuredCarousel"><div className="featuredCarouselControls"><span>{String(featuredIndex + 1).padStart(2, "0")} / {String(featured.length).padStart(2, "0")}</span><button aria-label="previous featured contest" onClick={() => showFeatured(-1)} type="button"><ChevronIcon /></button><button aria-label="next featured contest" onClick={() => showFeatured(1)} type="button"><ChevronIcon /></button></div><article className="featuredBattle featuredSlide" key={featuredMarket.contest.contestId} onTouchEnd={(event) => { const end = event.changedTouches[0]?.clientX; if (featuredTouchStart.current !== null && end !== undefined && Math.abs(end - featuredTouchStart.current) > 44) showFeatured(end > featuredTouchStart.current ? -1 : 1); featuredTouchStart.current = null; }} onTouchStart={(event) => { featuredTouchStart.current = event.touches[0]?.clientX ?? null; }}><div className="featuredCopy" aria-live="polite"><div className="featuredBadges">{featuredMarket.badges.map((badge) => <span key={badge}>{badge}</span>)}</div><h2><Link href={featuredMarket.href}>{featuredMarket.contest.metadata.title}</Link></h2><p>{featuredMarket.contest.metadata.description || "a live two-sided market settled entirely onchain."}</p><div className="featuredSides"><Link href={`${featuredMarket.href}?trade=buy&side=a`}><MarketSide market={featuredMarket} side={0} /></Link><Link href={`${featuredMarket.href}?trade=buy&side=b`}><MarketSide market={featuredMarket} side={1} /></Link></div><BattleBar sideAPercent={featuredMarket.metrics.sideAPercent} /><CapitalStrip market={featuredMarket} /></div><aside className="marketSetup"><p className="eyebrow">live market</p><div><span>24h traders</span><strong>{featuredMarket.contest.market?.uniqueTraders24h ?? "0"}</strong></div><div><span>atomic flips</span><strong>{featuredMarket.contest.market?.atomicFlipCount24h ?? "0"}</strong></div><div className="setupActions"><Link href={`${featuredMarket.href}?trade=buy&side=a`}>back {featuredMarket.contest.metadata.sideA.name}</Link><Link href={`${featuredMarket.href}?trade=buy&side=b`}>back {featuredMarket.contest.metadata.sideB.name}</Link></div><span>live prices only. returns are never guaranteed.</span></aside></article></section> : <div className="emptyState"><strong>{apiAvailable ? "no live contests yet" : "market data is reconnecting"}</strong><span>{apiAvailable ? "launch the first testnet contest to start the market." : "the indexer did not return a valid response."}</span>{apiAvailable && <Link href="/launch">launch contest ↗</Link>}</div>}
+    {featuredMarket ? (
+      <section aria-label="featured contests" aria-roledescription="carousel" className="featuredCarousel">
+        <div className="featuredCarouselToolbar">
+          <strong>featured contest</strong>
+          <div className="featuredCarouselControls">
+            <span>{String(featuredIndex + 1).padStart(2, "0")} / {String(featured.length).padStart(2, "0")}</span>
+            <button aria-label="previous featured contest" onClick={() => showFeatured(-1)} type="button"><ChevronIcon /></button>
+            <button aria-label="next featured contest" onClick={() => showFeatured(1)} type="button"><ChevronIcon /></button>
+          </div>
+        </div>
+        <article className="featuredBattle featuredSlide" key={featuredMarket.contest.contestId} onTouchEnd={(event) => { const end = event.changedTouches[0]?.clientX; if (featuredTouchStart.current !== null && end !== undefined && Math.abs(end - featuredTouchStart.current) > 44) showFeatured(end > featuredTouchStart.current ? -1 : 1); featuredTouchStart.current = null; }} onTouchStart={(event) => { featuredTouchStart.current = event.touches[0]?.clientX ?? null; }}>
+          <div className="featuredCopy" aria-live="polite">
+            <div className="featuredBadges">{featuredMarket.badges.map((badge) => <span key={badge}>{badge}</span>)}</div>
+            <div className="featuredTitleRow">
+              <SideLogoPair sideA={{ imageUrl: featuredMarket.contest.metadata.sideA.logoUrl, name: featuredMarket.contest.metadata.sideA.name }} sideB={{ imageUrl: featuredMarket.contest.metadata.sideB.logoUrl, name: featuredMarket.contest.metadata.sideB.name }} />
+              <h2><Link href={featuredMarket.href}>{featuredMarket.contest.metadata.title}</Link></h2>
+            </div>
+            <p>{featuredMarket.contest.metadata.description || "a live two-sided market settled entirely onchain."}</p>
+            <div className="featuredSides">
+              <Link href={`${featuredMarket.href}?trade=buy&side=a`}><MarketSide market={featuredMarket} side={0} /></Link>
+              <Link href={`${featuredMarket.href}?trade=buy&side=b`}><MarketSide market={featuredMarket} side={1} /></Link>
+            </div>
+            <BattleBar sideAPercent={featuredMarket.metrics.sideAPercent} />
+            <CapitalStrip market={featuredMarket} />
+          </div>
+          <aside className="marketSetup">
+            <p className="eyebrow">live market</p>
+            <div><span>24h traders</span><strong>{featuredMarket.contest.market?.uniqueTraders24h ?? "0"}</strong></div>
+            <div><span>atomic flips</span><strong>{featuredMarket.contest.market?.atomicFlipCount24h ?? "0"}</strong></div>
+            <div className="setupActions">
+              <Link href={`${featuredMarket.href}?trade=buy&side=a`}>back {featuredMarket.contest.metadata.sideA.name}</Link>
+              <Link href={`${featuredMarket.href}?trade=buy&side=b`}>back {featuredMarket.contest.metadata.sideB.name}</Link>
+            </div>
+            <span>live prices only. returns are never guaranteed.</span>
+          </aside>
+        </article>
+      </section>
+    ) : <div className="emptyState"><strong>{apiAvailable ? "no live contests yet" : "market data is reconnecting"}</strong><span>{apiAvailable ? "launch the first testnet contest to start the market." : "the indexer did not return a valid response."}</span>{apiAvailable && <Link href="/launch">launch contest ↗</Link>}</div>}
 
     <section className="homeMarkets" aria-labelledby="all-markets-heading"><div className="homeMarketToolbar"><div className="marketFilters homeCategoryRail" aria-label="filter contests">{filters.map((item) => <button aria-pressed={filter === item} key={item} onClick={() => setFilter(item)} type="button">{item}</button>)}<i aria-hidden="true" className="categoryDivider" />{contestCategories.map((item) => <button aria-pressed={filter === item.value} key={item.value} onClick={() => setFilter(item.value)} type="button">{item.label}</button>)}</div><div className="viewToggle" aria-label="market layout"><button aria-pressed={view === "list"} onClick={() => setView("list")} type="button"><ListIcon />list</button><button aria-pressed={view === "grid"} onClick={() => setView("grid")} type="button"><GridIcon />cards</button></div></div><h2 className="visuallyHidden" id="all-markets-heading">all contests</h2><div className="homeMarketGrid" data-view={view}>{visibleMarkets.map((market) => <MarketCard key={market.contest.contestId} market={market} />)}</div>{markets.length > 0 && visibleMarkets.length === 0 && <div className="emptyState"><strong>no live contests match this view</strong><span>choose another market signal.</span></div>}</section>
     <section className="realMarketStrip"><div><span className="livePulse" /><strong>{networkLabel}</strong><span>{apiAvailable ? "verified indexer connected" : "indexer reconnecting"}</span></div><span>{formatUsdc(totalVolume.toString())} cumulative</span><span>{markets.reduce((total, item) => total + BigInt(item.contest.market?.tradeCount ?? "0"), 0n).toString()} verified trades</span></section>
