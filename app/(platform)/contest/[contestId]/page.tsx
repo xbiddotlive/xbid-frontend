@@ -19,12 +19,26 @@ export async function generateMetadata({ params }: { params: Promise<{ contestId
     const title = contest.metadata.title;
     const description = `${contest.metadata.sideA.name} vs ${contest.metadata.sideB.name} — back a side and move the live onchain market.`;
     const path = `/contest/${contestId}`;
+    const shareRevision = contest.market?.updatedBlock ?? contest.createdBlock;
+    const shareImage = `/api/share/contest/${contestId}?v=2-${shareRevision}`;
     return {
       title,
       description,
       alternates: { canonical: path },
-      openGraph: { type: "website", url: path, title: `${title} | ${siteName}`, description, siteName },
-      twitter: { card: "summary_large_image", title: `${title} | ${siteName}`, description },
+      openGraph: {
+        type: "website",
+        url: path,
+        title: `${title} | ${siteName}`,
+        description,
+        siteName,
+        images: [{ url: shareImage, width: 1200, height: 630, alt: "Choose a side and trade this live xbid contest" }],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${title} | ${siteName}`,
+        description,
+        images: [{ url: shareImage, width: 1200, height: 630, alt: "Choose a side and trade this live xbid contest" }],
+      },
     };
   } catch {
     return { title: "live contest", robots: { index: false, follow: false } };
