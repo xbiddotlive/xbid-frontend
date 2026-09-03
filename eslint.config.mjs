@@ -14,7 +14,7 @@ export default defineConfig([
           patterns: [
             {
               group: ["*.css", "**/*.css"],
-              message: "Import the single app/globals.css theme only from app/layout.tsx.",
+              message: "Import the app/globals.css layer entry only from app/layout.tsx.",
             },
           ],
         },
@@ -32,6 +32,12 @@ export default defineConfig([
     files: ["app/layout.tsx"],
     rules: {
       "no-restricted-imports": "off",
+    },
+  },
+  {
+    files: ["app/apple-icon.tsx", "app/opengraph-image.tsx"],
+    rules: {
+      "no-restricted-syntax": "off",
     },
   },
   globalIgnores([".next/**", "out/**", "next-env.d.ts"]),

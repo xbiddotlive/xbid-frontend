@@ -8,14 +8,69 @@ export const contracts = {
   settlementToken: "0xAc80194dc1aE8eF52df73e7e1864fB3C62290fe0",
 } as const satisfies Record<string, Address>;
 
-export const demoContest = {
+export const contestCreationFeeUnits = 5_000_000n;
+
+export const factoryAbi = [
+  {
+    type: "function",
+    name: "createContest",
+    stateMutability: "nonpayable",
+    inputs: [{
+      name: "params",
+      type: "tuple",
+      components: [
+        { name: "userSalt", type: "bytes32" },
+        { name: "metadataHash", type: "bytes32" },
+        { name: "metadataURI", type: "string" },
+        { name: "sideAName", type: "string" },
+        { name: "sideASymbol", type: "string" },
+        { name: "sideBName", type: "string" },
+        { name: "sideBSymbol", type: "string" },
+      ],
+    }],
+    outputs: [
+      { name: "contestId", type: "bytes32" },
+      { name: "marketVault", type: "address" },
+      { name: "sideAToken", type: "address" },
+      { name: "sideBToken", type: "address" },
+    ],
+  },
+  {
+    type: "function",
+    name: "computeContestId",
+    stateMutability: "view",
+    inputs: [
+      { name: "creator", type: "address" },
+      { name: "userSalt", type: "bytes32" },
+      { name: "metadataHash", type: "bytes32" },
+    ],
+    outputs: [{ name: "contestId", type: "bytes32" }],
+  },
+  {
+    type: "event",
+    name: "ContestCreated",
+    anonymous: false,
+    inputs: [
+      { name: "contestId", type: "bytes32", indexed: true },
+      { name: "creator", type: "address", indexed: true },
+      { name: "marketVault", type: "address", indexed: true },
+      { name: "sideAToken", type: "address", indexed: false },
+      { name: "sideBToken", type: "address", indexed: false },
+      { name: "marketVersion", type: "uint32", indexed: false },
+      { name: "metadataHash", type: "bytes32", indexed: false },
+      { name: "metadataURI", type: "string", indexed: false },
+    ],
+  },
+] as const;
+
+export const referenceContest = {
   contestId:
     (process.env.NEXT_PUBLIC_DEFAULT_CONTEST_ID ??
       "0xb73517e2deacfc81a60953d1545f6602b186483d3e9b59fc43a5a8e75497513d") as Hex,
-  title: "Which side will command the live market?",
-  category: "Live testnet contest",
-  sideA: { name: "Side A", symbol: "XBIDA" },
-  sideB: { name: "Side B", symbol: "XBIDB" },
+  title: "which side will command the live market?",
+  category: "live testnet contest",
+  sideA: { name: "side a", symbol: "xbida" },
+  sideB: { name: "side b", symbol: "xbidb" },
   marketVault: "0xB48B4B842c0fCbc18Fd616d3F89DE87562A8c494",
   sideAToken: "0xFdFf0F040681b38A7275F8398338956296a8055C",
   sideBToken: "0x5530BA151C61FCB21Ba55D3f116B60cb402FCd14",
@@ -72,6 +127,30 @@ export const erc20Abi = [
   },
 ] as const;
 
+export const feeVaultAbi = [
+  {
+    type: "function",
+    name: "claimable",
+    stateMutability: "view",
+    inputs: [{ name: "account", type: "address" }],
+    outputs: [{ name: "amountUnits", type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "claimPaused",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "paused", type: "bool" }],
+  },
+  {
+    type: "function",
+    name: "claimFees",
+    stateMutability: "nonpayable",
+    inputs: [],
+    outputs: [{ name: "amountUnits", type: "uint256" }],
+  },
+] as const;
+
 export const marketVaultAbi = [
   {
     type: "function",
@@ -98,6 +177,53 @@ export const marketVaultAbi = [
   },
   {
     type: "function",
+    name: "previewSell",
+    stateMutability: "view",
+    inputs: [
+      { name: "side", type: "uint8" },
+      { name: "tokenInputWei", type: "uint256" },
+    ],
+    outputs: [
+      {
+        name: "result",
+        type: "tuple",
+        components: [
+          { name: "grossOutputUnits", type: "uint256" },
+          { name: "feeUnits", type: "uint256" },
+          { name: "netOutputUnits", type: "uint256" },
+          { name: "qAAfterWei", type: "uint256" },
+          { name: "qBAfterWei", type: "uint256" },
+          { name: "reserveAfterUnits", type: "uint256" },
+        ],
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "previewFlip",
+    stateMutability: "view",
+    inputs: [
+      { name: "sourceSide", type: "uint8" },
+      { name: "sourceTokenInputWei", type: "uint256" },
+    ],
+    outputs: [
+      {
+        name: "result",
+        type: "tuple",
+        components: [
+          { name: "sourceGrossOutputUnits", type: "uint256" },
+          { name: "feeUnits", type: "uint256" },
+          { name: "destinationCurveInputUnits", type: "uint256" },
+          { name: "destinationTokenOutputWei", type: "uint256" },
+          { name: "qAAfterWei", type: "uint256" },
+          { name: "qBAfterWei", type: "uint256" },
+          { name: "reserveAfterUnits", type: "uint256" },
+        ],
+      },
+    ],
+  },
+  {
+    type: "function",
     name: "buy",
     stateMutability: "nonpayable",
     inputs: [
@@ -108,6 +234,30 @@ export const marketVaultAbi = [
       { name: "referrer", type: "address" },
     ],
     outputs: [{ name: "tokenOutputWei", type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "sell",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "side", type: "uint8" },
+      { name: "tokenInputWei", type: "uint256" },
+      { name: "minimumNetOutputUnits", type: "uint256" },
+      { name: "deadline", type: "uint256" },
+    ],
+    outputs: [{ name: "netOutputUnits", type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "flip",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "sourceSide", type: "uint8" },
+      { name: "sourceTokenInputWei", type: "uint256" },
+      { name: "minimumDestinationTokenOutputWei", type: "uint256" },
+      { name: "deadline", type: "uint256" },
+    ],
+    outputs: [{ name: "destinationTokenOutputWei", type: "uint256" }],
   },
   {
     type: "function",

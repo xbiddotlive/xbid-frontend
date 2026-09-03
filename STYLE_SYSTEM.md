@@ -1,32 +1,21 @@
-# XBID PULSE frontend style system
+# xbid arena ui contract
 
-The frontend has one visual source of truth:
+The frontend uses one visual entry point, `app/globals.css`, which loads four ordered layers: `styles/base.css`, `styles/discovery.css`, `styles/contest.css`, and `styles/utility.css`. Components expose semantic class names and do not own colors, typography, spacing, radii, shadows, or responsive rules.
 
-`app/globals.css`
+## immutable interface rules
 
-It owns design tokens, colors, typography, spacing, radii, shadows, responsive
-breakpoints, and every component state. `app/layout.tsx` is the only file that
-imports CSS.
+- all visible text inherits `12px` from `--font-size-ui`
+- hierarchy uses weight, tone, spacing, borders, and grouping
+- all english interface copy is lowercase
+- side a is `#3478f6`; side b is `#ff603d`
+- crown is `#ffc857`; positive state is `#35d07f`
+- cards use `6px` radius and `1px` borders
+- desktop header is `48px`; mobile header is `44px`
+- icons are reusable svg components from `components/ui/icons.tsx`
+- inline styles and component css imports are blocked by eslint; only the root layout loads the layer entry
 
-PULSE is XBID's visual language. Its core identifier is one continuous line
-pulled between two opposing signals: warm red for Side A and cool blue for Side
-B. The market curve—not decorative chrome—is the primary visual. Deep graphite
-surfaces, hairline boundaries, restrained color, and dense real-time data make
-the product feel active without borrowing another trading product's identity.
+Run `pnpm check:ui` before every merge. It verifies the ordered css layers, required tokens, the single font-size rule, the mobile breakpoint, and lowercase static jsx copy.
 
-## Rules
+## visual identity
 
-- Components expose semantic class names and accessible state attributes.
-- Do not use the React `style` prop.
-- Do not create or import component-level CSS files.
-- Do not encode colors, spacing, or layout choices in TypeScript.
-- Dynamic ratios use semantic native elements such as `<progress>`; CSS owns
-  their appearance.
-- Dynamic curve geometry may use SVG attributes derived from real indexed data;
-  colors, line weights, dimensions, and states remain in `app/globals.css`.
-- The entire system uses one `--xbid-type: 12px` size. Weight, spacing, case,
-  and color—not additional sizes—create hierarchy.
-- Change the `:root` tokens to recolor the complete system, or edit component
-  selectors in the same file for a deeper theme change.
-
-ESLint enforces the inline-style and extra-CSS-import restrictions.
+The signature is an arena, not a prediction exchange: two opposing color rails, a shared live dominance curve, compact market telemetry, atomic flip emphasis, verified activity, and live commentary. Motion is restrained and tied to state changes.

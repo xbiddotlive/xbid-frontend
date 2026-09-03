@@ -41,7 +41,7 @@ export function DuelCurve({ history, compact = false }: DuelCurveProps) {
   if (history.length === 0) {
     return (
       <div className={compact ? "duelCurve duelCurveCompact" : "duelCurve"} data-empty="true">
-        <span>Waiting for the first onchain move</span>
+        <span>waiting for the first onchain move</span>
       </div>
     );
   }
@@ -52,7 +52,7 @@ export function DuelCurve({ history, compact = false }: DuelCurveProps) {
   return (
     <div className={compact ? "duelCurve duelCurveCompact" : "duelCurve"}>
       <svg
-        aria-label={`Real supply-share history across ${history.length} onchain trades`}
+        aria-label={`real dominance history across ${history.length} onchain trades`}
         preserveAspectRatio="none"
         role="img"
         viewBox="0 0 100 50"

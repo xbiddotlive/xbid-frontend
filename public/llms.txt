@@ -1,0 +1,20 @@
+# xbid.live
+
+> xbid.live is a live two-sided onchain contest market built by WEconomy Labs and currently running on Robinhood Chain Testnet.
+
+XBID lets users buy a side token, sell a position, or atomically flip from one side to the other. Prices and control move continuously with confirmed onchain trading. XBID is not a binary prediction market that waits for an external event result; users enter and exit against the live market curve.
+
+Core facts:
+- Network: Robinhood Chain Testnet, chain ID 46630.
+- Settlement token: Test USDC with 6 decimals and no monetary value.
+- Trading fee: 1% of the trade amount, rounded up to the smallest Test USDC unit.
+- Current fee split: 70% protocol, 20% contest creator, 10% bound referrer. Without a referrer, the unused share goes to the protocol.
+- Contest creation fee: 5 Test USDC.
+- Crown: activates after 70,000 Test USDC of curve reserve; a challenger opens at 48% control and takes the crown after maintaining at least 52% for 60 seconds.
+- Testnet use carries smart-contract, liquidity, wallet and market risk. Returns are not guaranteed.
+
+Primary pages:
+- /how-it-works — product walkthrough and frequently asked questions.
+- /docs — trading, fees, crown, referral, launch and safety rules.
+- / — live contest discovery.
+- /launch — create a two-sided contest.

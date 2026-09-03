@@ -1,59 +1,30 @@
-export type IndexedMarket = {
-  qAWei: string;
-  qBWei: string;
-  reserveUnits: string;
-  cumulativeVolumeUnits: string;
-  cumulativeFeeUnits: string;
-  tradeCount: string;
-  crownSide: number | null;
-  crownActivated: boolean;
-  updatedBlock: string;
-  history: IndexedTradePoint[];
-};
+import { apiEndpoint, apiJson } from "./http";
+import { contestListSchema, contestSchema, tradeListSchema } from "./schemas";
 
-export type IndexedTradePoint = {
-  transactionHash: string;
-  logIndex: number;
-  kind: string;
-  side: number;
-  qAAfterWei: string;
-  qBAfterWei: string;
-  reserveAfterUnits: string;
-  blockNumber: string;
-  blockTimestamp: string;
-};
-
-export type IndexedContest = {
-  chainId: string;
-  contestId: string;
-  marketVault: string;
-  creator: string;
-  sideAToken: string;
-  sideBToken: string;
-  marketVersion: number;
-  metadataHash: string;
-  createdBlock: string;
-  createdAt: string;
-  market: IndexedMarket | null;
-};
-
-type ContestListResponse = {
-  items: IndexedContest[];
-  nextCursor: string | null;
-};
-
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+export type IndexedTradePoint = ReturnType<typeof tradeListSchema.parse>["items"][number];
+export type IndexedContest = ReturnType<typeof contestSchema.parse>;
+export type IndexedMarket = NonNullable<IndexedContest["market"]>;
 
 export async function listContests(chainId: number): Promise<IndexedContest[]> {
-  const response = await fetch(`${apiUrl}/v1/chains/${chainId}/contests`, {
+  const response = await fetch(apiEndpoint(`/v1/chains/${chainId}/contests`), {
     cache: "no-store",
     signal: AbortSignal.timeout(4_000),
   });
+  return contestListSchema.parse(await apiJson(response)).items;
+}
 
-  if (!response.ok) {
-    throw new Error(`Contest API returned ${response.status}`);
-  }
+export async function getContest(chainId: number, contestId: string, signal?: AbortSignal) {
+  const response = await fetch(apiEndpoint(`/v1/chains/${chainId}/contests/${encodeURIComponent(contestId)}`), {
+    cache: "no-store",
+    signal: signal ?? AbortSignal.timeout(4_000),
+  });
+  return contestSchema.parse(await apiJson(response));
+}
 
-  const data = (await response.json()) as ContestListResponse;
-  return data.items;
+export async function listContestTrades(chainId: number, contestId: string, signal?: AbortSignal) {
+  const response = await fetch(apiEndpoint(`/v1/chains/${chainId}/contests/${encodeURIComponent(contestId)}/trades?limit=40`), {
+    cache: "no-store",
+    signal: signal ?? AbortSignal.timeout(4_000),
+  });
+  return tradeListSchema.parse(await apiJson(response));
 }

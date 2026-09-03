@@ -1,6 +1,7 @@
 "use client";
 
-import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
+import { useAccountModal, useChainModal, useConnectModal } from "@rainbow-me/rainbowkit";
+import { useAccount } from "wagmi";
 
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
 
@@ -10,19 +11,19 @@ function shortAddress(address: string) {
 
 export function WalletButton() {
   const { address, chainId, isConnected } = useAccount();
-  const { connectors, connect, isPending } = useConnect();
-  const { disconnect } = useDisconnect();
-  const { switchChain, isPending: isSwitching } = useSwitchChain();
+  const { openConnectModal } = useConnectModal();
+  const { openAccountModal } = useAccountModal();
+  const { openChainModal } = useChainModal();
 
   if (!isConnected) {
     return (
       <button
         className="button buttonPrimary"
-        disabled={isPending || connectors.length === 0}
-        onClick={() => connectors[0] && connect({ connector: connectors[0] })}
+        disabled={!openConnectModal}
+        onClick={openConnectModal}
         type="button"
       >
-        {isPending ? "Connecting…" : "Connect wallet"}
+        connect wallet
       </button>
     );
   }
@@ -31,18 +32,18 @@ export function WalletButton() {
     return (
       <button
         className="button buttonPrimary"
-        disabled={isSwitching}
-        onClick={() => switchChain({ chainId: robinhoodTestnet.id })}
+        disabled={!openChainModal}
+        onClick={openChainModal}
         type="button"
       >
-        {isSwitching ? "Switching…" : "Switch network"}
+        switch network
       </button>
     );
   }
 
   return (
-    <button className="button buttonQuiet" onClick={() => disconnect()} type="button">
-      {address ? shortAddress(address) : "Disconnect"}
+    <button className="button buttonQuiet" disabled={!openAccountModal} onClick={openAccountModal} type="button">
+      {address ? shortAddress(address) : "account"}
     </button>
   );
 }

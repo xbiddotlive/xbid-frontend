@@ -8,15 +8,20 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check:ui": "node scripts/check-ui-contract.mjs",
+    "check:architecture": "node scripts/check-architecture.mjs",
+    "check:performance": "node scripts/check-performance-budget.mjs",
+    "check": "pnpm lint && pnpm typecheck && pnpm check:ui && pnpm check:architecture"
   },
   "dependencies": {
+    "@rainbow-me/rainbowkit": "2.2.11",
     "@tanstack/react-query": "5.102.8",
     "next": "16.3.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "viem": "2.56.2",
-    "wagmi": "3.7.7",
+    "wagmi": "2.19.5",
     "zod": "4.5.4"
   },
   "devDependencies": {
@@ -26,5 +31,13 @@
     "eslint": "9.39.5",
     "eslint-config-next": "16.3.4",
     "typescript": "6.0.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "qr": "0.6.0"
+    },
+    "patchedDependencies": {
+      "cuer@0.0.3": "patches/cuer@0.0.3.patch"
+    }
   }
 }

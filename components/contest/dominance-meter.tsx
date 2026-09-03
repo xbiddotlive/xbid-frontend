@@ -12,14 +12,14 @@ export function DominanceMeter({
   return (
     <div
       className={large ? "dominanceMeter dominanceMeterLarge" : "dominanceMeter"}
-      aria-label={`Side A ${sideAPercent}%, Side B ${sideBPercent}%`}
+      aria-label={`side a ${sideAPercent}%, side b ${sideBPercent}%`}
     >
       <div className="dominanceLabels" aria-hidden="true">
-        <span>Side A · {sideAPercent}%</span>
-        <span>Side B · {sideBPercent}%</span>
+        <span>side a · {sideAPercent}%</span>
+        <span>side b · {sideBPercent}%</span>
       </div>
       <progress max="100" value={sideAPercent}>
-        Side A {sideAPercent}%
+        side a {sideAPercent}%
       </progress>
     </div>
   );

@@ -1,0 +1,43 @@
+diff --git a/QrCode.ts b/QrCode.ts
+index 4ed7df1..40dd047 100644
+--- a/QrCode.ts
++++ b/QrCode.ts
+@@ -10,11 +10,15 @@ export function create(value: string, options: QrCode.Options = {}): QrCode {
+   const { errorCorrection, version } = options
+ 
+   const grid = encodeQR(value, 'raw', {
+-    border: 0,
++    border: 1,
+     ecc: errorCorrection,
+     scale: 1,
+     version: version,
+   })
++    // qr >= 0.6 requires a positive quiet-zone border. Cuer draws its own
++    // layout, so remove the single generated border from the raw matrix.
++    .slice(1, -1)
++    .map((row) => row.slice(1, -1))
+ 
+   const finderLength = 7
+   const edgeLength = grid.length
+diff --git a/_dist/QrCode.js b/_dist/QrCode.js
+index 011b226..715092e 100644
+--- a/_dist/QrCode.js
++++ b/_dist/QrCode.js
+@@ -2,11 +2,15 @@ import { encodeQR } from 'qr';
+ export function create(value, options = {}) {
+     const { errorCorrection, version } = options;
+     const grid = encodeQR(value, 'raw', {
+-        border: 0,
++        border: 1,
+         ecc: errorCorrection,
+         scale: 1,
+         version: version,
+-    });
++    })
++        // qr >= 0.6 requires a positive quiet-zone border. Cuer draws its own
++        // layout, so remove the single generated border from the raw matrix.
++        .slice(1, -1)
++        .map((row) => row.slice(1, -1));
+     const finderLength = 7;
+     const edgeLength = grid.length;
+     return {
