@@ -167,7 +167,8 @@
 .portfolioTableRow, .portfolioSimpleRow { border-top: 1px solid var(--line); }
 .portfolioTableRow:hover, .portfolioSimpleRow:hover { background: rgb(255 255 255 / 2%); }
 .portfolioTableRow > div { display: flex; min-width: 0; flex-direction: column; }
-.portfolioTableRow > div strong, .portfolioTableRow > div span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.portfolioTableRow > div a { display: block; min-width: 0; overflow: hidden; }
+.portfolioTableRow > div strong, .portfolioTableRow > div span { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .portfolioTableRow span, .portfolioSimpleRow span { color: var(--muted); }
 .portfolioTableRow strong[data-tone="positive"], .portfolioSimpleRow strong[data-tone="positive"] { color: var(--positive); }
 .portfolioTableRow strong[data-tone="negative"] { color: var(--negative); }
