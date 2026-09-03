@@ -61,58 +61,58 @@ function buildContestCardSvg(contest: IndexedContest) {
       <linearGradient id="versus-line" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#3478f6"/><stop offset="0.48" stop-color="#343a48"/><stop offset="1" stop-color="#ff603d"/></linearGradient>
       <filter id="glow-blue"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#3478f6" flood-opacity=".28"/></filter>
       <filter id="glow-red"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#ff603d" flood-opacity=".26"/></filter>
-      <style>text{font-family:"DejaVu Sans","Noto Sans CJK SC",sans-serif}.caps{letter-spacing:2px}</style>
+      <style>text{font-family:"DejaVu Sans","Noto Sans CJK SC",sans-serif;font-weight:400}.caps{letter-spacing:2px}</style>
     </defs>
     <rect width="600" height="630" fill="url(#page-left)"/>
     <rect x="600" width="600" height="630" fill="url(#page-right)"/>
 
     <circle cx="54" cy="57" r="6" fill="#ff603d"/>
     <text x="74" y="67" fill="#f7f9ff" font-size="26">xbid<tspan fill="#ff603d">.live</tspan></text>
-    <rect x="999" y="38" width="153" height="39" rx="20" fill="#102219" stroke="#2f9f5e"/>
-    <circle cx="1021" cy="57" r="6" fill="#5ce292"/>
-    <text x="1033" y="63" fill="#5ce292" font-size="15">LIVE · TESTNET</text>
+    <rect x="1076" y="38" width="76" height="39" rx="20" fill="#102219" stroke="#2f9f5e"/>
+    <circle cx="1097" cy="57" r="6" fill="#5ce292"/>
+    <text x="1109" y="63" fill="#5ce292" font-size="15">LIVE</text>
 
-    <text x="48" y="112" fill="#a4adbd" font-size="16" font-weight="700" class="caps">${category} · MARKET V${contest.marketVersion}</text>
-    <text x="48" y="163" fill="#f7f9ff" font-size="${titleSize}" font-weight="700">${escapeXml(title)}</text>
+    <text x="48" y="112" fill="#a4adbd" font-size="16" class="caps">${category} · MARKET V${contest.marketVersion}</text>
+    <text x="48" y="163" fill="#f7f9ff" font-size="${titleSize}">${escapeXml(title)}</text>
 
     <rect x="48" y="193" width="516" height="229" rx="16" fill="url(#left-bg)" stroke="#3478f6" stroke-width="3" filter="url(#glow-blue)"/>
     <circle cx="92" cy="232" r="19" fill="#3478f6"/>
-    <text x="92" y="239" fill="#fff" font-size="18" font-weight="800" text-anchor="middle">${sideASymbol.slice(0, 1)}</text>
-    <text x="122" y="238" fill="#a9c7ff" font-size="16" font-weight="700">SIDE A · ${sideASymbol}</text>
+    <text x="92" y="239" fill="#fff" font-size="18" text-anchor="middle">${sideASymbol.slice(0, 1)}</text>
+    <text x="122" y="238" fill="#a9c7ff" font-size="16">SIDE A · ${sideASymbol}</text>
     <rect x="416" y="216" width="125" height="32" rx="16" fill="#0b1832" fill-opacity=".82"/>
     <text x="478.5" y="238" fill="#d9e6ff" font-size="15" text-anchor="middle">${sideA.toFixed(1)}% backing</text>
-    <text x="73" y="287" fill="#f7f9ff" font-size="25" font-weight="700">${sideAName}</text>
-    <text x="73" y="343" fill="#f7f9ff" font-size="43" font-weight="800">${price(sideAPrice)}</text>
+    <text x="73" y="287" fill="#f7f9ff" font-size="25">${sideAName}</text>
+    <text x="73" y="343" fill="#f7f9ff" font-size="43">${price(sideAPrice)}</text>
     <text x="73" y="364" fill="#a9c7ff" font-size="13">LIVE PRICE</text>
     <path d="M48 370h516v36a16 16 0 0 1-16 16H64a16 16 0 0 1-16-16z" fill="#3478f6"/>
-    <text x="306" y="402" fill="#071020" font-size="20" font-weight="800" text-anchor="middle">BACK ${sideASymbol} →</text>
+    <text x="306" y="402" fill="#071020" font-size="20" text-anchor="middle">BACK ${sideASymbol} →</text>
 
     <rect x="636" y="193" width="516" height="229" rx="16" fill="url(#right-bg)" stroke="#ff603d" stroke-width="3" filter="url(#glow-red)"/>
     <circle cx="680" cy="232" r="19" fill="#ff603d"/>
-    <text x="680" y="239" fill="#210904" font-size="18" font-weight="800" text-anchor="middle">${sideBSymbol.slice(0, 1)}</text>
-    <text x="710" y="238" fill="#ffb09e" font-size="16" font-weight="700">SIDE B · ${sideBSymbol}</text>
+    <text x="680" y="239" fill="#210904" font-size="18" text-anchor="middle">${sideBSymbol.slice(0, 1)}</text>
+    <text x="710" y="238" fill="#ffb09e" font-size="16">SIDE B · ${sideBSymbol}</text>
     <rect x="1004" y="216" width="125" height="32" rx="16" fill="#46110d" fill-opacity=".82"/>
     <text x="1066.5" y="238" fill="#ffe0d9" font-size="15" text-anchor="middle">${sideB.toFixed(1)}% backing</text>
-    <text x="661" y="287" fill="#f7f9ff" font-size="25" font-weight="700">${sideBName}</text>
-    <text x="661" y="343" fill="#f7f9ff" font-size="43" font-weight="800">${price(sideBPrice)}</text>
+    <text x="661" y="287" fill="#f7f9ff" font-size="25">${sideBName}</text>
+    <text x="661" y="343" fill="#f7f9ff" font-size="43">${price(sideBPrice)}</text>
     <text x="661" y="364" fill="#ffb09e" font-size="13">LIVE PRICE</text>
     <path d="M636 370h516v36a16 16 0 0 1-16 16H652a16 16 0 0 1-16-16z" fill="#ff603d"/>
-    <text x="894" y="402" fill="#210904" font-size="20" font-weight="800" text-anchor="middle">BACK ${sideBSymbol} →</text>
+    <text x="894" y="402" fill="#210904" font-size="20" text-anchor="middle">BACK ${sideBSymbol} →</text>
 
     <rect x="599" y="193" width="2" height="229" fill="url(#versus-line)"/>
     <circle cx="600" cy="307" r="23" fill="#0b0e16" stroke="#4a5161" stroke-width="2"/>
-    <text x="600" y="313" fill="#f7f9ff" font-size="15" font-weight="800" text-anchor="middle">VS</text>
+    <text x="600" y="313" fill="#f7f9ff" font-size="15" text-anchor="middle">VS</text>
 
     <rect x="48" y="438" width="1104" height="72" rx="12" fill="#0c0f17" stroke="#343a48"/>
     <path d="M406 456v36M770 456v36" stroke="#303644"/>
     <text x="69" y="464" fill="#929cad" font-size="13" class="caps">LIQUIDITY</text>
-    <text x="69" y="491" fill="#f7f9ff" font-size="21" font-weight="700">${escapeXml(liquidity)} usdc</text>
+    <text x="69" y="491" fill="#f7f9ff" font-size="21">${escapeXml(liquidity)} usdc</text>
     <text x="431" y="464" fill="#929cad" font-size="13" class="caps">24H VOLUME</text>
-    <text x="431" y="491" fill="#f7f9ff" font-size="21" font-weight="700">${escapeXml(volume)}</text>
+    <text x="431" y="491" fill="#f7f9ff" font-size="21">${escapeXml(volume)}</text>
     <text x="794" y="464" fill="#929cad" font-size="13" class="caps">24H TRADES</text>
-    <text x="794" y="491" fill="#f7f9ff" font-size="21" font-weight="700">${escapeXml(market?.tradeCount24h ?? "0")}</text>
+    <text x="794" y="491" fill="#f7f9ff" font-size="21">${escapeXml(market?.tradeCount24h ?? "0")}</text>
 
-    <text x="48" y="542" fill="#f6c85f" font-size="16" font-weight="700" class="caps">CHOOSE A SIDE · MOVE THE MARKET</text>
+    <text x="48" y="542" fill="#f6c85f" font-size="16" class="caps">CHOOSE A SIDE · MOVE THE MARKET</text>
     <text x="1152" y="542" fill="#929cad" font-size="16" text-anchor="end">@xbid_live</text>
   </svg>`;
 }
