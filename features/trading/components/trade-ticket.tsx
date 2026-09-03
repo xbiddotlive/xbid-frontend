@@ -2,7 +2,7 @@
 
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useSearchParams } from "next/navigation";
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import {
   BaseError,
   ContractFunctionRevertedError,
@@ -70,6 +70,16 @@ function flipQuoteErrorMessage(error: Error | null) {
   return "flip quote unavailable · refresh the market and try again";
 }
 
+function retryFlipQuote(failureCount: number, error: Error) {
+  const reverted = error instanceof BaseError
+    ? error.walk((cause) => cause instanceof ContractFunctionRevertedError)
+    : null;
+  const deterministicFailure = reverted instanceof ContractFunctionRevertedError
+    || error.message.includes("FlipGrossBelowMinimum")
+    || error.message.toLowerCase().includes("execution reverted");
+  return !deterministicFailure && failureCount < 1;
+}
+
 export function TradeTicket({ contest, embedded = false, initialAmount, initialMode = "buy", initialSide = 0, initialSlippageBps = 50, onClose, onConfirmed }: TradeTicketProps) {
   const [mode, setMode] = useState<TradeMode>(initialMode);
   const [side, setSide] = useState<Side>(initialSide);
@@ -90,6 +100,12 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
   const publicClient = usePublicClient({ chainId: robinhoodTestnet.id });
 
   const input = parseAmount(amount, mode === "buy" ? 6 : 18);
+  const [debouncedFlipInput, setDebouncedFlipInput] = useState(input);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedFlipInput(input), mode === "flip" ? 350 : 0);
+    return () => window.clearTimeout(timer);
+  }, [input, mode]);
+  const flipInputPending = mode === "flip" && debouncedFlipInput !== input;
   const marketVault = contest.marketVault as Address;
   const sideAToken = contest.sideAToken as Address;
   const sideBToken = contest.sideBToken as Address;
@@ -108,8 +124,14 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
     query: { enabled: mode === "sell" && input > 0n, refetchInterval: 8_000 },
   });
   const { data: flipQuote, error: flipError, isFetching: flipLoading, refetch: refetchFlip } = useReadContract({
-    address: marketVault, abi: marketVaultAbi, functionName: "previewFlip", args: [side, input],
-    query: { enabled: mode === "flip" && input > 0n, refetchInterval: 8_000 },
+    address: marketVault, abi: marketVaultAbi, functionName: "previewFlip", args: [side, debouncedFlipInput],
+    query: {
+      enabled: mode === "flip" && debouncedFlipInput > 0n,
+      refetchInterval: false,
+      refetchOnReconnect: false,
+      retry: retryFlipQuote,
+      staleTime: Number.POSITIVE_INFINITY,
+    },
   });
   const { data: balance = 0n, refetch: refetchBalance } = useReadContract({
     address: activeToken, abi: erc20Abi, functionName: "balanceOf", args: [address ?? zeroAddress],
@@ -120,14 +142,14 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
     query: { enabled: Boolean(address), refetchInterval: 8_000 },
   });
 
-  const quoteLoading = buyLoading || sellLoading || flipLoading;
+  const quoteLoading = buyLoading || sellLoading || flipLoading || flipInputPending;
   const fee = mode === "buy" ? (buyQuote?.feeUnits ?? 0n) : mode === "sell" ? (sellQuote?.feeUnits ?? 0n) : (flipQuote?.feeUnits ?? 0n);
   const output = mode === "buy" ? (buyQuote?.tokenOutputWei ?? 0n) : mode === "sell" ? (sellQuote?.netOutputUnits ?? 0n) : (flipQuote?.destinationTokenOutputWei ?? 0n);
   const outputDecimals = mode === "sell" ? 6 : 18;
   const minimumOutput = (output * BigInt(10_000 - slippageBps)) / 10_000n;
-  const quoteReady = mode === "buy" ? Boolean(buyQuote) : mode === "sell" ? Boolean(sellQuote) : Boolean(flipQuote);
+  const quoteReady = mode === "buy" ? Boolean(buyQuote) : mode === "sell" ? Boolean(sellQuote) : Boolean(flipQuote) && !flipInputPending;
   const sourceSymbol = side === 0 ? contest.metadata.sideA.symbol : contest.metadata.sideB.symbol;
-  const flipQuoteIssue = mode === "flip" && input > 0n
+  const flipQuoteIssue = mode === "flip" && input > 0n && !flipInputPending
     ? flipQuoteErrorMessage(flipError)
     : null;
 
@@ -186,6 +208,20 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
     await refetchAllowance();
   }
 
+  async function freshFlipOutput() {
+    setActingLabel("checking flip value…");
+    const refreshed = await refetchFlip();
+    if (refreshed.error) {
+      throw new Error(flipQuoteErrorMessage(refreshed.error) ?? errorMessage(refreshed.error));
+    }
+    const freshOutput = refreshed.data?.destinationTokenOutputWei;
+    if (!freshOutput || freshOutput <= 0n) {
+      throw new Error("flip quote unavailable. check the amount and try again.");
+    }
+    setActingLabel("confirm in wallet");
+    return freshOutput;
+  }
+
   async function act() {
     setIsActing(true);
     setActingLabel("confirm in wallet");
@@ -194,9 +230,11 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
       if (!(await ensureReady())) return;
       if (!address) throw new Error("connect a wallet first.");
       if (input <= 0n) throw new Error("enter a positive amount.");
-      if (mode === "flip" && flipQuoteIssue) throw new Error(flipQuoteIssue);
-      if (!quoteReady || output <= 0n) {
-        throw new Error(mode === "flip" ? "flip quote unavailable. check the amount and try again." : "a valid live quote is required.");
+      let executionOutput = output;
+      if (mode === "flip") {
+        executionOutput = await freshFlipOutput();
+      } else if (!quoteReady || output <= 0n) {
+        throw new Error("a valid live quote is required.");
       }
 
       if (balance < input) {
@@ -212,9 +250,11 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
 
       if (allowance < input) {
         await approveInput();
+        if (mode === "flip") executionOutput = await freshFlipOutput();
       }
 
       const deadline = BigInt(Math.floor(Date.now() / 1_000) + 10 * 60);
+      const executionMinimumOutput = (executionOutput * BigInt(10_000 - slippageBps)) / 10_000n;
       if (!publicClient) throw new Error("rpc client is not ready.");
       if (mode === "buy") {
         const simulation = await publicClient.simulateContract({ account: address, address: marketVault, abi: marketVaultAbi, functionName: "buy", args: [side, input, minimumOutput, deadline, referrer] });
@@ -223,10 +263,11 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
         const simulation = await publicClient.simulateContract({ account: address, address: marketVault, abi: marketVaultAbi, functionName: "sell", args: [side, input, minimumOutput, deadline] });
         await submitAndWait(await writeContractAsync(simulation.request), `sell side ${side === 0 ? "a" : "b"}`);
       } else {
-        const simulation = await publicClient.simulateContract({ account: address, address: marketVault, abi: marketVaultAbi, functionName: "flip", args: [side, input, minimumOutput, deadline] });
+        const simulation = await publicClient.simulateContract({ account: address, address: marketVault, abi: marketVaultAbi, functionName: "flip", args: [side, input, executionMinimumOutput, deadline] });
         await submitAndWait(await writeContractAsync(simulation.request), `flip side ${side === 0 ? "a" : "b"} into side ${side === 0 ? "b" : "a"}`);
       }
-      await Promise.all([refetchBalance(), refetchAllowance(), refetchBuy(), refetchSell(), refetchFlip()]);
+      const refetchActiveQuote = mode === "buy" ? refetchBuy : mode === "sell" ? refetchSell : refetchFlip;
+      await Promise.all([refetchBalance(), refetchAllowance(), refetchActiveQuote()]);
       onConfirmed();
     } catch (error) {
       setStatus(errorMessage(error));
@@ -243,13 +284,13 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
   else if (mode === "buy" && balance < input && robinhoodTestnet.testnet) actionLabel = `mint 10,000 ${settlementTokenLabel}`;
   else if (mode === "buy" && balance < input) actionLabel = `insufficient ${settlementTokenLabel} balance`;
   else if (mode !== "buy" && balance < input) actionLabel = "insufficient token balance";
-  else if (flipQuoteIssue) actionLabel = "flip unavailable";
+  else if (flipQuoteIssue) actionLabel = "recheck flip value";
   else if (input > 0n && !quoteReady) actionLabel = quoteLoading
     ? mode === "flip" ? "checking flip value…" : "fetching quote…"
     : mode === "flip" ? "flip quote unavailable" : "quote unavailable";
   else if (allowance < input) actionLabel = mode === "buy" ? `approve & buy ${formattedOutput} ${effectiveSymbol}` : `approve & ${mode} ${sourceSymbol}`;
   const isDirectTrade = isConnected && chainId === robinhoodTestnet.id && balance >= input && allowance >= input;
-  const quoteBlocked = Boolean(flipQuoteIssue) || (input > 0n && !quoteReady);
+  const quoteBlocked = input > 0n && !quoteReady && !flipQuoteIssue;
 
   const balanceDecimals = mode === "buy" ? 6 : 18;
   const balanceLabel = Number(formatUnits(balance, balanceDecimals)).toLocaleString(undefined, { maximumFractionDigits: 4 });
