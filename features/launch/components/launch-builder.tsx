@@ -11,7 +11,7 @@ import type { IndexedContest } from "@/lib/api/contests";
 import { referenceContest } from "@/lib/blockchain/contracts";
 import { contestCategories } from "@/lib/product/contest-categories";
 import { networkLabel, robinhoodTestnet, settlementTokenLabel } from "@/lib/blockchain/chain";
-import { useLaunchContest } from "../hooks/use-launch-contest";
+import { normalizeTokenSymbol, tokenSymbol, useLaunchContest } from "../hooks/use-launch-contest";
 
 const logoTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 const maxLogoBytes = 2 * 1024 * 1024;
@@ -85,6 +85,8 @@ export function LaunchBuilder() {
   const [title, setTitle] = useState("");
   const [sideA, setSideA] = useState("");
   const [sideB, setSideB] = useState("");
+  const [sideASymbol, setSideASymbol] = useState("");
+  const [sideBSymbol, setSideBSymbol] = useState("");
   const [description, setDescription] = useState("");
   const [referenceUrl, setReferenceUrl] = useState("");
   const [category, setCategory] = useState("crypto");
@@ -94,7 +96,10 @@ export function LaunchBuilder() {
   const [sideBLogo, setSideBLogo] = useState<LogoDraft | null>(null);
   const [logoErrors, setLogoErrors] = useState<Record<LogoSide, string>>({ a: "", b: "" });
   const launchContest = useLaunchContest();
-  const preview = useMemo(() => ({ title: title || "your rivalry appears here", sideA: sideA || "side a", sideALogoUrl: sideALogo?.url, sideB: sideB || "side b", sideBLogoUrl: sideBLogo?.url, category }), [category, sideA, sideALogo, sideB, sideBLogo, title]);
+  const resolvedSideASymbol = sideASymbol || tokenSymbol(sideA, "SIDEA");
+  const resolvedSideBSymbol = sideBSymbol || tokenSymbol(sideB, "SIDEB");
+  const hasDuplicateSymbols = resolvedSideASymbol === resolvedSideBSymbol;
+  const preview = useMemo(() => ({ title: title || "your rivalry appears here", sideA: sideA || "side a", sideASymbol: resolvedSideASymbol, sideALogoUrl: sideALogo?.url, sideB: sideB || "side b", sideBSymbol: resolvedSideBSymbol, sideBLogoUrl: sideBLogo?.url, category }), [category, resolvedSideASymbol, resolvedSideBSymbol, sideA, sideALogo, sideB, sideBLogo, title]);
 
   useEffect(() => () => { if (sideALogo) URL.revokeObjectURL(sideALogo.url); }, [sideALogo]);
   useEffect(() => () => { if (sideBLogo) URL.revokeObjectURL(sideBLogo.url); }, [sideBLogo]);
@@ -125,7 +130,9 @@ export function LaunchBuilder() {
       category,
       referenceUrl: referenceUrl.trim() || undefined,
       sideAName: sideA.trim(),
+      sideASymbol: resolvedSideASymbol,
       sideBName: sideB.trim(),
+      sideBSymbol: resolvedSideBSymbol,
       sideALogo: sideALogo?.file,
       sideBLogo: sideBLogo?.file,
       initialSide,
@@ -148,6 +155,8 @@ export function LaunchBuilder() {
           <div className="fieldGrid">
             <label className="field fieldSideA"><span>side a name <em aria-label="required" className="fieldRequirement" data-kind="required">※</em></span><input maxLength={40} name="sideA" onChange={(event) => setSideA(event.target.value)} placeholder="side a" required value={sideA} /></label>
             <label className="field fieldSideB"><span>side b name <em aria-label="required" className="fieldRequirement" data-kind="required">※</em></span><input maxLength={40} name="sideB" onChange={(event) => setSideB(event.target.value)} placeholder="side b" required value={sideB} /></label>
+            <label className="field fieldSideA"><span>side a token ticker <em className="fieldRequirement">editable</em></span><input aria-describedby="side-a-ticker-help" autoCapitalize="characters" maxLength={12} minLength={2} name="sideASymbol" onChange={(event) => setSideASymbol(normalizeTokenSymbol(event.target.value))} pattern="[A-Z0-9]{2,12}" required spellCheck={false} value={resolvedSideASymbol} /><small className={hasDuplicateSymbols ? "fieldError" : undefined} id="side-a-ticker-help">{hasDuplicateSymbols ? "side tickers must be different" : "auto-generated from the name · 2–12 letters or numbers"}</small></label>
+            <label className="field fieldSideB"><span>side b token ticker <em className="fieldRequirement">editable</em></span><input aria-describedby="side-b-ticker-help" autoCapitalize="characters" maxLength={12} minLength={2} name="sideBSymbol" onChange={(event) => setSideBSymbol(normalizeTokenSymbol(event.target.value))} pattern="[A-Z0-9]{2,12}" required spellCheck={false} value={resolvedSideBSymbol} /><small className={hasDuplicateSymbols ? "fieldError" : undefined} id="side-b-ticker-help">{hasDuplicateSymbols ? "side tickers must be different" : "clear the field to restore the generated ticker"}</small></label>
             <LogoUploadField draft={sideALogo} error={logoErrors.a} name={sideA} onRemove={() => removeLogo("a")} onSelect={(file) => void selectLogo("a", file)} side="a" />
             <LogoUploadField draft={sideBLogo} error={logoErrors.b} name={sideB} onRemove={() => removeLogo("b")} onSelect={(file) => void selectLogo("b", file)} side="b" />
           </div>
@@ -156,7 +165,7 @@ export function LaunchBuilder() {
           <label className="field"><span>reference link <em className="fieldRequirement">optional</em></span><input maxLength={500} name="reference" onChange={(event) => setReferenceUrl(event.target.value)} placeholder="https://…" type="url" value={referenceUrl} /></label>
           <label className="field fieldWide"><span>initial position <em className="fieldRequirement">optional</em></span><div className="initialPosition"><select aria-label="initial side" onChange={(event) => setInitialSide(event.target.value as "none" | "a" | "b")} value={initialSide}><option value="none">no initial position</option><option value="a">side a</option><option value="b">side b</option></select><input disabled={initialSide === "none"} inputMode="decimal" min="0.01" name="initialAmount" onChange={(event) => setInitialAmount(event.target.value)} placeholder="0 usdc" required={initialSide !== "none"} type="number" value={initialAmount} /></div></label>
           <div className="launchSummary"><div><span>network</span><strong>{networkLabel}</strong></div><div><span>wallet balance</span><strong>{launchContest.isConnected ? `${walletBalance} ${settlementTokenLabel}` : "connect to read"}</strong></div><div><span>market curve</span><strong>b = 270k</strong></div></div>
-          <button className="button launchSubmit" disabled={launchContest.isBusy} type="submit">{launchContest.isBusy ? "launching…" : launchContest.isConnected && launchContest.chainId !== robinhoodTestnet.id ? "switch network & launch" : launchContest.isConnected ? "launch contest" : "connect wallet to launch"}</button>
+          <button className="button launchSubmit" disabled={launchContest.isBusy || hasDuplicateSymbols} type="submit">{launchContest.isBusy ? "launching…" : launchContest.isConnected && launchContest.chainId !== robinhoodTestnet.id ? "switch network & launch" : launchContest.isConnected ? "launch contest" : "connect wallet to launch"}</button>
           <p aria-live="polite" className="formFootnote">{launchContest.status}</p>
           {launchContest.transactionHash ? <a className="explorerLink" href={`${robinhoodTestnet.blockExplorers.default.url}/tx/${launchContest.transactionHash}`} rel="noreferrer" target="_blank">view latest transaction ↗</a> : null}
         </form>

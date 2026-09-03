@@ -14,8 +14,10 @@ type ContestCardProps = {
   preview?: {
     category: string;
     sideA: string;
+    sideASymbol?: string;
     sideALogoUrl?: string;
     sideB: string;
+    sideBSymbol?: string;
     sideBLogoUrl?: string;
     title: string;
   };
@@ -64,8 +66,8 @@ export function ContestCard({ contest, featured = false, preview, rank = 1 }: Co
         <Link href={href} tabIndex={preview ? -1 : undefined}><h3>{title.toLowerCase()}</h3></Link>
         <DuelCurve compact history={market?.history ?? []} />
         <div className="cardSides">
-          <span><i className="sideToken sideTokenA">a</i><b>{sideA.toLowerCase()}</b><strong>{sideAPercent.toFixed(1)}%</strong></span>
-          <span><i className="sideToken sideTokenB">b</i><b>{sideB.toLowerCase()}</b><strong>{sideBPercent.toFixed(1)}%</strong></span>
+          <span><i className="sideToken sideTokenA">a</i><b>{sideA.toLowerCase()}{preview?.sideASymbol ? ` · ${preview.sideASymbol.toLowerCase()}` : ""}</b><strong>{sideAPercent.toFixed(1)}%</strong></span>
+          <span><i className="sideToken sideTokenB">b</i><b>{sideB.toLowerCase()}{preview?.sideBSymbol ? ` · ${preview.sideBSymbol.toLowerCase()}` : ""}</b><strong>{sideBPercent.toFixed(1)}%</strong></span>
         </div>
         <DominanceMeter sideAPercent={sideAPercent} sideBPercent={sideBPercent} />
         <div className="sideActions" aria-label="contest sides">

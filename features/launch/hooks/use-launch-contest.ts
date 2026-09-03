@@ -17,7 +17,9 @@ export type LaunchContestInput = {
   category: string;
   referenceUrl?: string;
   sideAName: string;
+  sideASymbol: string;
   sideBName: string;
+  sideBSymbol: string;
   sideALogo?: File;
   sideBLogo?: File;
   initialSide: "none" | "a" | "b";
@@ -37,8 +39,12 @@ function transactionError(error: unknown) {
 }
 
 export function tokenSymbol(name: string, fallback: string) {
-  const symbol = name.normalize("NFKD").replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 12);
+  const symbol = normalizeTokenSymbol(name);
   return symbol || fallback;
+}
+
+export function normalizeTokenSymbol(value: string) {
+  return value.normalize("NFKD").replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 12);
 }
 
 export function useLaunchContest() {
@@ -120,9 +126,12 @@ export function useLaunchContest() {
     setIsBusy(true);
     setTransactionHash(undefined);
     try {
-      const sideASymbol = tokenSymbol(input.sideAName, "SIDEA");
-      let sideBSymbol = tokenSymbol(input.sideBName, "SIDEB");
-      if (sideASymbol === sideBSymbol) sideBSymbol = `${sideBSymbol.slice(0, 11)}B`;
+      const sideASymbol = normalizeTokenSymbol(input.sideASymbol);
+      const sideBSymbol = normalizeTokenSymbol(input.sideBSymbol);
+      if (!/^[A-Z0-9]{2,12}$/.test(sideASymbol) || !/^[A-Z0-9]{2,12}$/.test(sideBSymbol)) {
+        throw new Error("token tickers must use 2–12 letters or numbers.");
+      }
+      if (sideASymbol === sideBSymbol) throw new Error("side a and side b token tickers must be different.");
       const initialUnits = input.initialSide === "none" ? 0n : parseUnits(input.initialAmount || "0", 6);
       if (input.initialSide !== "none" && initialUnits <= 0n) throw new Error("enter an initial position amount or select no initial position.");
 
