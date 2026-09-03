@@ -15,6 +15,7 @@ import { normalizeTokenSymbol, tokenSymbol, useLaunchContest } from "../hooks/us
 
 const logoTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 const maxLogoBytes = 2 * 1024 * 1024;
+const tokenSymbolPattern = /^[A-Z0-9]{2,12}$/;
 
 type LogoDraft = { file: File; fileName: string; url: string };
 type LogoSide = "a" | "b";
@@ -31,6 +32,24 @@ async function validateLogo(file: File) {
   } catch {
     return "this image could not be read";
   }
+}
+
+function validReferenceUrl(value: string) {
+  if (!value.trim()) return true;
+  try {
+    return ["http:", "https:"].includes(new URL(value.trim()).protocol);
+  } catch {
+    return false;
+  }
+}
+
+function validInitialPosition(side: "none" | "a" | "b", value: string) {
+  if (side === "none") return true;
+  const amount = Number(value);
+  return value.trim() !== ""
+    && Number.isFinite(amount)
+    && amount >= 0.01
+    && Math.abs(amount * 100 - Math.round(amount * 100)) < 0.000001;
 }
 
 function LogoUploadField({ draft, error, name, onRemove, onSelect, side }: {
@@ -99,6 +118,25 @@ export function LaunchBuilder() {
   const resolvedSideASymbol = sideASymbol || tokenSymbol(sideA, "SIDEA");
   const resolvedSideBSymbol = sideBSymbol || tokenSymbol(sideB, "SIDEB");
   const hasDuplicateSymbols = resolvedSideASymbol === resolvedSideBSymbol;
+  const hasDuplicateSides = sideA.trim().toLowerCase() === sideB.trim().toLowerCase();
+  const formIsValid = title.trim().length >= 3
+    && title.trim().length <= 120
+    && sideA.trim().length >= 1
+    && sideA.trim().length <= 40
+    && sideB.trim().length >= 1
+    && sideB.trim().length <= 40
+    && !hasDuplicateSides
+    && tokenSymbolPattern.test(resolvedSideASymbol)
+    && tokenSymbolPattern.test(resolvedSideBSymbol)
+    && !hasDuplicateSymbols
+    && description.trim().length >= 10
+    && description.trim().length <= 800
+    && contestCategories.some((item) => item.value === category)
+    && validReferenceUrl(referenceUrl)
+    && validInitialPosition(initialSide, initialAmount)
+    && !logoErrors.a
+    && !logoErrors.b;
+  const canSubmit = launchContest.isConnected && formIsValid && !launchContest.isBusy;
   const preview = useMemo(() => ({ title: title || "your rivalry appears here", sideA: sideA || "side a", sideASymbol: resolvedSideASymbol, sideALogoUrl: sideALogo?.url, sideB: sideB || "side b", sideBSymbol: resolvedSideBSymbol, sideBLogoUrl: sideBLogo?.url, category }), [category, resolvedSideASymbol, resolvedSideBSymbol, sideA, sideALogo, sideB, sideBLogo, title]);
 
   useEffect(() => () => { if (sideALogo) URL.revokeObjectURL(sideALogo.url); }, [sideALogo]);
@@ -120,10 +158,7 @@ export function LaunchBuilder() {
   };
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (sideA.trim().toLowerCase() === sideB.trim().toLowerCase()) {
-      setLogoErrors({ a: "side names must be different", b: "side names must be different" });
-      return;
-    }
+    if (!canSubmit) return;
     void launchContest.launch({
       title: title.trim(),
       description: description.trim(),
@@ -165,7 +200,7 @@ export function LaunchBuilder() {
           <label className="field"><span>reference link <em className="fieldRequirement">optional</em></span><input maxLength={500} name="reference" onChange={(event) => setReferenceUrl(event.target.value)} placeholder="https://…" type="url" value={referenceUrl} /></label>
           <label className="field fieldWide"><span>initial position <em className="fieldRequirement">optional</em></span><div className="initialPosition"><select aria-label="initial side" onChange={(event) => setInitialSide(event.target.value as "none" | "a" | "b")} value={initialSide}><option value="none">no initial position</option><option value="a">side a</option><option value="b">side b</option></select><input disabled={initialSide === "none"} inputMode="decimal" min="0.01" name="initialAmount" onChange={(event) => setInitialAmount(event.target.value)} placeholder="0 usdc" required={initialSide !== "none"} step="0.01" type="number" value={initialAmount} /></div></label>
           <div className="launchSummary"><div><span>network</span><strong>{networkLabel}</strong></div><div><span>wallet balance</span><strong>{launchContest.isConnected ? `${walletBalance} ${settlementTokenLabel}` : "connect to read"}</strong></div><div><span>market curve</span><strong>b = 270k</strong></div></div>
-          <button className="button launchSubmit" disabled={launchContest.isBusy || hasDuplicateSymbols} type="submit">{launchContest.isBusy ? "launching…" : launchContest.isConnected && launchContest.chainId !== robinhoodTestnet.id ? "switch network & launch" : launchContest.isConnected ? "launch contest" : "connect wallet to launch"}</button>
+          <button className="button launchSubmit" disabled={!canSubmit} type="submit">{launchContest.isBusy ? "launching…" : launchContest.isConnected && launchContest.chainId !== robinhoodTestnet.id ? "switch network & launch" : launchContest.isConnected ? "launch contest" : "connect wallet to launch"}</button>
           <p aria-live="polite" className="formFootnote">{launchContest.status}</p>
           {launchContest.transactionHash ? <a className="explorerLink" href={`${robinhoodTestnet.blockExplorers.default.url}/tx/${launchContest.transactionHash}`} rel="noreferrer" target="_blank">view latest transaction ↗</a> : null}
         </form>
