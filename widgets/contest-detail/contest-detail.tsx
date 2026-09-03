@@ -185,7 +185,7 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
                 <SideLogo imageUrl={contest.metadata.sideA.logoUrl} name={contest.metadata.sideA.name} tone="a" />
                 <div className="arenaSideSummary">
                   <span>side a · {sideALabel}</span><strong>{Number(aShare.toFixed(1))}%</strong>
-                  <small className="arenaSideQuote"><span>{contest.metadata.sideA.symbol}</span><b>{displayLoading ? "—" : formatPrice(priceA)}</b><em aria-label="24 hour price change" className={changeTone(priceChangeA)}>{priceChangeA === null ? "—" : formatChange(priceChangeA)} · 24h</em></small>
+                  <small className="arenaSideQuote"><span>{contest.metadata.sideA.symbol}</span><b>{displayLoading ? "—" : formatPrice(priceA)}</b><em aria-label="24 hour price change" className={`priceChange ${changeTone(priceChangeA)}`}>{priceChangeA === null ? "—" : formatChange(priceChangeA)} · 24h</em></small>
                 </div>
               </div>
               <div className="arenaVersus"><span><i />live</span><small>current control</small></div>
@@ -193,7 +193,7 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
                 <SideLogo imageUrl={contest.metadata.sideB.logoUrl} name={contest.metadata.sideB.name} tone="b" />
                 <div className="arenaSideSummary">
                   <span>side b · {sideBLabel}</span><strong>{Number(bShare.toFixed(1))}%</strong>
-                  <small className="arenaSideQuote"><span>{contest.metadata.sideB.symbol}</span><b>{displayLoading ? "—" : formatPrice(priceB)}</b><em aria-label="24 hour price change" className={changeTone(priceChangeB)}>{priceChangeB === null ? "—" : formatChange(priceChangeB)} · 24h</em></small>
+                  <small className="arenaSideQuote"><span>{contest.metadata.sideB.symbol}</span><b>{displayLoading ? "—" : formatPrice(priceB)}</b><em aria-label="24 hour price change" className={`priceChange ${changeTone(priceChangeB)}`}>{priceChangeB === null ? "—" : formatChange(priceChangeB)} · 24h</em></small>
                 </div>
               </div>
             </div>

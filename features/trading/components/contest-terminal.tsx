@@ -113,7 +113,7 @@ export function ContestTerminal({ contest, history }: { contest: IndexedContest;
                     <div><strong>side {position.side === 0 ? "a" : "b"} · {position.tokenSymbol.toUpperCase()}</strong><span>backing {position.side === 0 ? "side a" : "side b"}</span></div>
                     <strong>{Number(position.tokenBalance).toLocaleString()}</strong>
                     <span>{usdcValue(position.averageEntryPriceUsdc)}</span>
-                    <div><strong>{usdcValue(position.currentPriceUsdc)}</strong><span className={position.change24hPercent >= 0 ? "positive" : "negative"}>{signedPercent(position.change24hPercent)} · 24h</span></div>
+                    <div><strong>{usdcValue(position.currentPriceUsdc)}</strong><span className={`priceChange ${position.change24hPercent >= 0 ? "positive" : "negative"}`}>{signedPercent(position.change24hPercent)} · 24h</span></div>
                     <div><strong>{usdcValue(position.marketValueUsdc)}</strong><span>{usdcValue(position.costBasisUsdc)} cost</span></div>
                     <div><strong className={isPositive ? "positive" : "negative"}>{signedUsdcValue(position.unrealizedPnlUsdc)}</strong><span className={isPositive ? "positive" : "negative"}>{signedPercent(position.unrealizedPnlPercent)}</span></div>
                   </div>;
