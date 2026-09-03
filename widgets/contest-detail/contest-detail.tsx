@@ -7,7 +7,7 @@ import { useReadContracts } from "wagmi";
 
 import { DominanceMeter } from "@/components/contest/dominance-meter";
 import { DuelCurve } from "@/components/contest/duel-curve";
-import { ArrowIcon } from "@/components/ui/icons";
+import { ArrowIcon, XIcon } from "@/components/ui/icons";
 import { LiveCommentary } from "@/features/comments/components/live-commentary";
 import { ContestTerminal } from "@/features/trading/components/contest-terminal";
 import { QuickTradePanel } from "@/features/trading/components/quick-trade-panel";
@@ -17,6 +17,7 @@ import type { IndexedContest, IndexedTradePoint } from "@/lib/api/contests";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
 import { contracts, marketVaultAbi, riskControllerAbi } from "@/lib/blockchain/contracts";
 import { contestKeys, useContestDetail, useContestTrades } from "@/lib/queries/contest";
+import { siteUrl } from "@/lib/seo/site";
 
 function compactUsdc(value: bigint) {
   return new Intl.NumberFormat("en", { maximumFractionDigits: 2, notation: "compact" })
@@ -134,6 +135,9 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
   const sideBTrades24h = marketStats?.sideBTradeCount24h;
   const sideANetFlow24h = marketStats?.sideANetFlow24hUnits;
   const sideBNetFlow24h = marketStats?.sideBNetFlow24hUnits;
+  const contestUrl = `${siteUrl}/contest/${contest.contestId}`;
+  const shareText = `${contest.metadata.title}\n\n${contest.metadata.sideA.name} vs ${contest.metadata.sideB.name} — back your side and move the live market.\n\n@xbid_live`;
+  const xShareUrl = `https://x.com/intent/post?${new URLSearchParams({ text: shareText, url: contestUrl }).toString()}`;
 
   return (
     <main className="contestPageShell">
@@ -154,7 +158,10 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
                 <ArrowIcon />
               </a>
             </div>
-            <span className={riskMode === 0 ? "statusOk" : "statusWarning"}>{riskMode === 0 ? "trading active" : `risk mode ${riskMode}`}</span>
+            <div className="contestTitleActions">
+              <a aria-label="share this contest on x" className="contestShareButton" href={xShareUrl} rel="noreferrer" target="_blank"><XIcon /><span>share</span></a>
+              <span className={riskMode === 0 ? "statusOk" : "statusWarning"}>{riskMode === 0 ? "trading active" : `risk mode ${riskMode}`}</span>
+            </div>
           </div>
 
           <section className="liveArena" aria-label="live arena">

@@ -35,7 +35,7 @@ export default defineConfig([
     },
   },
   {
-    files: ["app/apple-icon.tsx", "app/opengraph-image.tsx"],
+    files: ["app/apple-icon.tsx", "app/**/opengraph-image.tsx"],
     rules: {
       "no-restricted-syntax": "off",
     },
