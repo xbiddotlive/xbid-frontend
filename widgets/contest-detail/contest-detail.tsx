@@ -7,6 +7,7 @@ import { useReadContracts } from "wagmi";
 
 import { DominanceMeter } from "@/components/contest/dominance-meter";
 import { DuelCurve } from "@/components/contest/duel-curve";
+import { SideLogo } from "@/components/contest/side-logo-pair";
 import { ArrowIcon, XIcon } from "@/components/ui/icons";
 import { LiveCommentary } from "@/features/comments/components/live-commentary";
 import { ContestTerminal } from "@/features/trading/components/contest-terminal";
@@ -150,6 +151,7 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
           <section className="liveArena" aria-label="live arena">
             <div className="arenaSides">
               <div className="arenaSide arenaSideA">
+                <SideLogo imageUrl={contest.metadata.sideA.logoUrl} name={contest.metadata.sideA.name} tone="a" />
                 <div className="arenaSideSummary">
                   <span>side a · {sideALabel}</span><strong>{Number(aShare.toFixed(1))}%</strong>
                   <small className="arenaSideQuote"><span>{contest.metadata.sideA.symbol}</span><b>{displayLoading ? "—" : formatPrice(priceA)}</b><em aria-label="24 hour price change" className={changeTone(priceChangeA)}>{priceChangeA === null ? "—" : formatChange(priceChangeA)} · 24h</em></small>
@@ -157,6 +159,7 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
               </div>
               <div className="arenaVersus"><span><i />live</span><small>current control</small></div>
               <div className="arenaSide arenaSideB">
+                <SideLogo imageUrl={contest.metadata.sideB.logoUrl} name={contest.metadata.sideB.name} tone="b" />
                 <div className="arenaSideSummary">
                   <span>side b · {sideBLabel}</span><strong>{Number(bShare.toFixed(1))}%</strong>
                   <small className="arenaSideQuote"><span>{contest.metadata.sideB.symbol}</span><b>{displayLoading ? "—" : formatPrice(priceB)}</b><em aria-label="24 hour price change" className={changeTone(priceChangeB)}>{priceChangeB === null ? "—" : formatChange(priceChangeB)} · 24h</em></small>
