@@ -10,8 +10,15 @@ import { siteName } from "@/lib/seo/site";
 const contestIdPattern = /^0x[0-9a-fA-F]{64}$/;
 const getPageContest = cache((contestId: string) => getContest(robinhoodTestnet.id, contestId));
 
-export async function generateMetadata({ params }: { params: Promise<{ contestId: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ contestId: string }>;
+  searchParams: Promise<{ share?: string }>;
+}): Promise<Metadata> {
   const { contestId } = await params;
+  const query = await searchParams;
   if (!contestIdPattern.test(contestId)) return { title: "contest not found" };
 
   try {
@@ -20,7 +27,8 @@ export async function generateMetadata({ params }: { params: Promise<{ contestId
     const description = `${contest.metadata.sideA.name} vs ${contest.metadata.sideB.name} — back a side and move the live onchain market.`;
     const path = `/contest/${contestId}`;
     const shareRevision = contest.market?.updatedBlock ?? contest.createdBlock;
-    const shareImage = `/api/share/contest/${contestId}?v=2-${shareRevision}`;
+    const shareVersion = /^2-[0-9]+$/.test(query.share ?? "") ? query.share! : `2-${shareRevision}`;
+    const shareImage = `/share/contest/${contestId}/${shareVersion}/card.png`;
     return {
       title,
       description,

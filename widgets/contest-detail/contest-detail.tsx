@@ -122,9 +122,15 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
   const sideANetFlow24h = marketStats?.sideANetFlow24hUnits;
   const sideBNetFlow24h = marketStats?.sideBNetFlow24hUnits;
   const shareRevision = marketStats?.updatedBlock ?? contest.createdBlock;
-  const contestUrl = `${siteUrl}/contest/${contest.contestId}?share=${shareCardVersion}-${shareRevision}`;
+  const shareVersion = `${shareCardVersion}-${shareRevision}`;
+  const contestUrl = `${siteUrl}/contest/${contest.contestId}?share=${shareVersion}`;
+  const shareImageUrl = `${siteUrl}/share/contest/${contest.contestId}/${shareVersion}/card.png`;
   const shareText = `${contest.metadata.title}\n\n${contest.metadata.sideA.name} vs ${contest.metadata.sideB.name} — back your side and move the live market.\n\n@xbid_live`;
   const xShareUrl = `https://x.com/intent/post?${new URLSearchParams({ text: shareText, url: contestUrl }).toString()}`;
+
+  function warmShareImage() {
+    void fetch(shareImageUrl, { cache: "force-cache" }).catch(() => undefined);
+  }
 
   return (
     <main className="contestPageShell">
@@ -146,7 +152,7 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
               </a>
             </div>
             <div className="contestTitleActions">
-              <a aria-label="share this contest on x" className="contestShareButton" href={xShareUrl} rel="noreferrer" target="_blank"><XIcon /><span>share</span></a>
+              <a aria-label="share this contest on x" className="contestShareButton" href={xShareUrl} onClick={warmShareImage} onFocus={warmShareImage} onPointerEnter={warmShareImage} onTouchStart={warmShareImage} rel="noreferrer" target="_blank"><XIcon /><span>share</span></a>
               <span className={riskMode === 0 ? "statusOk" : "statusWarning"}>{riskMode === 0 ? "trading active" : `risk mode ${riskMode}`}</span>
             </div>
           </div>
