@@ -180,8 +180,8 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
 
           <section className="marketSection">
             <div className="chartToolbar">
-              <strong className="chartTitle">live dominance</strong>
-              <div className="curveLegend"><span><i className="legendA" />side a</span><span><i className="legendB" />side b</span></div>
+              <strong className="chartTitle">live backing share</strong>
+              <div className="curveLegend" aria-label="current backing share"><span><i className="legendA" />side a <b>{aShare.toFixed(1)}%</b></span><span><i className="legendB" />side b <b>{bShare.toFixed(1)}%</b></span></div>
               <span className="chartLiveStatus"><i />live · 8s</span>
             </div>
             <DuelCurve history={history} />

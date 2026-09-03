@@ -52,7 +52,7 @@ export function DuelCurve({ history, compact = false }: DuelCurveProps) {
   return (
     <div className={compact ? "duelCurve duelCurveCompact" : "duelCurve"}>
       <svg
-        aria-label={`real dominance history across ${history.length} onchain trades`}
+        aria-label={`side a and side b backing share across ${history.length} onchain trades; both sides total 100 percent`}
         preserveAspectRatio="none"
         role="img"
         viewBox="0 0 100 50"
@@ -63,11 +63,14 @@ export function DuelCurve({ history, compact = false }: DuelCurveProps) {
         <polyline className="curveLine curveLineB" points={linePoints(history, "B")} />
       </svg>
       {!compact && (
-        <div className="curveAxis" aria-hidden="true">
-          <span>{timeLabel(first.blockTimestamp)}</span>
-          <span>{history.length} real moves</span>
-          <span>{timeLabel(last.blockTimestamp)}</span>
-        </div>
+        <>
+          <div className="curveScale" aria-hidden="true"><span>100%</span><span>50%</span><span>0%</span></div>
+          <div className="curveAxis" aria-hidden="true">
+            <span>{timeLabel(first.blockTimestamp)}</span>
+            <span>{history.length} real moves</span>
+            <span>{timeLabel(last.blockTimestamp)}</span>
+          </div>
+        </>
       )}
     </div>
   );
