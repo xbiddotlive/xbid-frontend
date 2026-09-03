@@ -83,7 +83,7 @@ function buildContestCardSvg(contest: IndexedContest) {
     <text x="478.5" y="238" fill="#d9e6ff" font-size="15" text-anchor="middle">${sideA.toFixed(1)}% backing</text>
     <text x="73" y="287" fill="#f7f9ff" font-size="25" font-weight="700">${sideAName}</text>
     <text x="73" y="343" fill="#f7f9ff" font-size="43" font-weight="800">${price(sideAPrice)}</text>
-    <text x="243" y="343" fill="#a9c7ff" font-size="15">LIVE PRICE</text>
+    <text x="73" y="364" fill="#a9c7ff" font-size="13">LIVE PRICE</text>
     <path d="M48 370h516v36a16 16 0 0 1-16 16H64a16 16 0 0 1-16-16z" fill="#3478f6"/>
     <text x="306" y="402" fill="#071020" font-size="20" font-weight="800" text-anchor="middle">BACK ${sideASymbol} →</text>
 
@@ -95,7 +95,7 @@ function buildContestCardSvg(contest: IndexedContest) {
     <text x="1066.5" y="238" fill="#ffe0d9" font-size="15" text-anchor="middle">${sideB.toFixed(1)}% backing</text>
     <text x="661" y="287" fill="#f7f9ff" font-size="25" font-weight="700">${sideBName}</text>
     <text x="661" y="343" fill="#f7f9ff" font-size="43" font-weight="800">${price(sideBPrice)}</text>
-    <text x="831" y="343" fill="#ffb09e" font-size="15">LIVE PRICE</text>
+    <text x="661" y="364" fill="#ffb09e" font-size="13">LIVE PRICE</text>
     <path d="M636 370h516v36a16 16 0 0 1-16 16H652a16 16 0 0 1-16-16z" fill="#ff603d"/>
     <text x="894" y="402" fill="#210904" font-size="20" font-weight="800" text-anchor="middle">BACK ${sideBSymbol} →</text>
 
