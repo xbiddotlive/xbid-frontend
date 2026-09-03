@@ -2,10 +2,15 @@ import { formatUnits } from "viem";
 
 import type { IndexedContest } from "@/lib/api/contests";
 
-export function marketPrices(qAWei: string, qBWei: string) {
-  const x = Number(formatUnits(BigInt(qAWei), 18)) / 270_000;
-  const y = Number(formatUnits(BigInt(qBWei), 18)) / 270_000;
-  const neutral = Math.log(98);
+const marketVersions = { 1: { b: 270_000, neutralWeight: 98 } } as const;
+
+export function marketPrices(qAWei: string, qBWei: string, marketVersion = 1) {
+  const version = marketVersions[marketVersion as keyof typeof marketVersions];
+  if (!version) throw new RangeError(`unsupported market version: ${marketVersion}`);
+  if (BigInt(qAWei) === 0n && BigInt(qBWei) === 0n) return [0.01, 0.01] as const;
+  const x = Number(formatUnits(BigInt(qAWei), 18)) / version.b;
+  const y = Number(formatUnits(BigInt(qBWei), 18)) / version.b;
+  const neutral = Math.log(version.neutralWeight);
   const maximum = Math.max(x, y, neutral);
   const a = Math.exp(x - maximum);
   const b = Math.exp(y - maximum);
@@ -15,9 +20,9 @@ export function marketPrices(qAWei: string, qBWei: string) {
 
 export function contestMetrics(contest: IndexedContest) {
   const market = contest.market;
-  const current = market ? marketPrices(market.qAWei, market.qBWei) : [0.01, 0.01] as const;
+  const current = market ? marketPrices(market.qAWei, market.qBWei, contest.marketVersion) : [0.01, 0.01] as const;
   const anchor = market?.qA24hAgoWei !== null && market?.qB24hAgoWei !== null && market?.qA24hAgoWei !== undefined && market?.qB24hAgoWei !== undefined
-    ? marketPrices(market.qA24hAgoWei, market.qB24hAgoWei)
+    ? marketPrices(market.qA24hAgoWei, market.qB24hAgoWei, contest.marketVersion)
     : null;
   const changes = current.map((value, side) => anchor?.[side] ? (value / anchor[side] - 1) * 100 : 0) as [number, number];
   const qA = BigInt(market?.qAWei ?? "0");

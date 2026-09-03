@@ -1,7 +1,7 @@
-import type { Address, Hex } from "viem";
+import type { Address } from "viem";
 
 import { apiEndpoint, apiJson } from "./http";
-import { commentChallengeSchema, commentsResponseSchema, createCommentResponseSchema } from "./schemas";
+import { commentEligibilitySchema, commentsResponseSchema, createCommentResponseSchema } from "./schemas";
 
 export type ContestComment = ReturnType<typeof commentsResponseSchema.parse>["comments"][number];
 export type ContestCommentsResponse = ReturnType<typeof commentsResponseSchema.parse>;
@@ -9,7 +9,6 @@ export type ContestCommentsResponse = ReturnType<typeof commentsResponseSchema.p
 type CommentInput = {
   chainId: number;
   contestId: string;
-  walletAddress: Address;
   body: string;
   parentId?: string;
 };
@@ -22,30 +21,31 @@ export async function listContestComments(chainId: number, contestId: string, si
   return commentsResponseSchema.parse(await apiJson(response));
 }
 
-export async function createCommentChallenge(input: CommentInput) {
+export async function getCommentEligibility(
+  chainId: number,
+  contestId: string,
+  walletAddress: Address,
+  signal?: AbortSignal,
+) {
   const response = await fetch(
-    apiEndpoint(`/v1/chains/${input.chainId}/contests/${encodeURIComponent(input.contestId)}/comments/challenge`),
-    {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ walletAddress: input.walletAddress, body: input.body, parentId: input.parentId }),
-    },
+    apiEndpoint(`/v1/chains/${chainId}/contests/${encodeURIComponent(contestId)}/comments/eligibility?walletAddress=${encodeURIComponent(walletAddress)}`),
+    { cache: "no-store", signal },
   );
-  return commentChallengeSchema.parse(await apiJson(response));
+  return commentEligibilitySchema.parse(await apiJson(response));
 }
 
-export async function createContestComment(input: CommentInput & { challengeId: string; signature: Hex }) {
+export async function createContestComment(input: CommentInput & { sessionToken: string }) {
   const response = await fetch(
     apiEndpoint(`/v1/chains/${input.chainId}/contests/${encodeURIComponent(input.contestId)}/comments`),
     {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: {
+        authorization: `Bearer ${input.sessionToken}`,
+        "content-type": "application/json",
+      },
       body: JSON.stringify({
-        walletAddress: input.walletAddress,
         body: input.body,
         parentId: input.parentId,
-        challengeId: input.challengeId,
-        signature: input.signature,
       }),
     },
   );

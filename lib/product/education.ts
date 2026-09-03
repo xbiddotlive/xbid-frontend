@@ -2,7 +2,7 @@ export const howSteps = [
   { index: "01", title: "connect", description: "connect an evm wallet and switch to robinhood chain testnet." },
   { index: "02", title: "choose a side", description: "read the live price, dominance, liquidity and recent trades before taking a position." },
   { index: "03", title: "make your move", description: "buy a side token, sell an existing position, or flip directly to the opposing side." },
-  { index: "04", title: "follow the battle", description: "every confirmed trade updates price, control, activity and the crown onchain." },
+  { index: "04", title: "join the debate", description: "a confirmed 1 test usdc buy unlocks trader-only comments and replies for that contest." },
 ] as const;
 
 export const tradeActions = [
@@ -39,6 +39,10 @@ export const frequentlyAskedQuestions = [
   {
     question: "how does the crown move?",
     answer: "After crown activation, a challenger can open a challenge at 48% control. It must reach at least 52% and hold that level continuously for 60 seconds to take the crown.",
+  },
+  {
+    question: "who can comment?",
+    answer: "A connected wallet can comment or reply after completing at least 1 Test USDC of confirmed buys in that contest. One wallet session signature authorizes app writes; comments are limited to one every 30 seconds and 20 per contest each UTC day.",
   },
   {
     question: "are funds and returns guaranteed?",

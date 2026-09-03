@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 
-import { SideLogoPair } from "@/components/contest/side-logo-pair";
+import { SideLogo } from "@/components/contest/side-logo-pair";
 import { ChevronIcon, CompassIcon, GridIcon, ListIcon, MessageIcon } from "@/components/ui/icons";
 import type { IndexedContest } from "@/lib/api/contests";
 import { networkLabel } from "@/lib/blockchain/chain";
@@ -55,7 +55,8 @@ function MarketSide({ market, side }: { market: MarketView; side: 0 | 1 }) {
   const metadata = side === 0 ? market.contest.metadata.sideA : market.contest.metadata.sideB;
   const percent = side === 0 ? market.metrics.sideAPercent : market.metrics.sideBPercent;
   const change = market.metrics.changes[side];
-  return <div className="homeMarketSide" data-tone={side === 0 ? "a" : "b"}><div><strong>{metadata.name}</strong><span>$${market.metrics.current[side].toFixed(4)}</span></div><div className="marketSidePerformance"><b>{percent.toFixed(1)}%</b><em data-tone={change < 0 ? "negative" : "positive"}>{formatChange(change)} · 24h</em></div></div>;
+  const tone = side === 0 ? "a" : "b";
+  return <div className="homeMarketSide" data-tone={tone}><div className="marketSideIdentity"><SideLogo imageUrl={metadata.logoUrl} name={metadata.name} tone={tone} /><div className="marketSideCopy"><strong>{metadata.name}</strong><span>${market.metrics.current[side].toFixed(4)}</span></div></div><div className="marketSidePerformance"><b>{percent.toFixed(1)}%</b><em data-tone={change < 0 ? "negative" : "positive"}>{formatChange(change)} · 24h</em></div></div>;
 }
 
 function CapitalStrip({ market }: { market: MarketView }) {
@@ -64,7 +65,7 @@ function CapitalStrip({ market }: { market: MarketView }) {
 }
 
 function MarketCard({ market }: { market: MarketView }) {
-  return <article className="homeMarketCard"><Link className="homeMarketCardOpen" href={market.href}><span className="visuallyHidden">open {market.contest.metadata.title}</span></Link><header><SideLogoPair sideA={{ imageUrl: market.contest.metadata.sideA.logoUrl, name: market.contest.metadata.sideA.name }} sideB={{ imageUrl: market.contest.metadata.sideB.logoUrl, name: market.contest.metadata.sideB.name }} /><h3>{market.contest.metadata.title}</h3><span className="marketSignal">{market.badge}</span></header><div className="homeCardSides"><Link aria-label={`back ${market.contest.metadata.sideA.name}`} href={`${market.href}?trade=buy&side=a`}><MarketSide market={market} side={0} /></Link><Link aria-label={`back ${market.contest.metadata.sideB.name}`} href={`${market.href}?trade=buy&side=b`}><MarketSide market={market} side={1} /></Link></div><CapitalStrip market={market} /></article>;
+  return <article className="homeMarketCard"><Link className="homeMarketCardOpen" href={market.href}><span className="visuallyHidden">open {market.contest.metadata.title}</span></Link><header><h3>{market.contest.metadata.title}</h3><span className="marketSignal">{market.badge}</span></header><div className="homeCardSides"><Link aria-label={`back ${market.contest.metadata.sideA.name}`} href={`${market.href}?trade=buy&side=a`}><MarketSide market={market} side={0} /></Link><Link aria-label={`back ${market.contest.metadata.sideB.name}`} href={`${market.href}?trade=buy&side=b`}><MarketSide market={market} side={1} /></Link></div><CapitalStrip market={market} /></article>;
 }
 
 export function MarketDiscovery({ contests, apiAvailable }: { contests: IndexedContest[]; apiAvailable: boolean }) {
@@ -111,10 +112,7 @@ export function MarketDiscovery({ contests, apiAvailable }: { contests: IndexedC
         <article className="featuredBattle featuredSlide" key={featuredMarket.contest.contestId} onTouchEnd={(event) => { const end = event.changedTouches[0]?.clientX; if (featuredTouchStart.current !== null && end !== undefined && Math.abs(end - featuredTouchStart.current) > 44) showFeatured(end > featuredTouchStart.current ? -1 : 1); featuredTouchStart.current = null; }} onTouchStart={(event) => { featuredTouchStart.current = event.touches[0]?.clientX ?? null; }}>
           <div className="featuredCopy" aria-live="polite">
             <div className="featuredBadges">{featuredMarket.badges.map((badge) => <span key={badge}>{badge}</span>)}</div>
-            <div className="featuredTitleRow">
-              <SideLogoPair sideA={{ imageUrl: featuredMarket.contest.metadata.sideA.logoUrl, name: featuredMarket.contest.metadata.sideA.name }} sideB={{ imageUrl: featuredMarket.contest.metadata.sideB.logoUrl, name: featuredMarket.contest.metadata.sideB.name }} />
-              <h2><Link href={featuredMarket.href}>{featuredMarket.contest.metadata.title}</Link></h2>
-            </div>
+            <h2><Link href={featuredMarket.href}>{featuredMarket.contest.metadata.title}</Link></h2>
             <p>{featuredMarket.contest.metadata.description || "a live two-sided market settled entirely onchain."}</p>
             <div className="featuredSides">
               <Link href={`${featuredMarket.href}?trade=buy&side=a`}><MarketSide market={featuredMarket} side={0} /></Link>

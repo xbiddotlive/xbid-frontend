@@ -3,7 +3,16 @@
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useSearchParams } from "next/navigation";
 import { useId, useState } from "react";
-import { formatUnits, isAddress, parseUnits, zeroAddress, type Address, type Hash } from "viem";
+import {
+  BaseError,
+  ContractFunctionRevertedError,
+  formatUnits,
+  isAddress,
+  parseUnits,
+  zeroAddress,
+  type Address,
+  type Hash,
+} from "viem";
 import { useAccount, useConnect, usePublicClient, useReadContract, useSwitchChain, useWriteContract } from "wagmi";
 
 import { CloseIcon, InfoIcon } from "@/components/ui/icons";
@@ -14,6 +23,7 @@ import { normalizeSlippageBps, SlippageControl } from "./slippage-control";
 
 export type TradeMode = "buy" | "sell" | "flip";
 type Side = 0 | 1;
+const minimumFlipGrossUnits = 50_000_000n;
 
 type TradeTicketProps = {
   contest: IndexedContest;
@@ -38,6 +48,25 @@ function errorMessage(error: unknown) {
   if (!(error instanceof Error)) return "transaction failed. please try again.";
   if (error.message.toLowerCase().includes("rejected")) return "request rejected in wallet.";
   return error.message.split("\n")[0].slice(0, 180).toLowerCase();
+}
+
+function flipQuoteErrorMessage(error: Error | null, sourceSymbol: string) {
+  if (!error) return null;
+  const minimum = `${formatUnits(minimumFlipGrossUnits, 6)} usdc`;
+  if (error instanceof BaseError) {
+    const reverted = error.walk((cause) => cause instanceof ContractFunctionRevertedError);
+    if (reverted instanceof ContractFunctionRevertedError && reverted.data?.errorName === "FlipGrossBelowMinimum") {
+      const grossOutput = reverted.data.args?.[0];
+      const actual = typeof grossOutput === "bigint"
+        ? `${Number(formatUnits(grossOutput, 6)).toLocaleString(undefined, { maximumFractionDigits: 4 })} usdc`
+        : "this position";
+      return `${actual} is below the ${minimum} flip minimum · sell ${sourceSymbol}, then buy the other side`;
+    }
+  }
+  if (error.message.includes("FlipGrossBelowMinimum")) {
+    return `source value is below the ${minimum} flip minimum · sell ${sourceSymbol}, then buy the other side`;
+  }
+  return "flip quote unavailable · refresh the market and try again";
 }
 
 export function TradeTicket({ contest, embedded = false, initialAmount, initialMode = "buy", initialSide = 0, initialSlippageBps = 50, onClose, onConfirmed }: TradeTicketProps) {
@@ -77,7 +106,7 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
     address: marketVault, abi: marketVaultAbi, functionName: "previewSell", args: [side, input],
     query: { enabled: mode === "sell" && input > 0n, refetchInterval: 8_000 },
   });
-  const { data: flipQuote, isFetching: flipLoading, refetch: refetchFlip } = useReadContract({
+  const { data: flipQuote, error: flipError, isFetching: flipLoading, refetch: refetchFlip } = useReadContract({
     address: marketVault, abi: marketVaultAbi, functionName: "previewFlip", args: [side, input],
     query: { enabled: mode === "flip" && input > 0n, refetchInterval: 8_000 },
   });
@@ -187,6 +216,9 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
   }
 
   const sourceSymbol = side === 0 ? contest.metadata.sideA.symbol : contest.metadata.sideB.symbol;
+  const flipQuoteIssue = mode === "flip" && input > 0n && !flipLoading
+    ? flipQuoteErrorMessage(flipError, sourceSymbol)
+    : null;
   const effectiveSymbol = mode === "sell" ? "usdc" : mode === "buy" ? (side === 0 ? contest.metadata.sideA.symbol : contest.metadata.sideB.symbol) : (side === 0 ? contest.metadata.sideB.symbol : contest.metadata.sideA.symbol);
   const formattedOutput = Number(formatUnits(output, outputDecimals)).toLocaleString(undefined, { maximumFractionDigits: 4 });
   let actionLabel = mode === "buy" ? `buy ${formattedOutput} ${effectiveSymbol}` : mode === "sell" ? `sell for ${formattedOutput} ${effectiveSymbol}` : `flip into ${formattedOutput} ${effectiveSymbol}`;
@@ -195,8 +227,10 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
   else if (mode === "buy" && balance < input && robinhoodTestnet.testnet) actionLabel = `mint 10,000 ${settlementTokenLabel}`;
   else if (mode === "buy" && balance < input) actionLabel = `insufficient ${settlementTokenLabel} balance`;
   else if (mode !== "buy" && balance < input) actionLabel = "insufficient token balance";
+  else if (flipQuoteIssue) actionLabel = "flip unavailable";
   else if (allowance < input) actionLabel = mode === "buy" ? `approve & buy ${formattedOutput} ${effectiveSymbol}` : `approve & ${mode} ${sourceSymbol}`;
   const isDirectTrade = isConnected && chainId === robinhoodTestnet.id && balance >= input && allowance >= input;
+  const quoteBlocked = Boolean(flipQuoteIssue) || (input > 0n && !quoteLoading && !quoteReady);
 
   const balanceDecimals = mode === "buy" ? 6 : 18;
   const balanceLabel = Number(formatUnits(balance, balanceDecimals)).toLocaleString(undefined, { maximumFractionDigits: 4 });
@@ -222,7 +256,7 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
           <b>{amountSymbol}</b>
         </label>
         <div className="compactBalance"><span>balance {balanceLabel}</span><button disabled={!isConnected || balance === 0n} onClick={() => setAmount(formatUnits(balance, balanceDecimals))} type="button">max</button></div>
-        <button className={side === 0 ? "tradeAction actionA" : "tradeAction actionB"} disabled={isActing || input <= 0n || (mode !== "buy" && balance < input)} onClick={() => void act()} type="button">{isActing ? actingLabel : isDirectTrade && quoteLoading ? "updating quote…" : actionLabel}</button>
+        <button className={side === 0 ? "tradeAction actionA" : "tradeAction actionB"} disabled={isActing || input <= 0n || quoteBlocked || (mode !== "buy" && balance < input)} onClick={() => void act()} type="button">{isActing ? actingLabel : isDirectTrade && quoteLoading ? "updating quote…" : actionLabel}</button>
         <div className="compactTradeFooter">
           <SlippageControl onChange={setSlippageBps} value={slippageBps} />
           <button aria-controls={detailsId} aria-expanded={detailsOpen} className="tradeDetailsTrigger" onClick={() => setDetailsOpen((current) => !current)} title="show transaction details" type="button"><InfoIcon /><span>details</span></button>
@@ -237,7 +271,7 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
           {mode === "flip" && <p>one atomic transaction · source is burned only if destination output succeeds</p>}
           <small>real onchain transaction · minimum received is protected</small>
         </div>}
-        {(status !== defaultStatus || lastHash) && <p className="ticketStatus" aria-live="polite">{status}</p>}
+        {(flipQuoteIssue || status !== defaultStatus || lastHash) && <p className="ticketStatus" aria-live="polite">{flipQuoteIssue ?? status}</p>}
         {lastHash ? <a className="explorerLink" href={`${robinhoodTestnet.blockExplorers.default.url}/tx/${lastHash}`} rel="noreferrer" target="_blank">view transaction ↗</a> : null}
       </> : <>
         <label className="amountField">
@@ -255,8 +289,8 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
         </div>
         {mode === "flip" && <p className="atomicNote">one atomic transaction · one fee · source is burned only if destination output succeeds</p>}
         <div className="ticketExecutionSettings"><SlippageControl onChange={setSlippageBps} value={slippageBps} /><span>10 minute deadline</span></div>
-        <button className={side === 0 ? "tradeAction actionA" : "tradeAction actionB"} disabled={isActing || input <= 0n || (mode !== "buy" && balance < input)} onClick={() => void act()} type="button">{isActing ? actingLabel : actionLabel}</button>
-        <p className="ticketStatus" aria-live="polite">{status}</p>
+        <button className={side === 0 ? "tradeAction actionA" : "tradeAction actionB"} disabled={isActing || input <= 0n || quoteBlocked || (mode !== "buy" && balance < input)} onClick={() => void act()} type="button">{isActing ? actingLabel : actionLabel}</button>
+        <p className="ticketStatus" aria-live="polite">{flipQuoteIssue ?? status}</p>
         {lastHash ? <a className="explorerLink" href={`${robinhoodTestnet.blockExplorers.default.url}/tx/${lastHash}`} rel="noreferrer" target="_blank">view transaction ↗</a> : null}
         <div className="ticketFootnote">real onchain transaction · minimum received is protected</div>
       </>}

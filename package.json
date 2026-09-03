@@ -34,7 +34,11 @@
   },
   "pnpm": {
     "overrides": {
-      "qr": "0.6.0"
+      "axios": "1.18.0",
+      "decode-uri-component": "0.5.0",
+      "qr": "0.6.0",
+      "uuid": "11.1.1",
+      "ws": "8.21.0"
     },
     "patchedDependencies": {
       "cuer@0.0.3": "patches/cuer@0.0.3.patch"

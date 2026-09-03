@@ -1,4 +1,5 @@
-import { getDefaultConfig } from "@rainbow-me/rainbowkit";
+import { connectorsForWallets } from "@rainbow-me/rainbowkit";
+import { injectedWallet, walletConnectWallet } from "@rainbow-me/rainbowkit/wallets";
 import { cookieStorage, createConfig, createStorage, http } from "wagmi";
 import { injected } from "wagmi/connectors";
 
@@ -14,25 +15,27 @@ export const walletConnectEnabled = walletConnectProjectId.length > 0;
 
 const storage = createStorage({ storage: cookieStorage });
 
-export const wagmiConfig = walletConnectEnabled
-  ? getDefaultConfig({
+const connectors = walletConnectEnabled
+  ? connectorsForWallets([{
+      groupName: "recommended",
+      wallets: [
+        injectedWallet,
+        () => walletConnectWallet({ projectId: walletConnectProjectId }),
+      ],
+    }], {
       appName: "xbid.live",
       appDescription: "The live contest market",
       appUrl: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
-      chains: [robinhoodTestnet],
       projectId: walletConnectProjectId,
-      ssr: true,
-      storage,
-      transports: {
-        [robinhoodTestnet.id]: http(robinhoodTestnet.rpcUrls.default.http[0]),
-      },
     })
-  : createConfig({
-      chains: [robinhoodTestnet],
-      connectors: [injected()],
-      ssr: true,
-      storage,
-      transports: {
-        [robinhoodTestnet.id]: http(robinhoodTestnet.rpcUrls.default.http[0]),
-      },
-    });
+  : [injected()];
+
+export const wagmiConfig = createConfig({
+  chains: [robinhoodTestnet],
+  connectors,
+  ssr: true,
+  storage,
+  transports: {
+    [robinhoodTestnet.id]: http(robinhoodTestnet.rpcUrls.default.http[0]),
+  },
+});

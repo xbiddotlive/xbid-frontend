@@ -12,16 +12,26 @@ async function proxy(request: NextRequest, context: RouteContext<"/api/backend/[
   const headers = new Headers();
   const contentType = request.headers.get("content-type");
   if (contentType) headers.set("content-type", contentType);
+  const authorization = request.headers.get("authorization");
+  if (authorization) headers.set("authorization", authorization);
+  const clientIp = request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for");
+  if (clientIp) headers.set("x-forwarded-for", clientIp.split(",")[0].trim().slice(0, 64));
   const body = request.method === "GET" || request.method === "HEAD" ? undefined : await request.arrayBuffer();
   if (body && body.byteLength > 2_200_000) {
     return Response.json({ code: "REQUEST_TOO_LARGE" }, { status: 413 });
   }
-  const response = await fetch(upstream, {
-    method: request.method,
-    headers,
-    body,
-    cache: "no-store",
-  });
+  let response: Response;
+  try {
+    response = await fetch(upstream, {
+      method: request.method,
+      headers,
+      body,
+      cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
+    });
+  } catch {
+    return Response.json({ code: "API_UPSTREAM_UNAVAILABLE" }, { status: 504 });
+  }
   const responseHeaders = new Headers();
   const responseType = response.headers.get("content-type");
   if (responseType) responseHeaders.set("content-type", responseType);

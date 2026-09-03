@@ -3,6 +3,13 @@ import { z } from "zod";
 const decimalString = z.string().regex(/^-?\d+$/);
 const address = z.string().regex(/^0x[0-9a-fA-F]{40}$/);
 const bytes32 = z.string().regex(/^0x[0-9a-fA-F]{64}$/);
+const freshnessSchema = z.object({
+  chainBlock: decimalString,
+  indexedBlock: decimalString,
+  lagBlocks: decimalString,
+  chainAvailable: z.boolean(),
+  asOf: z.iso.datetime(),
+});
 
 export const tradeSchema = z.object({
   transactionHash: bytes32,
@@ -63,15 +70,15 @@ export const contestSchema = z.object({
   sideAToken: address,
   sideBToken: address,
   marketVersion: z.number().int().positive(),
-  metadataHash: z.string().regex(/^0x[0-9a-fA-F]*$/),
+  metadataHash: bytes32,
   createdBlock: decimalString,
   createdAt: z.string(),
   metadata: contestMetadataSchema,
   market: marketSchema.nullable(),
 });
 
-export const contestListSchema = z.object({ items: z.array(contestSchema), nextCursor: z.string().nullable() });
-export const tradeListSchema = z.object({ items: z.array(tradeSchema), nextCursor: z.string().nullable() });
+export const contestListSchema = z.object({ items: z.array(contestSchema), nextCursor: z.string().nullable(), freshness: freshnessSchema.optional() });
+export const tradeListSchema = z.object({ items: z.array(tradeSchema), nextCursor: z.string().nullable(), freshness: freshnessSchema.optional() });
 
 export const positionSchema = z.object({
   id: z.string(), side: z.union([z.literal(0), z.literal(1)]), tokenSymbol: z.string(),
@@ -82,18 +89,34 @@ export const positionSchema = z.object({
 });
 export const positionsResponseSchema = z.object({
   chainId: decimalString, contestId: bytes32, walletAddress: address,
-  dataSource: z.literal("indexed"), positions: z.array(positionSchema),
+  dataSource: z.literal("indexed"), positions: z.array(positionSchema), freshness: freshnessSchema.optional(),
 });
 
 export const commentSchema = z.object({
   id: z.string(), contestId: bytes32, authorAddress: address, authorName: z.string().optional(),
   body: z.string(), createdAt: z.iso.datetime(), parentId: z.string().nullable(), likes: z.number().int().nonnegative(),
+  positionSideAtPost: z.enum(["A", "B", "BOTH", "NONE", "UNVERIFIED"]),
 });
 export const commentsResponseSchema = z.object({
   chainId: decimalString, contestId: bytes32, dataSource: z.literal("indexed"), comments: z.array(commentSchema),
+  nextCursor: z.string().nullable(), freshness: freshnessSchema.optional(),
 });
 export const commentChallengeSchema = z.object({ challengeId: z.uuid(), message: z.string().min(1), expiresAt: z.iso.datetime() });
 export const createCommentResponseSchema = z.object({ dataSource: z.literal("indexed"), comment: commentSchema });
+export const commentEligibilitySchema = z.object({
+  walletAddress: address,
+  eligible: z.boolean(),
+  cumulativeBuyUnits: decimalString,
+  minimumBuyUnits: decimalString,
+  positionSide: z.enum(["A", "B", "BOTH", "NONE", "UNVERIFIED"]),
+});
+
+export const writeSessionChallengeSchema = commentChallengeSchema;
+export const writeSessionSchema = z.object({
+  token: z.string().regex(/^[0-9a-f]{64}$/i),
+  expiresAt: z.iso.datetime(),
+  walletAddress: address,
+});
 
 export const uploadedAssetSchema = z.object({
   contentHash: bytes32,
@@ -148,6 +171,7 @@ export const walletPortfolioSchema = z.object({
     blockTimestamp: decimalString,
   })),
   partial: z.boolean(),
+  freshness: freshnessSchema.optional(),
 });
 
 export const networkActivitySchema = z.object({
@@ -167,6 +191,7 @@ export const networkActivitySchema = z.object({
     amountUnits: decimalString,
     occurredAt: decimalString,
   })),
+  freshness: freshnessSchema.optional(),
 });
 
 export const leaderboardSchema = z.object({
@@ -195,4 +220,5 @@ export const leaderboardSchema = z.object({
     volumeUnits: decimalString,
     rewardShare: z.number(),
   })),
+  freshness: freshnessSchema.optional(),
 });

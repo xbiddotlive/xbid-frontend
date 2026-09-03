@@ -16,6 +16,7 @@ export function useContestDetail(chainId: number, contestId: string, initialData
     queryFn: ({ signal }) => getContest(chainId, contestId, signal),
     initialData,
     refetchInterval: 8_000,
+    staleTime: 3_000,
   });
 }
 
@@ -25,6 +26,7 @@ export function useContestTrades(chainId: number, contestId: string, initialData
     queryFn: ({ signal }) => listContestTrades(chainId, contestId, signal).then((response) => response.items),
     initialData,
     refetchInterval: 4_000,
+    staleTime: 2_000,
   });
 }
 
@@ -33,6 +35,7 @@ export function useContestPositions(chainId: number, contestId: string, address?
     queryKey: address ? contestKeys.positions(chainId, contestId, address) : ["contest-positions", chainId, contestId, "disconnected"],
     queryFn: ({ signal }) => getContestPositions(chainId, contestId, address!, signal),
     enabled: enabled && Boolean(address),
-    refetchInterval: 15_000,
+    refetchInterval: 30_000,
+    staleTime: 5_000,
   });
 }

@@ -38,19 +38,21 @@
 .featuredBadges span:nth-child(2) { border-color: rgb(52 120 246 / 55%); color: #8ab3ff; }
 .featuredBadges span:nth-child(3), .featuredBadges i { border-color: rgb(255 200 87 / 55%); color: var(--crown); }
 .featuredBattle h2 { margin: 0 0 3px; font-weight: 850; }
-.featuredTitleRow { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; gap: 8px; }
-.featuredTitleRow .sideLogoPair { align-self: center; }
 .featuredBattle p { margin-bottom: 12px; color: var(--muted); }
 .featuredSides, .homeCardSides { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .featuredSides a, .homeCardSides a { min-width: 0; padding: 0; border: 0; border-radius: var(--radius); background: transparent; cursor: pointer; }
 .homeCardSides a { position: relative; z-index: 2; }
-.homeMarketSide { display: flex; align-items: center; justify-content: space-between; min-height: 58px; padding: 8px 10px; border: 1px solid var(--line); border-left: 4px solid var(--side-a); border-radius: var(--radius); background: #0b0e14; text-align: left; }
+.homeMarketSide { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto auto; align-items: center; column-gap: 8px; min-height: 58px; padding: 8px 10px; border: 1px solid var(--line); border-left: 4px solid var(--side-a); border-radius: var(--radius); background: #0b0e14; text-align: left; }
 .homeMarketSide[data-tone="b"] { border-left-color: var(--side-b); }
-.homeMarketSide > div { display: flex; min-width: 0; flex-direction: column; }
+.marketSideIdentity, .marketSideCopy, .marketSidePerformance { display: contents; }
+.marketSideIdentity .sideLogo { grid-column: 1; grid-row: 1 / span 2; align-self: center; border-width: 1px; }
+.marketSideIdentity .sideLogo[data-tone="b"] { margin-left: 0; }
+.marketSideCopy strong { grid-column: 2; grid-row: 1; }
+.marketSideCopy > span { grid-column: 2; grid-row: 2; overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }
+.marketSidePerformance b { grid-column: 3; grid-row: 1; text-align: right; }
+.marketSidePerformance em { grid-column: 3; grid-row: 2; text-align: right; }
 .homeMarketSide strong { overflow: hidden; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
-.homeMarketSide span { color: var(--muted); }
 .homeMarketSide b { font-weight: 850; }
-.homeMarketSide .marketSidePerformance { align-items: flex-end; margin-left: 10px; }
 .marketSidePerformance em { color: var(--muted); font-style: normal; font-weight: 720; white-space: nowrap; }
 .marketSidePerformance em[data-tone="positive"] { color: var(--positive); }
 .marketSidePerformance em[data-tone="negative"] { color: var(--negative); }
@@ -76,12 +78,14 @@
 .homeMarketCard:hover { border-color: var(--line-strong); transform: translateY(-1px); }
 .homeMarketCardOpen { position: absolute; z-index: 1; inset: 0; border-radius: var(--radius); }
 .homeMarketCardOpen:focus-visible { box-shadow: var(--focus); }
-.homeMarketCard > header { display: grid; grid-template-columns: 44px minmax(0, 1fr); grid-template-rows: auto auto; align-content: start; gap: 3px 8px; min-height: 60px; }
+.homeMarketCard > header { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; align-content: start; gap: 3px; min-height: 60px; }
 .marketCode { display: grid; width: 36px; height: 36px; grid-row: 1 / span 2; place-items: center; border: 1px solid var(--line-strong); border-radius: var(--radius); font-weight: 850; }
-.homeMarketCard > header > .sideLogoPair { grid-row: 1 / span 2; }
 .homeMarketCard h3 { margin: 0; line-height: 1.5; font-weight: 800; }
 .marketSignal { display: inline-flex; align-self: start; align-items: center; justify-self: start; min-height: 20px; padding: 0 7px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--muted); background: transparent; font-weight: 450; line-height: 18px; white-space: nowrap; }
 .homeMarketCard .homeMarketSide { min-height: 50px; border-left-width: 2px; border-left-color: rgb(52 120 246 / 45%); transition: border-color 140ms ease, background 140ms ease; }
+.homeMarketCard .homeCardSides { gap: 6px; }
+.homeMarketCard .homeMarketSide { column-gap: 5px; padding: 7px 6px; }
+.homeMarketCard .marketSideIdentity .sideLogo { width: 24px; height: 24px; flex-basis: 24px; }
 .homeMarketCard .homeMarketSide[data-tone="b"] { border-left-color: rgb(255 96 61 / 42%); }
 .homeMarketCard .homeCardSides a:hover .homeMarketSide[data-tone="a"] { border-left-color: var(--side-a); background: rgb(52 120 246 / 6%); }
 .homeMarketCard .homeCardSides a:hover .homeMarketSide[data-tone="b"] { border-left-color: var(--side-b); background: rgb(255 96 61 / 6%); }

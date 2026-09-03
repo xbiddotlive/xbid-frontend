@@ -10,6 +10,7 @@ export function useWalletPortfolio(chainId: number, address?: Address) {
     queryKey: address ? portfolioKey(chainId, address) : ["wallet-portfolio", chainId, "disconnected"],
     queryFn: ({ signal }) => getWalletPortfolio(chainId, address!, signal),
     enabled: Boolean(address),
-    refetchInterval: 15_000,
+    refetchInterval: 30_000,
+    staleTime: 5_000,
   });
 }

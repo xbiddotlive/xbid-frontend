@@ -153,6 +153,11 @@ export const feeVaultAbi = [
 
 export const marketVaultAbi = [
   {
+    type: "error",
+    name: "FlipGrossBelowMinimum",
+    inputs: [{ name: "grossOutputUnits", type: "uint256" }],
+  },
+  {
     type: "function",
     name: "previewBuy",
     stateMutability: "view",

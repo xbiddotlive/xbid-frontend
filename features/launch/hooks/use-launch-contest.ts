@@ -4,10 +4,11 @@ import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { bytesToHex, decodeEventLog, parseUnits, zeroAddress, type Address, type Hash, type Hex } from "viem";
-import { useAccount, useConnect, usePublicClient, useReadContract, useSwitchChain, useWriteContract } from "wagmi";
+import { useAccount, useConnect, usePublicClient, useReadContract, useSignMessage, useSwitchChain, useWriteContract } from "wagmi";
 
 import { getContest } from "@/lib/api/contests";
 import { prepareContestMetadata, uploadContestLogo } from "@/lib/api/metadata";
+import { ensureWriteSession as getWriteSession } from "@/lib/api/write-session";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
 import { contestCreationFeeUnits, contracts, erc20Abi, factoryAbi, marketVaultAbi } from "@/lib/blockchain/contracts";
 
@@ -54,6 +55,7 @@ export function useLaunchContest() {
   const { connectors, connect } = useConnect();
   const { switchChainAsync } = useSwitchChain();
   const { writeContractAsync } = useWriteContract();
+  const { signMessageAsync } = useSignMessage();
   const publicClient = usePublicClient({ chainId: robinhoodTestnet.id });
   const [isBusy, setIsBusy] = useState(false);
   const [status, setStatus] = useState("connect a wallet, then review and launch on testnet.");
@@ -120,6 +122,11 @@ export function useLaunchContest() {
     }
   }
 
+  async function ensureWriteSession(account: Address) {
+    setStatus("confirm a secure metadata session in your wallet…");
+    return getWriteSession(account, (message) => signMessageAsync({ message }));
+  }
+
   async function launch(input: LaunchContestInput) {
     if (!(await ensureWallet())) return;
     if (!address || !publicClient) return;
@@ -135,10 +142,11 @@ export function useLaunchContest() {
       const initialUnits = input.initialSide === "none" ? 0n : parseUnits(input.initialAmount || "0", 6);
       if (input.initialSide !== "none" && initialUnits <= 0n) throw new Error("enter an initial position amount or select no initial position.");
 
+      const writeToken = await ensureWriteSession(address);
       setStatus("uploading contest assets…");
       const [sideAAsset, sideBAsset] = await Promise.all([
-        input.sideALogo ? uploadContestLogo(input.sideALogo) : null,
-        input.sideBLogo ? uploadContestLogo(input.sideBLogo) : null,
+        input.sideALogo ? uploadContestLogo(input.sideALogo, writeToken) : null,
+        input.sideBLogo ? uploadContestLogo(input.sideBLogo, writeToken) : null,
       ]);
       setStatus("creating immutable contest metadata…");
       const prepared = await prepareContestMetadata({
@@ -153,7 +161,7 @@ export function useLaunchContest() {
         sideBName: input.sideBName,
         sideBSymbol,
         sideBLogoHash: sideBAsset?.contentHash,
-      });
+      }, writeToken);
       const userSalt = bytesToHex(crypto.getRandomValues(new Uint8Array(32)));
       const contestId = await publicClient.readContract({
         address: contracts.factory,

@@ -162,8 +162,13 @@
 .userComment { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; }
 .commentAvatar { display: grid; width: 28px; height: 28px; place-items: center; border: 1px solid var(--line-strong); border-radius: 50%; color: var(--text); background: var(--panel-raised); font-weight: 800; }
 .commentMeta { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.commentMeta > div { display: flex; min-width: 0; align-items: center; gap: 6px; }
 .commentMeta strong { overflow: hidden; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
-.commentMeta span { color: var(--faint); }
+.commentMeta > span { flex: none; color: var(--faint); }
+.commentPosition { flex: none; padding: 1px 5px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--muted); font-size: var(--font-size-ui); line-height: 15px; }
+.commentPosition[data-side="a"] { border-color: rgb(55 125 246 / 45%); color: #8ab3ff; background: rgb(55 125 246 / 10%); }
+.commentPosition[data-side="b"] { border-color: rgb(255 96 61 / 45%); color: #ff9b83; background: rgb(255 96 61 / 10%); }
+.commentPosition[data-side="both"] { border-color: rgb(46 213 154 / 35%); color: var(--positive); background: rgb(46 213 154 / 8%); }
 .userComment p { margin: 3px 0 0; color: var(--muted); overflow-wrap: anywhere; }
 .commentActions { display: flex; align-items: center; gap: 10px; margin-top: 5px; color: var(--faint); }
 .commentActions button { min-height: 20px; padding: 0; border: 0; color: #8ab3ff; background: transparent; cursor: pointer; }

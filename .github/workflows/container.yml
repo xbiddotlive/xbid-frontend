@@ -35,7 +35,7 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             NEXT_PUBLIC_APP_URL=https://testnet.xbid.live
-            NEXT_PUBLIC_API_URL=https://api.testnet.xbid.live
+            NEXT_PUBLIC_API_URL=https://api-testnet.xbid.live
             NEXT_PUBLIC_CHAIN_ID=46630
             NEXT_PUBLIC_CHAIN_NAME=Robinhood Chain Testnet
             NEXT_PUBLIC_CHAIN_RPC_URL=https://rpc.testnet.chain.robinhood.com
