@@ -27,8 +27,8 @@ export async function generateMetadata({
     const description = `${contest.metadata.sideA.name} vs ${contest.metadata.sideB.name} — back a side and move the live onchain market.`;
     const path = `/contest/${contestId}`;
     const shareRevision = contest.market?.updatedBlock ?? contest.createdBlock;
-    const shareVersion = /^[234]-[0-9]+$/.test(query.share ?? "") ? query.share! : `4-${shareRevision}`;
-    const shareImage = shareVersion.startsWith("4-")
+    const shareVersion = /^[2345]-[0-9]+$/.test(query.share ?? "") ? query.share! : `5-${shareRevision}`;
+    const shareImage = /^[45]-/.test(shareVersion)
       ? `/share/contest/${contestId}/${shareVersion}/card.jpg`
       : `/share/contest/${contestId}/${shareVersion}/card.png`;
     return {

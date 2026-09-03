@@ -21,7 +21,7 @@ import { formatChange, marketPrices } from "@/lib/product/market-metrics";
 import { contestKeys, useContestDetail, useContestTrades } from "@/lib/queries/contest";
 import { siteUrl } from "@/lib/seo/site";
 
-const shareCardVersion = "4";
+const shareCardVersion = "5";
 
 function compactUsdc(value: bigint) {
   return new Intl.NumberFormat("en", { maximumFractionDigits: 2, notation: "compact" })

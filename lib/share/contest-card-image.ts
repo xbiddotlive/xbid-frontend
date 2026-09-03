@@ -61,7 +61,7 @@ function buildContestCardSvg(contest: IndexedContest) {
       <linearGradient id="versus-line" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#3478f6"/><stop offset="0.48" stop-color="#343a48"/><stop offset="1" stop-color="#ff603d"/></linearGradient>
       <filter id="glow-blue"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#3478f6" flood-opacity=".28"/></filter>
       <filter id="glow-red"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#ff603d" flood-opacity=".26"/></filter>
-      <style>text{font-family:Arial,Helvetica,sans-serif}.caps{letter-spacing:2px}</style>
+      <style>text{font-family:"DejaVu Sans","Noto Sans CJK SC",sans-serif}.caps{letter-spacing:2px}</style>
     </defs>
     <rect width="600" height="630" fill="url(#page-left)"/>
     <rect x="600" width="600" height="630" fill="url(#page-right)"/>
