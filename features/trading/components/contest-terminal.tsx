@@ -33,7 +33,7 @@ export function ContestTerminal({ contest, history }: { contest: IndexedContest;
   const recentHistory = allRecentHistory.filter(({ move, previous }) => {
     if (tradeFilter === "side a") return effectiveSide(move) === 0;
     if (tradeFilter === "side b") return effectiveSide(move) === 1;
-    if (tradeFilter === "impact") return eventAction(move) === "flip" || battleImpact(move, previous).isLeadMove;
+    if (tradeFilter === "impact") return eventAction(move) === "flip" || battleImpact(move, previous, contest.marketVersion).isLeadMove;
     return true;
   });
 
@@ -66,7 +66,7 @@ export function ContestTerminal({ contest, history }: { contest: IndexedContest;
             </div>
             <div className="terminalTableHead" role="row"><span role="columnheader">time</span><span role="columnheader">trader conviction</span><span role="columnheader">amount</span><span role="columnheader">battle impact</span><span role="columnheader" /></div>
             {nowSeconds === null ? <div className="terminalEmpty"><span>loading live trades…</span></div> : recentHistory.length > 0 ? recentHistory.map(({ move, previous }) => {
-              const impact = battleImpact(move, previous);
+              const impact = battleImpact(move, previous, contest.marketVersion);
               const supportedSide = effectiveSide(move);
               return <div className="terminalBattleRow" data-side={supportedSide === 0 ? "a" : "b"} key={`${move.transactionHash}-${move.logIndex}`} role="row">
                 <div className="battleTime"><span>{eventTime(move.blockTimestamp)}</span></div>

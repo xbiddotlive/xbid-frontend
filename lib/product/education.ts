@@ -34,7 +34,7 @@ export const frequentlyAskedQuestions = [
   },
   {
     question: "what does control mean?",
-    answer: "Control is the live relative quantity held across the two side tokens. It shows which side currently leads the market and powers the crown competition.",
+    answer: "Control is the curve-weighted dominance of the two sides, excluding neutral liquidity. Both sides total 100%; it shows which side currently leads and powers the crown competition.",
   },
   {
     question: "how does the crown move?",

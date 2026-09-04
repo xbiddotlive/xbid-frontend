@@ -21,6 +21,18 @@ export function marketPrices(qAWei: string, qBWei: string, marketVersion = 1) {
   return [a / (a + b + n), b / (a + b + n)] as const;
 }
 
+export function marketControl(qAWei: string, qBWei: string, marketVersion = 1) {
+  const version = marketVersions[marketVersion as keyof typeof marketVersions];
+  if (!version) throw new RangeError(`unsupported market version: ${marketVersion}`);
+  const x = Number(formatUnits(BigInt(qAWei), 18)) / version.b;
+  const y = Number(formatUnits(BigInt(qBWei), 18)) / version.b;
+  const maximum = Math.max(x, y);
+  const a = Math.exp(x - maximum);
+  const b = Math.exp(y - maximum);
+  const sideA = a / (a + b) * 100;
+  return [sideA, 100 - sideA] as const;
+}
+
 export function contestMetrics(contest: IndexedContest) {
   const market = contest.market;
   const current = market ? marketPrices(market.qAWei, market.qBWei, contest.marketVersion) : [0.01, 0.01] as const;
@@ -28,11 +40,12 @@ export function contestMetrics(contest: IndexedContest) {
     ? marketPrices(market.qA24hAgoWei, market.qB24hAgoWei, contest.marketVersion)
     : null;
   const changes = current.map((value, side) => anchor?.[side] ? (value / anchor[side] - 1) * 100 : 0) as [number, number];
-  const qA = BigInt(market?.qAWei ?? "0");
-  const qB = BigInt(market?.qBWei ?? "0");
-  const total = qA + qB;
-  const sideAPercent = total > 0n ? Number(qA * 10_000n / total) / 100 : 50;
-  return { current, changes, sideAPercent, sideBPercent: 100 - sideAPercent };
+  const [sideAPercent, sideBPercent] = marketControl(
+    market?.qAWei ?? "0",
+    market?.qBWei ?? "0",
+    contest.marketVersion,
+  );
+  return { current, changes, sideAPercent, sideBPercent };
 }
 
 export function formatUsdc(units: string, signed = false) {

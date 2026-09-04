@@ -17,11 +17,11 @@ import type { TradeMode } from "@/features/trading/components/trade-ticket";
 import type { IndexedContest, IndexedTradePoint } from "@/lib/api/contests";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
 import { contracts, marketVaultAbi, riskControllerAbi } from "@/lib/blockchain/contracts";
-import { formatChange, marketPrices } from "@/lib/product/market-metrics";
+import { formatChange, marketControl, marketPrices } from "@/lib/product/market-metrics";
 import { contestKeys, useContestDetail, useContestTrades } from "@/lib/queries/contest";
 import { siteUrl } from "@/lib/seo/site";
 
-const shareCardVersion = "7";
+const shareCardVersion = "8";
 
 function compactUsdc(value: bigint) {
   return new Intl.NumberFormat("en", { maximumFractionDigits: 2, notation: "compact" })
@@ -88,9 +88,7 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
   const reserve = data?.[2].result ?? BigInt(marketStats?.reserveUnits ?? "0");
   const displayLoading = isLoading && !marketStats;
   const riskMode = Number(data?.[3].result ?? 0);
-  const total = qA + qB;
-  const aShare = total > 0n ? Number((qA * 10_000n) / total) / 100 : 50;
-  const bShare = 100 - aShare;
+  const [aShare, bShare] = marketControl(qA.toString(), qB.toString(), contest.marketVersion);
   const leaderSide = aShare === bShare ? null : aShare > bShare ? "side a" : "side b";
   const liveEdge = Math.abs(aShare - bShare);
   const sideALabel = contest.metadata.sideA.name === "side a" ? contest.metadata.sideA.symbol : contest.metadata.sideA.name;
@@ -214,11 +212,11 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
 
           <section className="marketSection">
             <div className="chartToolbar">
-              <strong className="chartTitle">live backing share</strong>
-              <div className="curveLegend" aria-label="current backing share"><span><i className="legendA" />side a <b>{aShare.toFixed(1)}%</b></span><span><i className="legendB" />side b <b>{bShare.toFixed(1)}%</b></span></div>
+              <strong className="chartTitle">live control</strong>
+              <div className="curveLegend" aria-label="current control"><span><i className="legendA" />side a <b>{aShare.toFixed(1)}%</b></span><span><i className="legendB" />side b <b>{bShare.toFixed(1)}%</b></span></div>
               <span className="chartLiveStatus"><i />live · 8s</span>
             </div>
-            <DuelCurve history={history} />
+            <DuelCurve history={history} marketVersion={contest.marketVersion} />
           </section>
 
           <nav className="mobileArenaTabs" aria-label="contest sections">

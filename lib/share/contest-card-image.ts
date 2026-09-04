@@ -2,7 +2,7 @@ import sharp from "sharp";
 
 import { getContest, type IndexedContest } from "@/lib/api/contests";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
-import { formatUsdc, marketPrices } from "@/lib/product/market-metrics";
+import { formatUsdc, marketControl, marketPrices } from "@/lib/product/market-metrics";
 
 type ContestCardFormat = "jpeg" | "png";
 
@@ -22,15 +22,6 @@ function truncate(value: string, maximum: number) {
   return value.length <= maximum ? value : `${value.slice(0, maximum - 1)}…`;
 }
 
-function dominance(aValue: string, bValue: string) {
-  const a = BigInt(aValue);
-  const b = BigInt(bValue);
-  const total = a + b;
-  if (total === 0n) return [50, 50] as const;
-  const sideA = Number((a * 1_000n) / total) / 10;
-  return [sideA, 100 - sideA] as const;
-}
-
 function price(value: number) {
   if (value > 0 && value < 0.0001) return `$${value.toExponential(2)}`;
   return `$${value.toFixed(4)}`;
@@ -40,7 +31,7 @@ function buildContestCardSvg(contest: IndexedContest) {
   const market = contest.market;
   const qA = market?.qAWei ?? "0";
   const qB = market?.qBWei ?? "0";
-  const [sideA, sideB] = dominance(qA, qB);
+  const [sideA, sideB] = marketControl(qA, qB, contest.marketVersion);
   const [sideAPrice, sideBPrice] = marketPrices(qA, qB, contest.marketVersion);
   const liquidity = formatUsdc(market?.reserveUnits ?? "0");
   const volume = formatUsdc(market?.volume24hUnits ?? "0");
@@ -80,7 +71,7 @@ function buildContestCardSvg(contest: IndexedContest) {
     <text x="92" y="239" fill="#fff" font-size="18" text-anchor="middle">${sideASymbol.slice(0, 1)}</text>
     <text x="122" y="238" fill="#a9c7ff" font-size="16">SIDE A · ${sideASymbol}</text>
     <rect x="416" y="216" width="125" height="32" rx="16" fill="#0b1832" fill-opacity=".82"/>
-    <text x="478.5" y="238" fill="#d9e6ff" font-size="15" text-anchor="middle">${sideA.toFixed(1)}% backing</text>
+    <text x="478.5" y="238" fill="#d9e6ff" font-size="15" text-anchor="middle">${sideA.toFixed(1)}% control</text>
     <text x="73" y="287" fill="#f7f9ff" font-size="25">${sideAName}</text>
     <text x="73" y="343" fill="#f7f9ff" font-size="43">${price(sideAPrice)}</text>
     <text x="73" y="364" fill="#a9c7ff" font-size="13">LIVE PRICE</text>
@@ -92,7 +83,7 @@ function buildContestCardSvg(contest: IndexedContest) {
     <text x="680" y="239" fill="#210904" font-size="18" text-anchor="middle">${sideBSymbol.slice(0, 1)}</text>
     <text x="710" y="238" fill="#ffb09e" font-size="16">SIDE B · ${sideBSymbol}</text>
     <rect x="1004" y="216" width="125" height="32" rx="16" fill="#46110d" fill-opacity=".82"/>
-    <text x="1066.5" y="238" fill="#ffe0d9" font-size="15" text-anchor="middle">${sideB.toFixed(1)}% backing</text>
+    <text x="1066.5" y="238" fill="#ffe0d9" font-size="15" text-anchor="middle">${sideB.toFixed(1)}% control</text>
     <text x="661" y="287" fill="#f7f9ff" font-size="25">${sideBName}</text>
     <text x="661" y="343" fill="#f7f9ff" font-size="43">${price(sideBPrice)}</text>
     <text x="661" y="364" fill="#ffb09e" font-size="13">LIVE PRICE</text>

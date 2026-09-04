@@ -4,6 +4,7 @@ import { formatUnits } from "viem";
 import { ArrowIcon } from "@/components/ui/icons";
 import type { IndexedContest } from "@/lib/api/contests";
 import { crownSideIndex } from "@/lib/product/crown";
+import { marketControl } from "@/lib/product/market-metrics";
 import { DominanceMeter } from "./dominance-meter";
 import { DuelCurve } from "./duel-curve";
 import { SideLogoPair } from "./side-logo-pair";
@@ -31,17 +32,12 @@ function compactUsdc(units: string) {
   }).format(Number(formatUnits(BigInt(units), 6)));
 }
 
-function dominance(contest: IndexedContest) {
-  const a = BigInt(contest.market?.qAWei ?? "0");
-  const b = BigInt(contest.market?.qBWei ?? "0");
-  const total = a + b;
-  if (total === 0n) return 50;
-  return Number((a * 10_000n) / total) / 100;
-}
-
 export function ContestCard({ contest, featured = false, preview, rank = 1 }: ContestCardProps) {
-  const sideAPercent = dominance(contest);
-  const sideBPercent = 100 - sideAPercent;
+  const [sideAPercent, sideBPercent] = marketControl(
+    contest.market?.qAWei ?? "0",
+    contest.market?.qBWei ?? "0",
+    contest.marketVersion,
+  );
   const market = contest.market;
   const title = preview?.title || contest.metadata.title;
   const category = preview?.category || contest.metadata.category;
@@ -66,7 +62,7 @@ export function ContestCard({ contest, featured = false, preview, rank = 1 }: Co
           <span>market v{contest.marketVersion}</span>
         </div>
         <Link href={href} tabIndex={preview ? -1 : undefined}><h3>{title.toLowerCase()}</h3></Link>
-        <DuelCurve compact history={market?.history ?? []} />
+        <DuelCurve compact history={market?.history ?? []} marketVersion={contest.marketVersion} />
         <div className="cardSides">
           <span><i className="sideToken sideTokenA">a</i><b>{sideA.toLowerCase()}{preview?.sideASymbol ? ` · ${preview.sideASymbol.toLowerCase()}` : ""}</b><strong>{sideAPercent.toFixed(1)}%</strong></span>
           <span><i className="sideToken sideTokenB">b</i><b>{sideB.toLowerCase()}{preview?.sideBSymbol ? ` · ${preview.sideBSymbol.toLowerCase()}` : ""}</b><strong>{sideBPercent.toFixed(1)}%</strong></span>

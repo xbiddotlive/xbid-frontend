@@ -2,20 +2,11 @@ import { ImageResponse } from "next/og";
 
 import { getContest } from "@/lib/api/contests";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
-import { formatUsdc, marketPrices } from "@/lib/product/market-metrics";
+import { formatUsdc, marketControl, marketPrices } from "@/lib/product/market-metrics";
 
 export const alt = "Choose a side and trade this live xbid contest";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-
-function dominance(aValue: string, bValue: string) {
-  const a = BigInt(aValue);
-  const b = BigInt(bValue);
-  const total = a + b;
-  if (total === 0n) return [50, 50] as const;
-  const sideA = Number((a * 1_000n) / total) / 10;
-  return [sideA, 100 - sideA] as const;
-}
 
 function price(value: number) {
   if (value > 0 && value < 0.0001) return `$${value.toExponential(2)}`;
@@ -26,7 +17,7 @@ export default async function ContestOpenGraphImage({ params }: { params: Promis
   const { contestId } = await params;
   const contest = await getContest(robinhoodTestnet.id, contestId);
   const market = contest.market;
-  const [sideA, sideB] = dominance(market?.qAWei ?? "0", market?.qBWei ?? "0");
+  const [sideA, sideB] = marketControl(market?.qAWei ?? "0", market?.qBWei ?? "0", contest.marketVersion);
   const [sideAPrice, sideBPrice] = marketPrices(market?.qAWei ?? "0", market?.qBWei ?? "0", contest.marketVersion);
   const liquidity = formatUsdc(market?.reserveUnits ?? "0");
   const volume = formatUsdc(market?.volume24hUnits ?? "0");
@@ -53,7 +44,7 @@ export default async function ContestOpenGraphImage({ params }: { params: Promis
             <div style={{ alignItems: "center", display: "flex" }}>
               <span style={{ alignItems: "center", background: "#3478f6", borderRadius: 999, display: "flex", fontSize: 18, fontWeight: 900, height: 38, justifyContent: "center", marginRight: 12, width: 38 }}>{contest.metadata.sideA.symbol.slice(0, 1)}</span>
               <span style={{ color: "#a9c7ff", fontSize: 16, fontWeight: 750, textTransform: "uppercase" }}>side a · {contest.metadata.sideA.symbol}</span>
-              <span style={{ background: "rgba(7,9,16,.46)", borderRadius: 999, color: "#d9e6ff", fontSize: 15, marginLeft: "auto", padding: "6px 10px" }}>{sideA.toFixed(1)}% backing</span>
+              <span style={{ background: "rgba(7,9,16,.46)", borderRadius: 999, color: "#d9e6ff", fontSize: 15, marginLeft: "auto", padding: "6px 10px" }}>{sideA.toFixed(1)}% control</span>
             </div>
             <span style={{ fontSize: 25, fontWeight: 750, marginTop: 10 }}>{contest.metadata.sideA.name}</span>
             <div style={{ alignItems: "flex-end", display: "flex", marginTop: 5 }}><span style={{ fontSize: 43, fontWeight: 900, letterSpacing: -1 }}>{price(sideAPrice)}</span><span style={{ color: "#a9c7ff", fontSize: 15, marginBottom: 7, marginLeft: 10, textTransform: "uppercase" }}>live price</span></div>
@@ -72,7 +63,7 @@ export default async function ContestOpenGraphImage({ params }: { params: Promis
             <div style={{ alignItems: "center", display: "flex" }}>
               <span style={{ alignItems: "center", background: "#ff603d", borderRadius: 999, color: "#210904", display: "flex", fontSize: 18, fontWeight: 900, height: 38, justifyContent: "center", marginRight: 12, width: 38 }}>{contest.metadata.sideB.symbol.slice(0, 1)}</span>
               <span style={{ color: "#ffb09e", fontSize: 16, fontWeight: 750, textTransform: "uppercase" }}>side b · {contest.metadata.sideB.symbol}</span>
-              <span style={{ background: "rgba(7,9,16,.46)", borderRadius: 999, color: "#ffe0d9", fontSize: 15, marginLeft: "auto", padding: "6px 10px" }}>{sideB.toFixed(1)}% backing</span>
+              <span style={{ background: "rgba(7,9,16,.46)", borderRadius: 999, color: "#ffe0d9", fontSize: 15, marginLeft: "auto", padding: "6px 10px" }}>{sideB.toFixed(1)}% control</span>
             </div>
             <span style={{ fontSize: 25, fontWeight: 750, marginTop: 10 }}>{contest.metadata.sideB.name}</span>
             <div style={{ alignItems: "flex-end", display: "flex", marginTop: 5 }}><span style={{ fontSize: 43, fontWeight: 900, letterSpacing: -1 }}>{price(sideBPrice)}</span><span style={{ color: "#ffb09e", fontSize: 15, marginBottom: 7, marginLeft: 10, textTransform: "uppercase" }}>live price</span></div>

@@ -1,6 +1,7 @@
 import { formatUnits } from "viem";
 
 import type { IndexedTradePoint } from "@/lib/api/contests";
+import { marketControl } from "@/lib/product/market-metrics";
 
 export function compactAddress(value: string) {
   return `${value.slice(0, 8)}…${value.slice(-6)}`;
@@ -31,12 +32,8 @@ export function eventTime(timestamp: string) {
   return `${month} ${day} · ${time}`;
 }
 
-function controlShare(move: IndexedTradePoint, side: number) {
-  const a = BigInt(move.qAAfterWei);
-  const b = BigInt(move.qBAfterWei);
-  const total = a + b;
-  if (total === 0n) return 50;
-  return Number((((side === 0 ? a : b) * 10_000n) / total)) / 100;
+function controlShare(move: IndexedTradePoint, side: number, marketVersion: number) {
+  return marketControl(move.qAAfterWei, move.qBAfterWei, marketVersion)[side === 0 ? 0 : 1];
 }
 
 function leader(move: IndexedTradePoint) {
@@ -75,16 +72,16 @@ export function amountVerb(move: IndexedTradePoint) {
   return action === "buy" ? "committed" : action === "sell" ? "released" : "rotated";
 }
 
-export function battleImpact(move: IndexedTradePoint, previous?: IndexedTradePoint) {
+export function battleImpact(move: IndexedTradePoint, previous?: IndexedTradePoint, marketVersion = 1) {
   const supportedSide = effectiveSide(move);
-  const currentShare = controlShare(move, supportedSide);
+  const currentShare = controlShare(move, supportedSide, marketVersion);
   const detail = `${sideName(supportedSide)} now ${currentShare.toFixed(1)}% control`;
   if (!previous) return { detail, headline: `${currentShare.toFixed(1)}% control`, isLeadMove: false };
   const previousLeader = leader(previous);
   const currentLeader = leader(move);
   if (currentLeader === null && previousLeader !== null) return { detail: "control returned to 50/50", headline: "market reset", isLeadMove: true };
   if (currentLeader === supportedSide && previousLeader !== currentLeader) return { detail, headline: previousLeader === null ? "took the lead" : "lead flipped", isLeadMove: true };
-  const change = currentShare - controlShare(previous, supportedSide);
+  const change = currentShare - controlShare(previous, supportedSide, marketVersion);
   return { detail, headline: `control ${change >= 0 ? "+" : ""}${change.toFixed(2)}%`, isLeadMove: false };
 }
 

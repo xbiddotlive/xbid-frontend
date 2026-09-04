@@ -1,20 +1,19 @@
 import type { IndexedTradePoint } from "@/lib/api/contests";
+import { marketControl } from "@/lib/product/market-metrics";
 
 type DuelCurveProps = {
   history: IndexedTradePoint[];
   compact?: boolean;
+  marketVersion?: number;
 };
 
-function shareOf(point: IndexedTradePoint) {
-  const sideA = BigInt(point.qAAfterWei);
-  const sideB = BigInt(point.qBAfterWei);
-  const total = sideA + sideB;
-  return total === 0n ? 50 : Number((sideA * 10_000n) / total) / 100;
+function shareOf(point: IndexedTradePoint, marketVersion: number) {
+  return marketControl(point.qAAfterWei, point.qBAfterWei, marketVersion)[0];
 }
 
-function linePoints(history: IndexedTradePoint[], side: "A" | "B") {
+function linePoints(history: IndexedTradePoint[], side: "A" | "B", marketVersion: number) {
   const values = history.map((point) => {
-    const sideAShare = shareOf(point);
+    const sideAShare = shareOf(point, marketVersion);
     return side === "A" ? sideAShare : 100 - sideAShare;
   });
 
@@ -37,7 +36,7 @@ function timeLabel(timestamp: string) {
   }).format(new Date(Number(timestamp) * 1_000));
 }
 
-export function DuelCurve({ history, compact = false }: DuelCurveProps) {
+export function DuelCurve({ history, compact = false, marketVersion = 1 }: DuelCurveProps) {
   if (history.length === 0) {
     return (
       <div className={compact ? "duelCurve duelCurveCompact" : "duelCurve"} data-empty="true">
@@ -52,15 +51,15 @@ export function DuelCurve({ history, compact = false }: DuelCurveProps) {
   return (
     <div className={compact ? "duelCurve duelCurveCompact" : "duelCurve"}>
       <svg
-        aria-label={`side a and side b backing share across ${history.length} onchain trades; both sides total 100 percent`}
+        aria-label={`side a and side b control across ${history.length} onchain trades; both sides total 100 percent`}
         preserveAspectRatio="none"
         role="img"
         viewBox="0 0 100 50"
       >
         <path className="curveGrid" d="M0 12.5H100 M0 25H100 M0 37.5H100" />
         <path className="curveMidline" d="M0 25H100" />
-        <polyline className="curveLine curveLineA" points={linePoints(history, "A")} />
-        <polyline className="curveLine curveLineB" points={linePoints(history, "B")} />
+        <polyline className="curveLine curveLineA" points={linePoints(history, "A", marketVersion)} />
+        <polyline className="curveLine curveLineB" points={linePoints(history, "B", marketVersion)} />
       </svg>
       {!compact && (
         <>
