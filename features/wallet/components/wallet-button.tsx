@@ -4,12 +4,14 @@ import { useAccountModal, useChainModal, useConnectModal } from "@rainbow-me/rai
 import { useAccount } from "wagmi";
 
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
+import { useI18n } from "@/lib/i18n/locale-context";
 
 function shortAddress(address: string) {
   return `${address.slice(0, 6)}…${address.slice(-4)}`;
 }
 
 export function WalletButton() {
+  const { t } = useI18n();
   const { address, chainId, isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
   const { openAccountModal } = useAccountModal();
@@ -23,7 +25,7 @@ export function WalletButton() {
         onClick={openConnectModal}
         type="button"
       >
-        connect wallet
+        {t("wallet.connect")}
       </button>
     );
   }
@@ -36,14 +38,14 @@ export function WalletButton() {
         onClick={openChainModal}
         type="button"
       >
-        switch network
+        {t("wallet.switch")}
       </button>
     );
   }
 
   return (
     <button className="button buttonQuiet" disabled={!openAccountModal} onClick={openAccountModal} type="button">
-      {address ? shortAddress(address) : "account"}
+      {address ? shortAddress(address) : t("wallet.account")}
     </button>
   );
 }

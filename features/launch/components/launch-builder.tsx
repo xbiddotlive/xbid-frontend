@@ -10,7 +10,9 @@ import { PlusIcon } from "@/components/ui/icons";
 import type { IndexedContest } from "@/lib/api/contests";
 import { referenceContest } from "@/lib/blockchain/contracts";
 import { contestCategories } from "@/lib/product/contest-categories";
-import { networkLabel, robinhoodTestnet, settlementTokenLabel } from "@/lib/blockchain/chain";
+import { robinhoodTestnet, settlementTokenLabel } from "@/lib/blockchain/chain";
+import { useI18n } from "@/lib/i18n/locale-context";
+import type { MessageKey } from "@/lib/i18n/messages";
 import { normalizeTokenSymbol, tokenSymbol, useLaunchContest } from "../hooks/use-launch-contest";
 
 const logoTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -21,16 +23,16 @@ type LogoDraft = { file: File; fileName: string; url: string };
 type LogoSide = "a" | "b";
 
 async function validateLogo(file: File) {
-  if (!logoTypes.has(file.type)) return "use a png, jpg or webp image";
-  if (file.size > maxLogoBytes) return "logo must be smaller than 2 mb";
+  if (!logoTypes.has(file.type)) return "launch.logoTypeError" as const;
+  if (file.size > maxLogoBytes) return "launch.logoSizeError" as const;
 
   try {
     const bitmap = await createImageBitmap(file);
     const validSize = bitmap.width >= 256 && bitmap.height >= 256;
     bitmap.close();
-    return validSize ? "" : "logo must be at least 256 × 256 px";
+    return validSize ? "" : "launch.logoDimensionsError" as const;
   } catch {
-    return "this image could not be read";
+    return "launch.logoReadError" as const;
   }
 }
 
@@ -54,12 +56,13 @@ function validInitialPosition(side: "none" | "a" | "b", value: string) {
 
 function LogoUploadField({ draft, error, name, onRemove, onSelect, side }: {
   draft: LogoDraft | null;
-  error: string;
+  error: MessageKey | "";
   name: string;
   onRemove: () => void;
   onSelect: (file: File) => void;
   side: LogoSide;
 }) {
+  const { t } = useI18n();
   const inputId = `side-${side}-logo`;
   const chooseFile = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.currentTarget.files?.[0];
@@ -74,20 +77,20 @@ function LogoUploadField({ draft, error, name, onRemove, onSelect, side }: {
 
   return (
     <div className={`field logoUploadField fieldSide${side.toUpperCase()}`}>
-      <span>side {side} logo <em className="fieldRequirement">optional</em></span>
+      <span>{t("launch.logo", { side: side.toUpperCase() })} <em className="fieldRequirement">{t("launch.optional")}</em></span>
       <div className="logoDropzone" data-tone={side} onDragOver={(event) => event.preventDefault()} onDrop={dropFile}>
         <SideLogo imageUrl={draft?.url} name={name || `side ${side}`} tone={side} />
         <div className="logoUploadCopy">
-          <strong>{draft ? draft.fileName : "drop a logo or choose a file"}</strong>
-          <small>{draft ? "ready · square crop applied" : "png, jpg or webp · 2 mb max · 256px minimum"}</small>
+          <strong>{draft ? draft.fileName : t("launch.logoDrop")}</strong>
+          <small>{draft ? t("launch.logoReady") : t("launch.logoRules")}</small>
         </div>
         <div className="logoUploadActions">
-          <label className="logoUploadButton" htmlFor={inputId}>{draft ? "replace" : "choose logo"}</label>
-          {draft && <button onClick={onRemove} type="button">remove</button>}
+          <label className="logoUploadButton" htmlFor={inputId}>{draft ? t("launch.replace") : t("launch.chooseLogo")}</label>
+          {draft && <button onClick={onRemove} type="button">{t("launch.remove")}</button>}
         </div>
         <input accept="image/jpeg,image/png,image/webp" className="visuallyHidden" id={inputId} name={`side${side.toUpperCase()}Logo`} onChange={chooseFile} type="file" />
       </div>
-      {error && <small className="fieldError" role="alert">{error}</small>}
+      {error && <small className="fieldError" role="alert">{t(error)}</small>}
     </div>
   );
 }
@@ -101,6 +104,7 @@ const previewContest: IndexedContest = {
 };
 
 export function LaunchBuilder() {
+  const { locale, t } = useI18n();
   const [title, setTitle] = useState("");
   const [sideA, setSideA] = useState("");
   const [sideB, setSideB] = useState("");
@@ -113,7 +117,7 @@ export function LaunchBuilder() {
   const [initialAmount, setInitialAmount] = useState("");
   const [sideALogo, setSideALogo] = useState<LogoDraft | null>(null);
   const [sideBLogo, setSideBLogo] = useState<LogoDraft | null>(null);
-  const [logoErrors, setLogoErrors] = useState<Record<LogoSide, string>>({ a: "", b: "" });
+  const [logoErrors, setLogoErrors] = useState<Record<LogoSide, MessageKey | "">>({ a: "", b: "" });
   const launchContest = useLaunchContest();
   const resolvedSideASymbol = sideASymbol || tokenSymbol(sideA, "SIDEA");
   const resolvedSideBSymbol = sideBSymbol || tokenSymbol(sideB, "SIDEB");
@@ -137,7 +141,7 @@ export function LaunchBuilder() {
     && !logoErrors.a
     && !logoErrors.b;
   const canSubmit = launchContest.isConnected && formIsValid && !launchContest.isBusy;
-  const preview = useMemo(() => ({ title: title || "your rivalry appears here", sideA: sideA || "side a", sideASymbol: resolvedSideASymbol, sideALogoUrl: sideALogo?.url, sideB: sideB || "side b", sideBSymbol: resolvedSideBSymbol, sideBLogoUrl: sideBLogo?.url, category }), [category, resolvedSideASymbol, resolvedSideBSymbol, sideA, sideALogo, sideB, sideBLogo, title]);
+  const preview = useMemo(() => ({ title: title || t("launch.previewTitle"), sideA: sideA || t("common.sideA"), sideASymbol: resolvedSideASymbol, sideALogoUrl: sideALogo?.url, sideB: sideB || t("common.sideB"), sideBSymbol: resolvedSideBSymbol, sideBLogoUrl: sideBLogo?.url, category }), [category, resolvedSideASymbol, resolvedSideBSymbol, sideA, sideALogo, sideB, sideBLogo, t, title]);
 
   useEffect(() => () => { if (sideALogo) URL.revokeObjectURL(sideALogo.url); }, [sideALogo]);
   useEffect(() => () => { if (sideBLogo) URL.revokeObjectURL(sideBLogo.url); }, [sideBLogo]);
@@ -174,37 +178,37 @@ export function LaunchBuilder() {
       initialAmount,
     });
   };
-  const walletBalance = Number(formatUnits(launchContest.balance, 6)).toLocaleString(undefined, { maximumFractionDigits: 2 });
+  const walletBalance = Number(formatUnits(launchContest.balance, 6)).toLocaleString(locale === "zh" ? "zh-CN" : "en-US", { maximumFractionDigits: 2 });
 
   return (
     <main className="pageShell launchPage">
       <section className="launchIntro">
-        <div className="launchIntroCopy"><PlusIcon /><div><p className="eyebrow">launch</p><h1>build the next live rivalry</h1><p>one page, two sides, one immutable market vault. metadata and logos are stored before the wallet confirms the launch.</p></div></div>
-        <div className="launchFacts"><div><span>wallet guided</span><strong>verified steps</strong><small>approval only when required</small></div><div><span>market structure</span><strong>2 sides</strong><small>erc-20 position tokens</small></div><div><span>contract version</span><strong>market v2</strong><small>immutable vault clone</small></div></div>
+        <div className="launchIntroCopy"><PlusIcon /><div><p className="eyebrow">{t("launch.eyebrow")}</p><h1>{t("launch.title")}</h1><p>{t("launch.description")}</p></div></div>
+        <div className="launchFacts"><div><span>{t("launch.walletGuided")}</span><strong>{t("launch.verifiedSteps")}</strong><small>{t("launch.approvalOnly")}</small></div><div><span>{t("launch.marketStructure")}</span><strong>{t("launch.twoSides")}</strong><small>{t("launch.positionTokens")}</small></div><div><span>{t("launch.contractVersion")}</span><strong>{t("launch.marketV2")}</strong><small>{t("launch.vaultClone")}</small></div></div>
       </section>
 
       <div className="launchWorkspace">
         <form className="launchForm" onSubmit={submit}>
-          <div className="formHeader"><span>01</span><div><p className="eyebrow">contest setup</p><h2>define the arena</h2></div></div>
-          <label className="field fieldWide"><span>contest title <em aria-label="required" className="fieldRequirement" data-kind="required">※</em></span><input maxLength={120} name="title" onChange={(event) => setTitle(event.target.value)} placeholder="who will command the live market?" required value={title} /><small>one clear rivalry using direct dominance language.</small></label>
+          <div className="formHeader"><span>01</span><div><p className="eyebrow">{t("launch.setup")}</p><h2>{t("launch.define")}</h2></div></div>
+          <label className="field fieldWide"><span>{t("launch.titleLabel")} <em aria-label={t("launch.required")} className="fieldRequirement" data-kind="required">※</em></span><input maxLength={120} name="title" onChange={(event) => setTitle(event.target.value)} placeholder={t("launch.titlePlaceholder")} required value={title} /><small>{t("launch.titleHelp")}</small></label>
           <div className="fieldGrid">
-            <label className="field fieldSideA"><span>side a name <em aria-label="required" className="fieldRequirement" data-kind="required">※</em></span><input maxLength={40} name="sideA" onChange={(event) => setSideA(event.target.value)} placeholder="side a" required value={sideA} /></label>
-            <label className="field fieldSideB"><span>side b name <em aria-label="required" className="fieldRequirement" data-kind="required">※</em></span><input maxLength={40} name="sideB" onChange={(event) => setSideB(event.target.value)} placeholder="side b" required value={sideB} /></label>
-            <label className="field fieldSideA"><span>side a token ticker <em className="fieldRequirement">editable</em></span><input aria-describedby="side-a-ticker-help" autoCapitalize="characters" maxLength={12} minLength={2} name="sideASymbol" onChange={(event) => setSideASymbol(normalizeTokenSymbol(event.target.value))} pattern="[A-Z0-9]{2,12}" required spellCheck={false} value={resolvedSideASymbol} /><small className={hasDuplicateSymbols ? "fieldError" : undefined} id="side-a-ticker-help">{hasDuplicateSymbols ? "side tickers must be different" : "auto-generated from the name · 2–12 letters or numbers"}</small></label>
-            <label className="field fieldSideB"><span>side b token ticker <em className="fieldRequirement">editable</em></span><input aria-describedby="side-b-ticker-help" autoCapitalize="characters" maxLength={12} minLength={2} name="sideBSymbol" onChange={(event) => setSideBSymbol(normalizeTokenSymbol(event.target.value))} pattern="[A-Z0-9]{2,12}" required spellCheck={false} value={resolvedSideBSymbol} /><small className={hasDuplicateSymbols ? "fieldError" : undefined} id="side-b-ticker-help">{hasDuplicateSymbols ? "side tickers must be different" : "clear the field to restore the generated ticker"}</small></label>
+            <label className="field fieldSideA"><span>{t("launch.sideName", { side: "A" })} <em aria-label={t("launch.required")} className="fieldRequirement" data-kind="required">※</em></span><input maxLength={40} name="sideA" onChange={(event) => setSideA(event.target.value)} placeholder={t("common.sideA")} required value={sideA} /></label>
+            <label className="field fieldSideB"><span>{t("launch.sideName", { side: "B" })} <em aria-label={t("launch.required")} className="fieldRequirement" data-kind="required">※</em></span><input maxLength={40} name="sideB" onChange={(event) => setSideB(event.target.value)} placeholder={t("common.sideB")} required value={sideB} /></label>
+            <label className="field fieldSideA"><span>{t("launch.sideTicker", { side: "A" })} <em className="fieldRequirement">{t("launch.editable")}</em></span><input aria-describedby="side-a-ticker-help" autoCapitalize="characters" maxLength={12} minLength={2} name="sideASymbol" onChange={(event) => setSideASymbol(normalizeTokenSymbol(event.target.value))} pattern="[A-Z0-9]{2,12}" required spellCheck={false} value={resolvedSideASymbol} /><small className={hasDuplicateSymbols ? "fieldError" : undefined} id="side-a-ticker-help">{hasDuplicateSymbols ? t("launch.tickerDifferent") : t("launch.tickerHelpA")}</small></label>
+            <label className="field fieldSideB"><span>{t("launch.sideTicker", { side: "B" })} <em className="fieldRequirement">{t("launch.editable")}</em></span><input aria-describedby="side-b-ticker-help" autoCapitalize="characters" maxLength={12} minLength={2} name="sideBSymbol" onChange={(event) => setSideBSymbol(normalizeTokenSymbol(event.target.value))} pattern="[A-Z0-9]{2,12}" required spellCheck={false} value={resolvedSideBSymbol} /><small className={hasDuplicateSymbols ? "fieldError" : undefined} id="side-b-ticker-help">{hasDuplicateSymbols ? t("launch.tickerDifferent") : t("launch.tickerHelpB")}</small></label>
             <LogoUploadField draft={sideALogo} error={logoErrors.a} name={sideA} onRemove={() => removeLogo("a")} onSelect={(file) => void selectLogo("a", file)} side="a" />
             <LogoUploadField draft={sideBLogo} error={logoErrors.b} name={sideB} onRemove={() => removeLogo("b")} onSelect={(file) => void selectLogo("b", file)} side="b" />
           </div>
-          <label className="field fieldWide"><span>description <em aria-label="required" className="fieldRequirement" data-kind="required">※</em></span><textarea maxLength={800} minLength={10} name="description" onChange={(event) => setDescription(event.target.value)} placeholder="explain the rivalry and what each side represents." rows={4} required value={description} /></label>
-          <label className="field"><span>category <em aria-label="required" className="fieldRequirement" data-kind="required">※</em></span><select name="category" onChange={(event) => setCategory(event.target.value)} required value={category}>{contestCategories.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
-          <label className="field"><span>reference link <em className="fieldRequirement">optional</em></span><input maxLength={500} name="reference" onChange={(event) => setReferenceUrl(event.target.value)} placeholder="https://…" type="url" value={referenceUrl} /></label>
-          <label className="field fieldWide"><span>initial position <em className="fieldRequirement">optional</em></span><div className="initialPosition"><select aria-label="initial side" onChange={(event) => setInitialSide(event.target.value as "none" | "a" | "b")} value={initialSide}><option value="none">no initial position</option><option value="a">side a</option><option value="b">side b</option></select><input disabled={initialSide === "none"} inputMode="decimal" min="0.01" name="initialAmount" onChange={(event) => setInitialAmount(event.target.value)} placeholder="0 usdc" required={initialSide !== "none"} step="0.01" type="number" value={initialAmount} /></div></label>
-          <div className="launchSummary"><div><span>network</span><strong>{networkLabel}</strong></div><div><span>wallet balance</span><strong>{launchContest.isConnected ? `${walletBalance} ${settlementTokenLabel}` : "connect to read"}</strong></div><div><span>market curve</span><strong>b = 150k</strong></div></div>
-          <button className="button launchSubmit" disabled={!canSubmit} type="submit">{launchContest.isBusy ? "launching…" : launchContest.isConnected && launchContest.chainId !== robinhoodTestnet.id ? "switch network & launch" : launchContest.isConnected ? "launch contest" : "connect wallet to launch"}</button>
+          <label className="field fieldWide"><span>{t("launch.descriptionLabel")} <em aria-label={t("launch.required")} className="fieldRequirement" data-kind="required">※</em></span><textarea maxLength={800} minLength={10} name="description" onChange={(event) => setDescription(event.target.value)} placeholder={t("launch.descriptionPlaceholder")} rows={4} required value={description} /></label>
+          <label className="field"><span>{t("launch.category")} <em aria-label={t("launch.required")} className="fieldRequirement" data-kind="required">※</em></span><select name="category" onChange={(event) => setCategory(event.target.value)} required value={category}>{contestCategories.map((item) => <option key={item.value} value={item.value}>{t(`category.${item.value}` as MessageKey)}</option>)}</select></label>
+          <label className="field"><span>{t("launch.reference")} <em className="fieldRequirement">{t("launch.optional")}</em></span><input maxLength={500} name="reference" onChange={(event) => setReferenceUrl(event.target.value)} placeholder="https://…" type="url" value={referenceUrl} /></label>
+          <label className="field fieldWide"><span>{t("launch.initialPosition")} <em className="fieldRequirement">{t("launch.optional")}</em></span><div className="initialPosition"><select aria-label={t("launch.initialSide")} onChange={(event) => setInitialSide(event.target.value as "none" | "a" | "b")} value={initialSide}><option value="none">{t("launch.noInitial")}</option><option value="a">{t("common.sideA")}</option><option value="b">{t("common.sideB")}</option></select><input disabled={initialSide === "none"} inputMode="decimal" min="0.01" name="initialAmount" onChange={(event) => setInitialAmount(event.target.value)} placeholder="0 usdc" required={initialSide !== "none"} step="0.01" type="number" value={initialAmount} /></div></label>
+          <div className="launchSummary"><div><span>{t("launch.network")}</span><strong>{t("chain.testnet")}</strong></div><div><span>{t("launch.walletBalance")}</span><strong>{launchContest.isConnected ? `${walletBalance} ${settlementTokenLabel}` : t("launch.connectToRead")}</strong></div><div><span>{t("launch.marketCurve")}</span><strong>b = 150k</strong></div></div>
+          <button className="button launchSubmit" disabled={!canSubmit} type="submit">{launchContest.isBusy ? t("launch.launching") : launchContest.isConnected && launchContest.chainId !== robinhoodTestnet.id ? t("launch.switchAndLaunch") : launchContest.isConnected ? t("launch.submit") : t("launch.connectAndLaunch")}</button>
           <p aria-live="polite" className="formFootnote">{launchContest.status}</p>
-          {launchContest.transactionHash ? <a className="explorerLink" href={`${robinhoodTestnet.blockExplorers.default.url}/tx/${launchContest.transactionHash}`} rel="noreferrer" target="_blank">view latest transaction ↗</a> : null}
+          {launchContest.transactionHash ? <a className="explorerLink" href={`${robinhoodTestnet.blockExplorers.default.url}/tx/${launchContest.transactionHash}`} rel="noreferrer" target="_blank">{t("launch.latestTransaction")}</a> : null}
         </form>
-        <aside className="launchPreview"><div className="sectionHeading compact"><div><p className="eyebrow">shared component</p><h2>live preview</h2></div><span className="previewBadge">preview only</span></div><ContestCard contest={previewContest} preview={preview} /></aside>
+        <aside className="launchPreview"><div className="sectionHeading compact"><div><p className="eyebrow">{t("launch.sharedComponent")}</p><h2>{t("launch.livePreview")}</h2></div><span className="previewBadge">{t("launch.previewOnly")}</span></div><ContestCard contest={previewContest} preview={preview} /></aside>
       </div>
     </main>
   );

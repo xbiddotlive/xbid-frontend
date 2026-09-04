@@ -32,8 +32,8 @@ export const organizationSchema = {
   url: siteUrl,
   logo: `${siteUrl}/icon.svg`,
   sameAs: [
-    process.env.NEXT_PUBLIC_X_URL ?? "https://x.com",
-    process.env.NEXT_PUBLIC_DISCORD_URL ?? "https://discord.com",
+    process.env.NEXT_PUBLIC_X_URL ?? "https://x.com/xbid_live",
+    process.env.NEXT_PUBLIC_DISCORD_URL ?? "https://discord.gg/xnD5vcPU9B",
   ],
 };
 

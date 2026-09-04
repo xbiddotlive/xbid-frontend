@@ -1,5 +1,8 @@
+"use client";
+
 import type { IndexedTradePoint } from "@/lib/api/contests";
 import { marketControl } from "@/lib/product/market-metrics";
+import { useI18n } from "@/lib/i18n/locale-context";
 
 type DuelCurveProps = {
   history: IndexedTradePoint[];
@@ -36,8 +39,8 @@ function linePoints(values: number[], domain: ControlDomain) {
     .join(" ");
 }
 
-function timeLabel(timestamp: string) {
-  return new Intl.DateTimeFormat("en", {
+function timeLabel(timestamp: string, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
     hour: "2-digit",
     minute: "2-digit",
     timeZone: "UTC",
@@ -45,10 +48,11 @@ function timeLabel(timestamp: string) {
 }
 
 export function DuelCurve({ history, compact = false, includeOrigin = false, marketVersion = 1 }: DuelCurveProps) {
+  const { locale, t } = useI18n();
   if (history.length === 0) {
     return (
       <div className={compact ? "duelCurve duelCurveCompact" : "duelCurve"} data-empty="true">
-        <span>waiting for the first onchain move</span>
+        <span>{t("curve.waiting")}</span>
       </div>
     );
   }
@@ -63,7 +67,7 @@ export function DuelCurve({ history, compact = false, includeOrigin = false, mar
   return (
     <div className={compact ? "duelCurve duelCurveCompact" : "duelCurve"} data-overlap={overlapping}>
       <svg
-        aria-label={`side a and side b control across ${history.length} onchain trades; both sides total 100 percent`}
+        aria-label={t("curve.label", { count: history.length })}
         preserveAspectRatio="none"
         role="img"
         viewBox="0 0 100 50"
@@ -75,12 +79,12 @@ export function DuelCurve({ history, compact = false, includeOrigin = false, mar
       </svg>
       {!compact && (
         <>
-          {zoomed ? <span className="curveRange">zoom · {domain.minimum}–{domain.maximum}%</span> : null}
+          {zoomed ? <span className="curveRange">{t("curve.zoom")} · {domain.minimum}–{domain.maximum}%</span> : null}
           <div className="curveScale" aria-hidden="true"><span>{domain.maximum}%</span><span>50%</span><span>{domain.minimum}%</span></div>
           <div className="curveAxis" aria-hidden="true">
-            <span>{includeOrigin ? "market open" : timeLabel(first.blockTimestamp)}</span>
-            <span>{history.length} real moves</span>
-            <span>{timeLabel(last.blockTimestamp)}</span>
+            <span>{includeOrigin ? t("curve.marketOpen") : timeLabel(first.blockTimestamp, locale === "zh" ? "zh-CN" : "en")}</span>
+            <span>{t("curve.moves", { count: history.length })}</span>
+            <span>{timeLabel(last.blockTimestamp, locale === "zh" ? "zh-CN" : "en")}</span>
           </div>
         </>
       )}

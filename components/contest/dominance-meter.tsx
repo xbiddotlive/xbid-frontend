@@ -1,3 +1,7 @@
+"use client";
+
+import { useI18n } from "@/lib/i18n/locale-context";
+
 type DominanceMeterProps = {
   sideAPercent: number;
   sideBPercent: number;
@@ -9,17 +13,18 @@ export function DominanceMeter({
   sideBPercent,
   large = false,
 }: DominanceMeterProps) {
+  const { t } = useI18n();
   return (
     <div
       className={large ? "dominanceMeter dominanceMeterLarge" : "dominanceMeter"}
-      aria-label={`side a ${sideAPercent}%, side b ${sideBPercent}%`}
+      aria-label={`${t("common.sideA")} ${sideAPercent}%, ${t("common.sideB")} ${sideBPercent}%`}
     >
       <div className="dominanceLabels" aria-hidden="true">
-        <span>side a · {sideAPercent}%</span>
-        <span>side b · {sideBPercent}%</span>
+        <span>{t("common.sideA")} · {sideAPercent}%</span>
+        <span>{t("common.sideB")} · {sideBPercent}%</span>
       </div>
       <progress max="100" value={sideAPercent}>
-        side a {sideAPercent}%
+        {t("common.sideA")} {sideAPercent}%
       </progress>
     </div>
   );

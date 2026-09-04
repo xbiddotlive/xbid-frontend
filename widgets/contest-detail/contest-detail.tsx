@@ -17,32 +17,29 @@ import type { TradeMode } from "@/features/trading/components/trade-ticket";
 import type { IndexedContest, IndexedTradePoint } from "@/lib/api/contests";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
 import { contracts, marketVaultAbi, riskControllerAbi } from "@/lib/blockchain/contracts";
+import { useI18n } from "@/lib/i18n/locale-context";
+import type { MessageKey } from "@/lib/i18n/messages";
 import { crownSideIndex } from "@/lib/product/crown";
 import { formatChange, marketControl, marketPrices } from "@/lib/product/market-metrics";
 import { contestKeys, useContestDetail, useContestTrades } from "@/lib/queries/contest";
 import { siteUrl } from "@/lib/seo/site";
 import { contestShareCardVersion } from "@/lib/share/contest-card-version";
 
-function compactUsdc(value: bigint) {
-  return new Intl.NumberFormat("en", { maximumFractionDigits: 2, notation: "compact" })
+function compactUsdc(value: bigint, locale: string) {
+  return new Intl.NumberFormat(locale, { maximumFractionDigits: 2, notation: "compact" })
     .format(Number(formatUnits(value, 6)));
 }
 
-function signedCompactUsdc(value: string | undefined) {
+function signedCompactUsdc(value: string | undefined, locale: string) {
   if (value === undefined) return "—";
   const units = BigInt(value);
   if (units > -5_000n && units < 5_000n) return "0 usdc";
-  return `${units > 0n ? "+" : ""}${compactUsdc(units)} usdc`;
+  return `${units > 0n ? "+" : ""}${compactUsdc(units, locale)} usdc`;
 }
 
 function flowTone(value: string | undefined) {
   if (value === undefined || (BigInt(value) > -5_000n && BigInt(value) < 5_000n)) return "muted";
   return BigInt(value) > 0n ? "positive" : "negative";
-}
-
-function countLabel(value: string | undefined, singular: string, plural = `${singular}s`) {
-  if (value === undefined) return `— ${plural}`;
-  return `${value} ${value === "1" ? singular : plural}`;
 }
 
 function percentChange(current: number, previous: number) {
@@ -59,6 +56,8 @@ function changeTone(value: number | null) {
 }
 
 export function ContestDetail({ indexedContest, initialHistory, initialMode, initialSide = 0 }: { indexedContest: IndexedContest; initialHistory: IndexedTradePoint[]; initialMode?: TradeMode; initialSide?: 0 | 1 }) {
+  const { locale, t } = useI18n();
+  const numberLocale = locale === "zh" ? "zh-CN" : "en-US";
   const [nowSeconds, setNowSeconds] = useState<number | null>(null);
   const queryClient = useQueryClient();
   const chainId = Number(indexedContest.chainId);
@@ -89,7 +88,7 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
   const displayLoading = isLoading && !marketStats;
   const riskMode = Number(data?.[3].result ?? 0);
   const [aShare, bShare] = marketControl(qA.toString(), qB.toString(), contest.marketVersion);
-  const leaderSide = aShare === bShare ? null : aShare > bShare ? "side a" : "side b";
+  const leaderSide = aShare === bShare ? null : aShare > bShare ? "A" : "B";
   const liveEdge = Math.abs(aShare - bShare);
   const sideALabel = contest.metadata.sideA.name === "side a" ? contest.metadata.sideA.symbol : contest.metadata.sideA.name;
   const sideBLabel = contest.metadata.sideB.name === "side b" ? contest.metadata.sideB.symbol : contest.metadata.sideB.name;
@@ -123,12 +122,12 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
   const sideANetFlow24h = marketStats?.sideANetFlow24hUnits;
   const sideBNetFlow24h = marketStats?.sideBNetFlow24hUnits;
   const crownedSide = crownSideIndex(marketStats?.crownSide ?? null);
-  const crownedLabel = crownedSide === null ? "crowned" : `crowned · side ${crownedSide === 0 ? "a" : "b"}`;
+  const crownedLabel = crownedSide === null ? t("contest.crowned") : t("contest.crownedSide", { side: crownedSide === 0 ? "A" : "B" });
   const shareRevision = marketStats?.updatedBlock ?? contest.createdBlock;
   const shareVersion = `${contestShareCardVersion}-${shareRevision}`;
   const contestUrl = `${siteUrl}/contest/${contest.contestId}?share=${shareVersion}`;
   const shareImageUrl = `${siteUrl}/share/contest/${contest.contestId}/${shareVersion}/card.jpg`;
-  const shareText = `${contest.metadata.title}\n\n${contest.metadata.sideA.name} vs ${contest.metadata.sideB.name} — back your side. move the market. profit when your side takes the lead.\n\n@xbid_live`;
+  const shareText = t("contest.shareText", { title: contest.metadata.title, sideA: contest.metadata.sideA.name, sideB: contest.metadata.sideB.name });
   const xShareUrl = `https://x.com/intent/post?${new URLSearchParams({ text: shareText, url: contestUrl }).toString()}`;
 
   function warmShareImage() {
@@ -163,67 +162,67 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
         <section className="contestMain">
           <div className="contestTitleRow">
             <div>
-              <p className="eyebrow"><span className="livePulse" />arena 01 · {contest.metadata.category}</p>
+              <p className="eyebrow"><span className="livePulse" />{t("contest.arena", { category: t(`category.${contest.metadata.category}` as MessageKey) })}</p>
               <h1>{contest.metadata.title}</h1>
               <a
-                aria-label={`View MarketVault ${contest.marketVault} on ${robinhoodTestnet.blockExplorers.default.name}`}
+                aria-label={t("contest.viewVault", { address: contest.marketVault, explorer: robinhoodTestnet.blockExplorers.default.name })}
                 className="contestAddressLink mono"
                 href={`${robinhoodTestnet.blockExplorers.default.url}/address/${contest.marketVault}`}
                 rel="noreferrer"
                 target="_blank"
               >
-                market vault {contest.marketVault.slice(0, 8)}…{contest.marketVault.slice(-4)}
+                {t("contest.marketVault", { address: `${contest.marketVault.slice(0, 8)}…${contest.marketVault.slice(-4)}` })}
                 <ArrowIcon />
               </a>
             </div>
             <div className="contestTitleActions">
-              <a aria-label="share this contest on x" className="contestShareButton" href={xShareUrl} onClick={openXShare} onFocus={warmShareImage} onPointerEnter={warmShareImage} onTouchStart={warmShareImage} rel="noreferrer" target="_blank"><XIcon /><span>share</span></a>
+              <a aria-label={t("contest.shareAria")} className="contestShareButton" href={xShareUrl} onClick={openXShare} onFocus={warmShareImage} onPointerEnter={warmShareImage} onTouchStart={warmShareImage} rel="noreferrer" target="_blank"><XIcon /><span>{t("contest.share")}</span></a>
               {marketStats?.crownActivated ? <span className="contestCrownedStatus"><CrownIcon />{crownedLabel}</span> : null}
-              <span className={riskMode === 0 ? "statusOk" : "statusWarning"}>{riskMode === 0 ? "trading active" : `risk mode ${riskMode}`}</span>
+              <span className={riskMode === 0 ? "statusOk" : "statusWarning"}>{riskMode === 0 ? t("contest.tradingActive") : t("contest.riskMode", { mode: riskMode })}</span>
             </div>
           </div>
 
-          <section className="liveArena" aria-label="live arena">
+          <section className="liveArena" aria-label={t("contest.liveArena")}>
             <div className="arenaSides">
               <div className="arenaSide arenaSideA">
                 <SideLogo imageUrl={contest.metadata.sideA.logoUrl} name={contest.metadata.sideA.name} tone="a" />
                 <div className="arenaSideSummary">
-                  <span>side a · {sideALabel}</span><strong>{Number(aShare.toFixed(1))}%</strong>
-                  <small className="arenaSideQuote"><span>{contest.metadata.sideA.symbol}</span><b>{displayLoading ? "—" : formatPrice(priceA)}</b><em aria-label="24 hour price change" className={`priceChange ${changeTone(priceChangeA)}`}>{priceChangeA === null ? "—" : formatChange(priceChangeA)} · 24h</em></small>
+                  <span>{t("contest.sideLabel", { side: "A", label: sideALabel })}</span><strong>{Number(aShare.toFixed(1))}%</strong>
+                  <small className="arenaSideQuote"><span>{contest.metadata.sideA.symbol}</span><b>{displayLoading ? "—" : formatPrice(priceA)}</b><em aria-label={t("contest.change24h")} className={`priceChange ${changeTone(priceChangeA)}`}>{priceChangeA === null ? "—" : formatChange(priceChangeA) === "flat" ? t("common.flat") : formatChange(priceChangeA)} · 24h</em></small>
                 </div>
               </div>
-              <div className="arenaVersus"><span><i />live</span><small>current control</small></div>
+              <div className="arenaVersus"><span><i />{t("common.live")}</span><small>{t("contest.currentControl")}</small></div>
               <div className="arenaSide arenaSideB">
                 <SideLogo imageUrl={contest.metadata.sideB.logoUrl} name={contest.metadata.sideB.name} tone="b" />
                 <div className="arenaSideSummary">
-                  <span>side b · {sideBLabel}</span><strong>{Number(bShare.toFixed(1))}%</strong>
-                  <small className="arenaSideQuote"><span>{contest.metadata.sideB.symbol}</span><b>{displayLoading ? "—" : formatPrice(priceB)}</b><em aria-label="24 hour price change" className={`priceChange ${changeTone(priceChangeB)}`}>{priceChangeB === null ? "—" : formatChange(priceChangeB)} · 24h</em></small>
+                  <span>{t("contest.sideLabel", { side: "B", label: sideBLabel })}</span><strong>{Number(bShare.toFixed(1))}%</strong>
+                  <small className="arenaSideQuote"><span>{contest.metadata.sideB.symbol}</span><b>{displayLoading ? "—" : formatPrice(priceB)}</b><em aria-label={t("contest.change24h")} className={`priceChange ${changeTone(priceChangeB)}`}>{priceChangeB === null ? "—" : formatChange(priceChangeB) === "flat" ? t("common.flat") : formatChange(priceChangeB)} · 24h</em></small>
                 </div>
               </div>
             </div>
             <DominanceMeter large sideAPercent={Number(aShare.toFixed(1))} sideBPercent={Number(bShare.toFixed(1))} />
-            {leaderSide ? <strong className="arenaControlLine">{`${leaderSide} is currently winning · ${liveEdge.toFixed(1)}% live edge`}</strong> : null}
+            {leaderSide ? <strong className="arenaControlLine">{t("contest.winning", { side: leaderSide, edge: liveEdge.toFixed(1) })}</strong> : null}
           </section>
 
           <div className="metricGrid">
-            <div><span>backing reserve</span><strong>{displayLoading ? "—" : `${compactUsdc(reserve)} usdc`}</strong><small>current collateral</small></div>
-            <div><span>24h volume</span><strong>{volume24h === undefined ? "—" : `${compactUsdc(BigInt(volume24h))} usdc`}</strong><small>{countLabel(marketStats?.tradeCount24h, "trade")} · {countLabel(marketStats?.uniqueTraders24h, "trader")}</small></div>
-            <div data-side="a"><span>side a · 24h</span><strong>{sideAVolume24h === undefined ? "—" : `${compactUsdc(BigInt(sideAVolume24h))} usdc`}</strong><small>{countLabel(sideATrades24h, "trade")} · <b className={flowTone(sideANetFlow24h)}>{signedCompactUsdc(sideANetFlow24h)} net</b></small></div>
-            <div data-side="b"><span>side b · 24h</span><strong>{sideBVolume24h === undefined ? "—" : `${compactUsdc(BigInt(sideBVolume24h))} usdc`}</strong><small>{countLabel(sideBTrades24h, "trade")} · <b className={flowTone(sideBNetFlow24h)}>{signedCompactUsdc(sideBNetFlow24h)} net</b></small></div>
-            <div><span>battle activity · 24h</span><strong>{countLabel(marketStats?.leadFlipCount24h, "lead flip")}</strong><small>{countLabel(marketStats?.atomicFlipCount24h, "atomic flip")}</small></div>
+            <div><span>{t("contest.backingReserve")}</span><strong>{displayLoading ? "—" : `${compactUsdc(reserve, numberLocale)} usdc`}</strong><small>{t("contest.currentCollateral")}</small></div>
+            <div><span>{t("contest.volume24h")}</span><strong>{volume24h === undefined ? "—" : `${compactUsdc(BigInt(volume24h), numberLocale)} usdc`}</strong><small>{t(`contest.count.trade.${marketStats?.tradeCount24h === "1" ? "one" : "other"}`, { count: marketStats?.tradeCount24h ?? "—" })} · {t(`contest.count.trader.${marketStats?.uniqueTraders24h === "1" ? "one" : "other"}`, { count: marketStats?.uniqueTraders24h ?? "—" })}</small></div>
+            <div data-side="a"><span>{t("contest.side24h", { side: "A" })}</span><strong>{sideAVolume24h === undefined ? "—" : `${compactUsdc(BigInt(sideAVolume24h), numberLocale)} usdc`}</strong><small>{t(`contest.count.trade.${sideATrades24h === "1" ? "one" : "other"}`, { count: sideATrades24h ?? "—" })} · <b className={flowTone(sideANetFlow24h)}>{t("contest.net", { amount: signedCompactUsdc(sideANetFlow24h, numberLocale) })}</b></small></div>
+            <div data-side="b"><span>{t("contest.side24h", { side: "B" })}</span><strong>{sideBVolume24h === undefined ? "—" : `${compactUsdc(BigInt(sideBVolume24h), numberLocale)} usdc`}</strong><small>{t(`contest.count.trade.${sideBTrades24h === "1" ? "one" : "other"}`, { count: sideBTrades24h ?? "—" })} · <b className={flowTone(sideBNetFlow24h)}>{t("contest.net", { amount: signedCompactUsdc(sideBNetFlow24h, numberLocale) })}</b></small></div>
+            <div><span>{t("contest.battleActivity")}</span><strong>{t(`contest.count.leadFlip.${marketStats?.leadFlipCount24h === "1" ? "one" : "other"}`, { count: marketStats?.leadFlipCount24h ?? "—" })}</strong><small>{t(`contest.count.atomicFlip.${marketStats?.atomicFlipCount24h === "1" ? "one" : "other"}`, { count: marketStats?.atomicFlipCount24h ?? "—" })}</small></div>
           </div>
 
           <section className="marketSection">
             <div className="chartToolbar">
-              <strong className="chartTitle">live control</strong>
-              <div className="curveLegend" aria-label="current control"><span><i className="legendA" />side a <b>{aShare.toFixed(1)}%</b></span><span><i className="legendB" />side b <b>{bShare.toFixed(1)}%</b></span></div>
-              <span className="chartLiveStatus"><i />live · 8s</span>
+              <strong className="chartTitle">{t("contest.liveControl")}</strong>
+              <div className="curveLegend" aria-label={t("contest.currentControl")}><span><i className="legendA" />{t("common.sideA")} <b>{aShare.toFixed(1)}%</b></span><span><i className="legendB" />{t("common.sideB")} <b>{bShare.toFixed(1)}%</b></span></div>
+              <span className="chartLiveStatus"><i />{t("contest.liveRefresh")}</span>
             </div>
             <DuelCurve history={history} includeOrigin={completeHistory} marketVersion={contest.marketVersion} />
           </section>
 
-          <nav className="mobileArenaTabs" aria-label="contest sections">
-            <button aria-pressed="true" type="button">arena</button><button type="button">live</button><button type="button">position</button><button type="button">activity</button><button type="button">profile</button>
+          <nav className="mobileArenaTabs" aria-label={t("contest.sections")}>
+            {(["arena", "live", "position", "activity", "profile"] as const).map((tab) => <button aria-pressed={tab === "arena"} key={tab} type="button">{t(`contest.tab.${tab}` as MessageKey)}</button>)}
           </nav>
 
           <ContestTerminal contest={contest} history={history} />

@@ -1,0 +1,26 @@
+{
+  "campaign": "robinhood-chain-breakout-20260904",
+  "createdAt": "2026-09-04T05:47:09.397Z",
+  "creator": "0x22B12Cbad5a3EA288fEB71Df4Cf52E4F08529cbc",
+  "contestId": "0xd16da20c9f72000fc469ad36c39c2a99a57dee13b4479612f8ded08bebff2138",
+  "contestUrl": "https://testnet.xbid.live/contest/0xd16da20c9f72000fc469ad36c39c2a99a57dee13b4479612f8ded08bebff2138",
+  "transactionHash": "0xdbc4a692ab0a500a4ff94ddaa388e0641ac0f3ce2034c4873bf9af739b5a9a6a",
+  "marketVault": "0xcE53E18FF49b79830a8Cc368741017fDE31557C9",
+  "marketVersion": 2,
+  "metadataHash": "0x73077e49c1bfea0e6554d67cecd67c91efce50432588283fe810dee21d3a3752",
+  "metadataUri": "https://testnet.xbid.live/api/backend/v1/metadata/0x73077e49c1bfea0e6554d67cecd67c91efce50432588283fe810dee21d3a3752",
+  "sources": [
+    "https://unchainedcrypto.com/the-chopping-block-robinhood-chains-memecoin-mania-and-tokenized-stocks/",
+    "https://cryptoslate.com/robinhood-put-stocks-on-a-permissionless-blockchain-memecoin-traders-are-stress-testing-what-happens-next/",
+    "https://defillama.com/chain/robinhood-chain"
+  ],
+  "mentions": [
+    "@RobinhoodApp",
+    "@arbitrum",
+    "@CoinDesk"
+  ],
+  "imagePath": "content/x-posts/robinhood-chain-breakout-20260904/post.png",
+  "postId": "2095751105968054765",
+  "postUrl": "https://x.com/xbid_live/status/2095751105968054765",
+  "publishedAt": "2026-09-04T05:49:35.734Z"
+}

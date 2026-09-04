@@ -3,6 +3,7 @@ import { LeaderboardBoard } from "@/features/leaderboard/components/leaderboard-
 import { getLeaderboard } from "@/lib/api/leaderboard";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
 import { pageMetadata } from "@/lib/seo/site";
+import { I18nText } from "@/lib/i18n/locale-context";
 
 export const metadata = pageMetadata({
   title: "leaderboard",
@@ -12,5 +13,5 @@ export const metadata = pageMetadata({
 
 export default async function LeaderboardPage() {
   const content = await getLeaderboard(robinhoodTestnet.id);
-  return <main className="pageShell utilityPage"><header className="pageHeader leaderboardHeader"><LeaderboardIcon /><div><p className="eyebrow">arena performance · live testnet</p><h1>leaderboard</h1><span>ranked by realized trading profit or settled referral rewards.</span></div></header><LeaderboardBoard content={content} /></main>;
+  return <main className="pageShell utilityPage"><header className="pageHeader leaderboardHeader"><LeaderboardIcon /><div><p className="eyebrow"><I18nText id="page.leaderboard.eyebrow" /></p><h1><I18nText id="page.leaderboard.title" /></h1><span><I18nText id="page.leaderboard.description" /></span></div></header><LeaderboardBoard content={content} /></main>;
 }

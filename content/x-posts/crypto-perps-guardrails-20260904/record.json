@@ -1,0 +1,26 @@
+{
+  "campaign": "crypto-perps-guardrails-20260904",
+  "createdAt": "2026-09-04T10:44:49.140Z",
+  "creator": "0x22B12Cbad5a3EA288fEB71Df4Cf52E4F08529cbc",
+  "contestId": "0x603e1653fdbcadb52bf91f93aec40478ac61d1cf56a0872ba5fb455b025c6a92",
+  "contestUrl": "https://testnet.xbid.live/contest/0x603e1653fdbcadb52bf91f93aec40478ac61d1cf56a0872ba5fb455b025c6a92",
+  "transactionHash": "0xab9f2e662f24b3b70f163127e815ad6337412de0209f16e45b0e8bec87215d3f",
+  "marketVault": "0xB77C5F2dA4b47baD86960F0fCE20162b91f071F6",
+  "marketVersion": 2,
+  "metadataHash": "0x40a571b3e0bf46ca7d6d08471286a030b082c16c1e25e1ade04fcbd6a5e69313",
+  "metadataUri": "https://testnet.xbid.live/api/backend/v1/metadata/0x40a571b3e0bf46ca7d6d08471286a030b082c16c1e25e1ade04fcbd6a5e69313",
+  "sources": [
+    "https://www.coindesk.com/policy/2026/09/03/cftc-asks-judge-to-dismiss-cme-lawsuit-over-crypto-perpetual-futures",
+    "https://unchainedcrypto.com/cftc-asks-court-to-dismiss-cmes-lawsuit-over-kalshis-bitcoin-perpetual-futures/",
+    "https://www.cftc.gov/IndustryOversight/IndustryFilings/TradingOrganizationProducts?col=Remarks&dir=ASC"
+  ],
+  "mentions": [
+    "@Kalshi",
+    "@CMEGroup",
+    "@CoinDesk"
+  ],
+  "imagePath": "content/x-posts/crypto-perps-guardrails-20260904/post.png",
+  "postId": "2095826840598516083",
+  "postUrl": "https://x.com/xbid_live/status/2095826840598516083",
+  "publishedAt": "2026-09-04T10:50:32.130Z"
+}

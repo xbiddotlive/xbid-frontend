@@ -5,26 +5,32 @@ import { useState } from "react";
 import { zeroAddress, type Hash } from "viem";
 import { useAccount, usePublicClient, useReadContract, useWriteContract } from "wagmi";
 
-import { networkLabel, robinhoodTestnet } from "@/lib/blockchain/chain";
+import { robinhoodTestnet } from "@/lib/blockchain/chain";
 import { contracts, feeVaultAbi } from "@/lib/blockchain/contracts";
 import { formatUsdcUnits } from "@/lib/formatters/usdc";
+import { useI18n } from "@/lib/i18n/locale-context";
+import type { MessageKey } from "@/lib/i18n/messages";
 
-function claimError(error: unknown) {
-  if (!(error instanceof Error)) return "claim failed. please try again.";
+function claimError(error: unknown): MessageKey | string {
+  if (!(error instanceof Error)) return "earnings.failed";
   const message = error.message.toLowerCase();
-  if (message.includes("rejected") || message.includes("denied")) return "claim was rejected in the wallet.";
-  if (message.includes("nothingtoclaim")) return "there is currently nothing to claim.";
-  if (message.includes("claimsarepaused")) return "claims are temporarily paused.";
+  if (message.includes("rejected") || message.includes("denied")) return "earnings.rejected";
+  if (message.includes("nothingtoclaim")) return "earnings.nothingError";
+  if (message.includes("claimsarepaused")) return "earnings.pausedError";
+  if (message.includes("claim reverted onchain")) return "earnings.reverted";
   return error.message.split("\n")[0].slice(0, 180);
 }
 
 export function EarningsClaimPanel({ onConfirmed }: { onConfirmed?: () => void } = {}) {
+  const { t } = useI18n();
   const { address, chainId, isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
   const { openChainModal } = useChainModal();
   const publicClient = usePublicClient({ chainId: robinhoodTestnet.id });
   const { writeContractAsync, isPending } = useWriteContract();
-  const [status, setStatus] = useState("connect your wallet to read the live fee vault balance.");
+  const [statusKey, setStatusKey] = useState<MessageKey>("earnings.connectStatus");
+  const [statusValues, setStatusValues] = useState<Record<string, string | number>>({});
+  const [rawStatus, setRawStatus] = useState("");
   const [statusTone, setStatusTone] = useState<"neutral" | "positive" | "negative">("neutral");
   const [lastHash, setLastHash] = useState<Hash>();
 
@@ -45,18 +51,18 @@ export function EarningsClaimPanel({ onConfirmed }: { onConfirmed?: () => void }
   });
 
   const amount = formatUsdcUnits(claimable);
-  let actionLabel = `claim ${amount} usdc`;
+  let actionLabel = t("earnings.claim", { amount });
   let disabled = isPending || isFetching || claimPaused || claimable === 0n;
   if (!isConnected) {
-    actionLabel = "connect to claim";
+    actionLabel = t("earnings.connectToClaim");
     disabled = !openConnectModal;
   } else if (chainId !== robinhoodTestnet.id) {
-    actionLabel = "switch network to claim";
+    actionLabel = t("earnings.switchToClaim");
     disabled = !openChainModal;
-  } else if (isFetching) actionLabel = "checking claimable…";
-  else if (claimPaused) actionLabel = "claims paused";
-  else if (claimable === 0n) actionLabel = "nothing to claim";
-  else if (isPending) actionLabel = "confirm in wallet…";
+  } else if (isFetching) actionLabel = t("earnings.checking");
+  else if (claimPaused) actionLabel = t("earnings.paused");
+  else if (claimable === 0n) actionLabel = t("earnings.nothing");
+  else if (isPending) actionLabel = t("earnings.confirmWallet");
 
   async function claim() {
     if (!isConnected) {
@@ -79,15 +85,21 @@ export function EarningsClaimPanel({ onConfirmed }: { onConfirmed?: () => void }
         chainId: robinhoodTestnet.id,
       });
       setLastHash(hash);
-      setStatus("Claim submitted. Waiting for confirmation…");
+      setRawStatus("");
+      setStatusKey("earnings.submitted");
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
       if (receipt.status !== "success") throw new Error("claim reverted onchain.");
       await refetch();
       onConfirmed?.();
-      setStatus(`Claim confirmed in block ${receipt.blockNumber}.`);
+      setStatusKey("earnings.confirmed");
+      setStatusValues({ block: receipt.blockNumber.toString() });
       setStatusTone("positive");
     } catch (error) {
-      setStatus(claimError(error));
+      const errorStatus = claimError(error);
+      if (errorStatus.startsWith("earnings.")) {
+        setStatusKey(errorStatus as MessageKey);
+        setRawStatus("");
+      } else setRawStatus(errorStatus);
       setStatusTone("negative");
     }
   }
@@ -95,14 +107,14 @@ export function EarningsClaimPanel({ onConfirmed }: { onConfirmed?: () => void }
   return (
     <div className="earningsClaim">
       <div className="earningsClaimValue">
-        <div><span>live fee vault claimable</span><strong>{isConnected ? amount : "—"} usdc</strong></div>
-        <small>{networkLabel}</small>
+        <div><span>{t("earnings.vaultClaimable")}</span><strong>{isConnected ? amount : "—"} usdc</strong></div>
+        <small>{t("chain.testnet")}</small>
       </div>
       <div className="earningsClaimActions">
         <button className="button buttonPrimary" disabled={disabled} onClick={claim} type="button">{actionLabel}</button>
       </div>
-      <p aria-live="polite" className="earningsClaimStatus" data-tone={statusTone}>{status}</p>
-      {lastHash && <a className="earningsClaimTx" href={`${robinhoodTestnet.blockExplorers.default.url}/tx/${lastHash}`} rel="noreferrer" target="_blank">view transaction ↗</a>}
+      <p aria-live="polite" className="earningsClaimStatus" data-tone={statusTone}>{rawStatus || t(statusKey, statusValues)}</p>
+      {lastHash && <a className="earningsClaimTx" href={`${robinhoodTestnet.blockExplorers.default.url}/tx/${lastHash}`} rel="noreferrer" target="_blank">{t("common.viewTransaction")}</a>}
     </div>
   );
 }

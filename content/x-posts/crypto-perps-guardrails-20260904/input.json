@@ -1,0 +1,19 @@
+{
+  "campaign": "crypto-perps-guardrails-20260904",
+  "title": "Should regulated crypto perpetual futures trade 24/7?",
+  "description": "Crypto-native markets run continuously, but regulated perpetual futures raise questions about leverage, market structure and investor protection. Should always-on access become the standard, or should traditional safeguards set the pace?",
+  "category": "crypto",
+  "referenceUrl": "https://www.coindesk.com/policy/2026/09/03/cftc-asks-judge-to-dismiss-cme-lawsuit-over-crypto-perpetual-futures",
+  "sideAName": "Always-On Markets",
+  "sideASymbol": "24X7",
+  "sideALogoLabel": "ALWAYS ON",
+  "sideBName": "Regulated Guardrails",
+  "sideBSymbol": "SAFE",
+  "sideBLogoLabel": "MARKET GUARDRAILS",
+  "mentions": ["@Kalshi", "@CMEGroup", "@CoinDesk"],
+  "sources": [
+    "https://www.coindesk.com/policy/2026/09/03/cftc-asks-judge-to-dismiss-cme-lawsuit-over-crypto-perpetual-futures",
+    "https://unchainedcrypto.com/cftc-asks-court-to-dismiss-cmes-lawsuit-over-kalshis-bitcoin-perpetual-futures/",
+    "https://www.cftc.gov/IndustryOversight/IndustryFilings/TradingOrganizationProducts?col=Remarks&dir=ASC"
+  ]
+}

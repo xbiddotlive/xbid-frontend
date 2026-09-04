@@ -11,6 +11,8 @@ import { prepareContestMetadata, uploadContestLogo } from "@/lib/api/metadata";
 import { ensureWriteSession as getWriteSession } from "@/lib/api/write-session";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
 import { contestCreationFeeUnits, contracts, erc20Abi, factoryAbi, marketVaultAbi } from "@/lib/blockchain/contracts";
+import { useI18n } from "@/lib/i18n/locale-context";
+import type { MessageKey, MessageValues } from "@/lib/i18n/messages";
 
 export type LaunchContestInput = {
   title: string;
@@ -29,13 +31,19 @@ export type LaunchContestInput = {
 
 const wait = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 
-function transactionError(error: unknown) {
-  if (!(error instanceof Error)) return "launch failed. please try again.";
+function transactionError(error: unknown): MessageKey | string {
+  if (!(error instanceof Error)) return "launch.status.failed";
   const message = error.message.toLowerCase();
-  if (message.includes("rejected") || message.includes("denied")) return "request rejected in wallet.";
-  if (message.includes("insufficient funds")) return "the wallet needs testnet eth for gas.";
-  if (message.includes("duplicatesides")) return "side names and token symbols must be different.";
-  if (message.includes("creationispaused")) return "new contest creation is temporarily paused.";
+  if (message.includes("rejected") || message.includes("denied")) return "launch.status.rejected";
+  if (message.includes("insufficient funds")) return "launch.status.gas";
+  if (message.includes("duplicatesides")) return "launch.status.duplicate";
+  if (message.includes("creationispaused")) return "launch.status.paused";
+  if (message.includes("token tickers must")) return "launch.status.ticker";
+  if (message.includes("token tickers must be different")) return "launch.status.tickerDuplicate";
+  if (message.includes("initial position amount")) return "launch.status.initialRequired";
+  if (message.includes("market address was not found")) return "launch.status.marketMissing";
+  if (message.includes("rpc client is not ready")) return "launch.status.rpc";
+  if (message.includes("no wallet connector")) return "launch.status.noConnector";
   return error.message.split("\n")[0].slice(0, 200).toLowerCase();
 }
 
@@ -49,6 +57,7 @@ export function normalizeTokenSymbol(value: string) {
 }
 
 export function useLaunchContest() {
+  const { t } = useI18n();
   const router = useRouter();
   const { address, chainId, isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
@@ -58,7 +67,7 @@ export function useLaunchContest() {
   const { signMessageAsync } = useSignMessage();
   const publicClient = usePublicClient({ chainId: robinhoodTestnet.id });
   const [isBusy, setIsBusy] = useState(false);
-  const [status, setStatus] = useState("connect a wallet, then review and launch on testnet.");
+  const [statusMessage, setStatusMessage] = useState<{ key: MessageKey; values?: MessageValues } | { raw: string }>({ key: "launch.status.connect" });
   const [transactionHash, setTransactionHash] = useState<Hash>();
 
   const { data: balance = 0n, refetch: refetchBalance } = useReadContract({
@@ -76,12 +85,15 @@ export function useLaunchContest() {
     query: { enabled: Boolean(address), refetchInterval: 10_000 },
   });
 
-  async function confirm(hash: Hash, label: string) {
+  const setLocalizedStatus = (key: MessageKey, values?: MessageValues) => setStatusMessage({ key, values });
+  const status = "raw" in statusMessage ? statusMessage.raw : t(statusMessage.key, statusMessage.values);
+
+  async function confirm(hash: Hash, labelKey: MessageKey) {
     if (!publicClient) throw new Error("rpc client is not ready.");
     setTransactionHash(hash);
-    setStatus(`${label} submitted · waiting for confirmation…`);
+    setLocalizedStatus("launch.status.submitted", { label: t(labelKey) });
     const receipt = await publicClient.waitForTransactionReceipt({ hash, confirmations: 1 });
-    if (receipt.status !== "success") throw new Error(`${label} reverted onchain.`);
+    if (receipt.status !== "success") throw new Error(`${t(labelKey)} reverted onchain.`);
     return receipt;
   }
 
@@ -98,7 +110,7 @@ export function useLaunchContest() {
 
   async function ensureTestUsdc(requiredUnits: bigint, account: Address) {
     if (balance >= requiredUnits) return;
-    setStatus("test usdc is required · confirm the faucet mint in your wallet.");
+    setLocalizedStatus("launch.status.faucet");
     const mintAmount = requiredUnits > parseUnits("10000", 6) ? requiredUnits : parseUnits("10000", 6);
     await confirm(await writeContractAsync({
       address: contracts.settlementToken,
@@ -106,12 +118,12 @@ export function useLaunchContest() {
       functionName: "mint",
       args: [account, mintAmount],
       chainId: robinhoodTestnet.id,
-    }), "test usdc mint");
+    }), "launch.status.mint");
     await refetchBalance();
   }
 
   async function waitUntilIndexed(contestId: Hex) {
-    setStatus("contest confirmed · waiting for the indexer…");
+    setLocalizedStatus("launch.status.indexer");
     for (let attempt = 0; attempt < 30; attempt += 1) {
       try {
         await getContest(robinhoodTestnet.id, contestId);
@@ -123,7 +135,7 @@ export function useLaunchContest() {
   }
 
   async function ensureWriteSession(account: Address) {
-    setStatus("confirm a secure metadata session in your wallet…");
+    setLocalizedStatus("launch.status.session");
     return getWriteSession(account, (message) => signMessageAsync({ message }));
   }
 
@@ -143,12 +155,12 @@ export function useLaunchContest() {
       if (input.initialSide !== "none" && initialUnits <= 0n) throw new Error("enter an initial position amount or select no initial position.");
 
       const writeToken = await ensureWriteSession(address);
-      setStatus("uploading contest assets…");
+      setLocalizedStatus("launch.status.uploading");
       const [sideAAsset, sideBAsset] = await Promise.all([
         input.sideALogo ? uploadContestLogo(input.sideALogo, writeToken) : null,
         input.sideBLogo ? uploadContestLogo(input.sideBLogo, writeToken) : null,
       ]);
-      setStatus("creating immutable contest metadata…");
+      setLocalizedStatus("launch.status.metadata");
       const prepared = await prepareContestMetadata({
         creatorAddress: address,
         title: input.title,
@@ -172,14 +184,14 @@ export function useLaunchContest() {
 
       await ensureTestUsdc(contestCreationFeeUnits + initialUnits, address);
       if (factoryAllowance < contestCreationFeeUnits) {
-        setStatus("approve the 5 test usdc creation fee in your wallet.");
+        setLocalizedStatus("launch.status.feeApproval");
         await confirm(await writeContractAsync({
           address: contracts.settlementToken,
           abi: erc20Abi,
           functionName: "approve",
           args: [contracts.factory, contestCreationFeeUnits],
           chainId: robinhoodTestnet.id,
-        }), "factory approval");
+        }), "launch.status.factoryApproval");
         await refetchFactoryAllowance();
       }
 
@@ -192,7 +204,7 @@ export function useLaunchContest() {
         sideBName: input.sideBName,
         sideBSymbol,
       } as const;
-      setStatus("confirm launch contest in your wallet.");
+      setLocalizedStatus("launch.status.confirmLaunch");
       const simulation = await publicClient.simulateContract({
         account: address,
         address: contracts.factory,
@@ -200,7 +212,7 @@ export function useLaunchContest() {
         functionName: "createContest",
         args: [params],
       });
-      const receipt = await confirm(await writeContractAsync(simulation.request), "contest launch");
+      const receipt = await confirm(await writeContractAsync(simulation.request), "launch.status.contestLaunch");
 
       if (initialUnits > 0n) {
         const decoded = receipt.logs
@@ -215,27 +227,29 @@ export function useLaunchContest() {
           .find((event) => event?.eventName === "ContestCreated");
         const marketVault = decoded?.eventName === "ContestCreated" ? decoded.args.marketVault : undefined;
         if (!marketVault) throw new Error("contest launched, but its market address was not found in the receipt.");
-        setStatus("approve the initial backing amount in your wallet.");
+        setLocalizedStatus("launch.status.initialApproval");
         await confirm(await writeContractAsync({
           address: contracts.settlementToken,
           abi: erc20Abi,
           functionName: "approve",
           args: [marketVault, initialUnits],
           chainId: robinhoodTestnet.id,
-        }), "initial position approval");
+        }), "launch.status.initialApprovalLabel");
         const side = input.initialSide === "a" ? 0 : 1;
         const quote = await publicClient.readContract({ address: marketVault, abi: marketVaultAbi, functionName: "previewBuy", args: [side, initialUnits] });
         const minimumOutput = quote.tokenOutputWei * 9_950n / 10_000n;
         const deadline = BigInt(Math.floor(Date.now() / 1_000) + 10 * 60);
         const buy = await publicClient.simulateContract({ account: address, address: marketVault, abi: marketVaultAbi, functionName: "buy", args: [side, initialUnits, minimumOutput, deadline, zeroAddress] });
-        await confirm(await writeContractAsync(buy.request), "initial position");
+        await confirm(await writeContractAsync(buy.request), "launch.status.initialPosition");
       }
 
       await waitUntilIndexed(contestId);
-      setStatus("contest is live · opening the market…");
+      setLocalizedStatus("launch.status.live");
       router.push(`/contest/${contestId}`);
     } catch (error) {
-      setStatus(transactionError(error));
+      const nextStatus = transactionError(error);
+      if (nextStatus.startsWith("launch.")) setLocalizedStatus(nextStatus as MessageKey);
+      else setStatusMessage({ raw: nextStatus });
     } finally {
       setIsBusy(false);
     }

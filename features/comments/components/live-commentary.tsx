@@ -13,6 +13,8 @@ import {
 } from "@/lib/api/comments";
 import { ensureWriteSession } from "@/lib/api/write-session";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
+import { useI18n } from "@/lib/i18n/locale-context";
+import type { MessageKey } from "@/lib/i18n/messages";
 
 function compactAddress(value: string) {
   return `${value.slice(0, 6)}…${value.slice(-4)}`;
@@ -22,32 +24,35 @@ function authorLabel(comment: ContestComment) {
   return comment.authorName ?? compactAddress(comment.authorAddress);
 }
 
-function timeLabel(value: string) {
-  return new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(value));
+function timeLabel(value: string, locale: string) {
+  return new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(value));
 }
 
-function positionLabel(side: ContestComment["positionSideAtPost"]) {
-  if (side === "A") return "side a";
-  if (side === "B") return "side b";
-  if (side === "BOTH") return "both sides";
-  if (side === "NONE") return "former trader";
+function positionLabel(side: ContestComment["positionSideAtPost"]): MessageKey | null {
+  if (side === "A") return "comments.sideA";
+  if (side === "B") return "comments.sideB";
+  if (side === "BOTH") return "comments.both";
+  if (side === "NONE") return "comments.former";
   return null;
 }
 
-function commentError(error: Error) {
-  if (error.message === "COMMENT_TRADE_REQUIRED") return "complete at least a 1 test usdc buy in this contest first.";
-  if (error.message === "COMMENT_COOLDOWN") return "please wait 30 seconds before posting again.";
-  if (error.message === "COMMENT_DAILY_LIMIT") return "daily limit reached · try again tomorrow.";
-  if (error.message.includes("rejected") || error.message.includes("denied")) return "wallet authorization was cancelled.";
+function commentError(error: Error): MessageKey | string {
+  if (error.message === "COMMENT_TRADE_REQUIRED") return "comments.tradeRequired";
+  if (error.message === "COMMENT_COOLDOWN") return "comments.cooldown";
+  if (error.message === "COMMENT_DAILY_LIMIT") return "comments.dailyLimit";
+  if (error.message.includes("rejected") || error.message.includes("denied")) return "comments.cancelled";
   return error.message.toLowerCase();
 }
 
 function PositionBadge({ side }: { side: ContestComment["positionSideAtPost"] }) {
+  const { t } = useI18n();
   const label = positionLabel(side);
-  return label ? <span className="commentPosition" data-side={side.toLowerCase()}>{label}</span> : null;
+  return label ? <span className="commentPosition" data-side={side.toLowerCase()}>{t(label)}</span> : null;
 }
 
 export function LiveCommentary({ contestId }: { contestId: string }) {
+  const { locale, t } = useI18n();
+  const dateLocale = locale === "zh" ? "zh-CN" : "en-GB";
   const { address, isConnected } = useAccount();
   const queryClient = useQueryClient();
   const { signMessageAsync } = useSignMessage();
@@ -109,66 +114,67 @@ export function LiveCommentary({ contestId }: { contestId: string }) {
   }
 
   const composerPlaceholder = !isConnected
-    ? "connect wallet to comment"
+    ? t("comments.connect")
     : eligibilityQuery.isPending
-      ? "checking trading access…"
+      ? t("comments.checking")
       : canComment
-        ? "share your view…"
-        : "buy at least 1 test usdc to comment";
+        ? t("comments.placeholder")
+        : t("comments.buyToComment");
+  const sendError = sendComment.isError ? commentError(sendComment.error) : null;
   const composerNote = sendComment.isError
-    ? commentError(sendComment.error)
+    ? sendError && sendError.startsWith("comments.") ? t(sendError as MessageKey) : sendError
     : canComment
-      ? "verified trader · 30 second cooldown · 20 posts per contest/day"
+      ? t("comments.verifiedNote")
       : isConnected
-        ? "a confirmed 1 test usdc buy in this contest unlocks comments and replies"
-        : "connect a wallet to check comment access";
+        ? t("comments.unlockNote")
+        : t("comments.connectNote");
 
   return (
-    <aside className="liveCommentary" aria-label="live commentary">
+    <aside className="liveCommentary" aria-label={t("comments.label")}>
       <header className="commentaryHeader">
-        <div><MessageIcon /><strong>live commentary</strong></div>
-        <span>{comments?.length ?? 0} comments</span>
+        <div><MessageIcon /><strong>{t("comments.label")}</strong></div>
+        <span>{t("comments.count", { count: comments?.length ?? 0 })}</span>
       </header>
 
       <div className="commentaryFeed">
         {commentsQuery.isError ? (
-          <div className="commentaryEmpty"><MessageIcon /><strong>commentary unavailable</strong><span>{commentsQuery.error.message.toLowerCase()}</span></div>
+          <div className="commentaryEmpty"><MessageIcon /><strong>{t("comments.unavailable")}</strong><span>{commentsQuery.error.message.toLowerCase()}</span></div>
         ) : comments === undefined ? (
-          <div className="commentaryLoading" aria-label="loading commentary"><span className="skeletonBlock" /><span className="skeletonBlock" /><span className="skeletonBlock" /></div>
+          <div className="commentaryLoading" aria-label={t("comments.loading")}><span className="skeletonBlock" /><span className="skeletonBlock" /><span className="skeletonBlock" /></div>
         ) : roots.length > 0 ? roots.map((comment) => (
           <article className="commentThread" key={comment.id}>
             <div className="userComment">
               <div className="commentAvatar">{authorLabel(comment).slice(0, 1)}</div>
               <div>
-                <div className="commentMeta"><div><strong>{authorLabel(comment)}</strong><PositionBadge side={comment.positionSideAtPost} /></div><span>{timeLabel(comment.createdAt)}</span></div>
+                <div className="commentMeta"><div><strong>{authorLabel(comment)}</strong><PositionBadge side={comment.positionSideAtPost} /></div><span>{timeLabel(comment.createdAt, dateLocale)}</span></div>
                 <p>{comment.body}</p>
-                <div className="commentActions"><button onClick={() => setReplyingTo(comment)} type="button">reply</button><span>{comment.likes} likes</span></div>
+                <div className="commentActions"><button onClick={() => setReplyingTo(comment)} type="button">{t("comments.reply")}</button><span>{t("comments.likes", { count: comment.likes })}</span></div>
               </div>
             </div>
             {(repliesByParent.get(comment.id) ?? []).map((reply) => (
               <div className="userComment commentReply" key={reply.id}>
                 <div className="commentAvatar">{authorLabel(reply).slice(0, 1)}</div>
                 <div>
-                  <div className="commentMeta"><div><strong>{authorLabel(reply)}</strong><PositionBadge side={reply.positionSideAtPost} /></div><span>{timeLabel(reply.createdAt)}</span></div>
+                  <div className="commentMeta"><div><strong>{authorLabel(reply)}</strong><PositionBadge side={reply.positionSideAtPost} /></div><span>{timeLabel(reply.createdAt, dateLocale)}</span></div>
                   <p>{reply.body}</p>
-                  <div className="commentActions"><button onClick={() => setReplyingTo(comment)} type="button">reply</button><span>{reply.likes} likes</span></div>
+                  <div className="commentActions"><button onClick={() => setReplyingTo(comment)} type="button">{t("comments.reply")}</button><span>{t("comments.likes", { count: reply.likes })}</span></div>
                 </div>
               </div>
             ))}
           </article>
         )) : (
-          <div className="commentaryEmpty"><MessageIcon /><strong>start the conversation</strong><span>trade to unlock commentary, then make your case.</span></div>
+          <div className="commentaryEmpty"><MessageIcon /><strong>{t("comments.start")}</strong><span>{t("comments.startDescription")}</span></div>
         )}
       </div>
 
       <form className="commentComposer" onSubmit={(event) => void submit(event)}>
         <div className="commentComposerHeading">
-          <label htmlFor="comment-input">{replyingTo ? `reply to ${authorLabel(replyingTo)}` : "make your case"}</label>
-          {replyingTo && <button aria-label="cancel reply" onClick={() => setReplyingTo(null)} type="button">cancel</button>}
+          <label htmlFor="comment-input">{replyingTo ? t("comments.replyTo", { author: authorLabel(replyingTo) }) : t("comments.makeCase")}</label>
+          {replyingTo && <button aria-label={t("comments.cancelReply")} onClick={() => setReplyingTo(null)} type="button">{t("comments.cancel")}</button>}
         </div>
         <div className="commentComposerRow">
           <input disabled={!canComment || sendComment.isPending} id="comment-input" maxLength={240} onChange={(event) => setBody(event.target.value)} placeholder={composerPlaceholder} value={body} />
-          <button disabled={!canComment || sendComment.isPending || body.trim().length === 0} type="submit">{sendComment.isPending ? "authorizing…" : "send"}</button>
+          <button disabled={!canComment || sendComment.isPending || body.trim().length === 0} type="submit">{sendComment.isPending ? t("comments.authorizing") : t("comments.send")}</button>
         </div>
         <span>{composerNote}</span>
       </form>

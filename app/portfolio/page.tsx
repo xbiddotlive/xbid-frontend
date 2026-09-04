@@ -1,6 +1,7 @@
 import { PortfolioIcon } from "@/components/ui/icons";
 import { PortfolioDashboard } from "@/features/portfolio/components/portfolio-dashboard";
 import { pageMetadata } from "@/lib/seo/site";
+import { I18nText } from "@/lib/i18n/locale-context";
 
 export const metadata = pageMetadata({
   title: "portfolio",
@@ -9,5 +10,5 @@ export const metadata = pageMetadata({
 });
 
 export default function PortfolioPage() {
-  return <main className="pageShell utilityPage"><header className="pageHeader utilityIconHeader"><PortfolioIcon /><div><p className="eyebrow">wallet workspace</p><h1>portfolio</h1><span>positions, created contests and protocol earnings in one view.</span></div></header><PortfolioDashboard /></main>;
+  return <main className="pageShell utilityPage"><header className="pageHeader utilityIconHeader"><PortfolioIcon /><div><p className="eyebrow"><I18nText id="page.portfolio.eyebrow" /></p><h1><I18nText id="page.portfolio.title" /></h1><span><I18nText id="page.portfolio.description" /></span></div></header><PortfolioDashboard /></main>;
 }

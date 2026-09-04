@@ -17,14 +17,15 @@ import { useAccount, useConnect, usePublicClient, useReadContract, useSwitchChai
 
 import { CloseIcon, InfoIcon } from "@/components/ui/icons";
 import type { IndexedContest } from "@/lib/api/contests";
-import { networkLabel, robinhoodTestnet, settlementTokenLabel } from "@/lib/blockchain/chain";
+import { robinhoodTestnet, settlementTokenLabel } from "@/lib/blockchain/chain";
 import { contracts, erc20Abi, marketVaultAbi } from "@/lib/blockchain/contracts";
+import { useI18n } from "@/lib/i18n/locale-context";
+import type { MessageKey } from "@/lib/i18n/messages";
 import { normalizeSlippageBps, SlippageControl } from "./slippage-control";
 
 export type TradeMode = "buy" | "sell" | "flip";
 type Side = 0 | 1;
 const minimumFlipGrossUnits = 50_000_000n;
-const defaultTradeStatus = "enter an amount to receive a live quote.";
 
 type TradeTicketProps = {
   contest: IndexedContest;
@@ -45,13 +46,13 @@ function parseAmount(value: string, decimals: number) {
   }
 }
 
-function errorMessage(error: unknown) {
-  if (!(error instanceof Error)) return "transaction failed. please try again.";
-  if (error.message.toLowerCase().includes("rejected")) return "request rejected in wallet.";
+function errorMessage(error: unknown): MessageKey | string {
+  if (!(error instanceof Error)) return "trade.failed";
+  if (error.message.toLowerCase().includes("rejected")) return "trade.rejected";
   return error.message.split("\n")[0].slice(0, 180).toLowerCase();
 }
 
-function flipQuoteErrorMessage(error: Error | null) {
+function flipQuoteErrorMessage(error: Error | null, locale: string, t: ReturnType<typeof useI18n>["t"]) {
   if (!error) return null;
   const minimum = `${formatUnits(minimumFlipGrossUnits, 6)} usdc`;
   if (error instanceof BaseError) {
@@ -59,15 +60,15 @@ function flipQuoteErrorMessage(error: Error | null) {
     if (reverted instanceof ContractFunctionRevertedError && reverted.data?.errorName === "FlipGrossBelowMinimum") {
       const grossOutput = reverted.data.args?.[0];
       const actual = typeof grossOutput === "bigint"
-        ? `${Number(formatUnits(grossOutput, 6)).toLocaleString(undefined, { maximumFractionDigits: 4 })} usdc`
-        : "this position";
-      return `insufficient flip value · estimated ${actual} / ${minimum} minimum`;
+        ? `${Number(formatUnits(grossOutput, 6)).toLocaleString(locale, { maximumFractionDigits: 4 })} usdc`
+        : t("portfolio.positions");
+      return t("trade.flipInsufficient", { actual, minimum });
     }
   }
   if (error.message.includes("FlipGrossBelowMinimum")) {
-    return `insufficient flip value · below ${minimum} minimum`;
+    return t("trade.flipBelowMinimum", { minimum });
   }
-  return "flip quote unavailable · refresh the market and try again";
+  return t("trade.flipUnavailableRefresh");
 }
 
 function retryFlipQuote(failureCount: number, error: Error) {
@@ -81,14 +82,16 @@ function retryFlipQuote(failureCount: number, error: Error) {
 }
 
 export function TradeTicket({ contest, embedded = false, initialAmount, initialMode = "buy", initialSide = 0, initialSlippageBps = 50, onClose, onConfirmed }: TradeTicketProps) {
+  const { locale, t } = useI18n();
+  const numberLocale = locale === "zh" ? "zh-CN" : "en-US";
   const [mode, setMode] = useState<TradeMode>(initialMode);
   const [side, setSide] = useState<Side>(initialSide);
   const [amount, setAmount] = useState(initialAmount ?? (initialMode === "buy" ? "10" : "0"));
   const [slippageBps, setSlippageBps] = useState(normalizeSlippageBps(initialSlippageBps));
-  const [status, setStatus] = useState(defaultTradeStatus);
+  const [status, setStatus] = useState("");
   const [lastHash, setLastHash] = useState<Hash>();
   const [isActing, setIsActing] = useState(false);
-  const [actingLabel, setActingLabel] = useState("confirm in wallet");
+  const [actingLabel, setActingLabel] = useState("");
   const [detailsOpen, setDetailsOpen] = useState(false);
   const detailsId = useId();
   const searchParams = useSearchParams();
@@ -150,36 +153,36 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
   const quoteReady = mode === "buy" ? Boolean(buyQuote) : mode === "sell" ? Boolean(sellQuote) : Boolean(flipQuote) && !flipInputPending;
   const sourceSymbol = side === 0 ? contest.metadata.sideA.symbol : contest.metadata.sideB.symbol;
   const flipQuoteIssue = mode === "flip" && input > 0n && !flipInputPending
-    ? flipQuoteErrorMessage(flipError)
+    ? flipQuoteErrorMessage(flipError, numberLocale, t)
     : null;
 
   function changeMode(nextMode: TradeMode) {
     setMode(nextMode);
     setAmount(nextMode === "buy" ? "10" : "0");
     setLastHash(undefined);
-    setStatus(defaultTradeStatus);
+    setStatus("");
   }
 
   function changeSide(nextSide: Side) {
     setSide(nextSide);
     setLastHash(undefined);
-    setStatus(defaultTradeStatus);
+    setStatus("");
   }
 
   function changeAmount(nextAmount: string) {
     setAmount(nextAmount);
     setLastHash(undefined);
-    setStatus(defaultTradeStatus);
+    setStatus("");
   }
 
   async function submitAndWait(hash: Hash, label: string) {
-    if (!publicClient) throw new Error("rpc client is not ready.");
+    if (!publicClient) throw new Error(t("trade.rpc"));
     setActingLabel(`${label}…`);
     setLastHash(hash);
-    setStatus(`${label} submitted. waiting for confirmation…`);
+    setStatus(t("trade.submitted", { label }));
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
     if (receipt.status !== "success") throw new Error(`${label} reverted onchain.`);
-    setStatus(`${label} confirmed in block ${receipt.blockNumber}.`);
+    setStatus(t("trade.confirmed", { label, block: receipt.blockNumber.toString() }));
   }
 
   async function ensureReady() {
@@ -188,7 +191,7 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
         openConnectModal();
         return false;
       }
-      if (!connectors[0]) throw new Error("no injected wallet was detected.");
+      if (!connectors[0]) throw new Error(t("trade.noWallet"));
       connect({ connector: connectors[0] });
       return false;
     }
@@ -204,46 +207,47 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
       address: activeToken, abi: erc20Abi, functionName: "approve",
       args: [marketVault, input], chainId: robinhoodTestnet.id,
     });
-    await submitAndWait(hash, `approve ${amount || "0"} ${mode === "buy" ? settlementTokenLabel : `side ${side === 0 ? "a" : "b"}`}`);
+    await submitAndWait(hash, t("trade.approveAmount", { amount: amount || "0", symbol: mode === "buy" ? settlementTokenLabel : t(side === 0 ? "common.sideA" : "common.sideB") }));
     await refetchAllowance();
   }
 
   async function freshFlipOutput() {
-    setActingLabel("checking flip value…");
+    setActingLabel(t("trade.checkingFlip"));
     const refreshed = await refetchFlip();
     if (refreshed.error) {
-      throw new Error(flipQuoteErrorMessage(refreshed.error) ?? errorMessage(refreshed.error));
+      const fallback = errorMessage(refreshed.error);
+      throw new Error(flipQuoteErrorMessage(refreshed.error, numberLocale, t) ?? (fallback.startsWith("trade.") ? t(fallback as MessageKey) : fallback));
     }
     const freshOutput = refreshed.data?.destinationTokenOutputWei;
     if (!freshOutput || freshOutput <= 0n) {
-      throw new Error("flip quote unavailable. check the amount and try again.");
+      throw new Error(t("trade.flipUnavailableTry"));
     }
-    setActingLabel("confirm in wallet");
+    setActingLabel(t("trade.confirmWallet"));
     return freshOutput;
   }
 
   async function act() {
     setIsActing(true);
-    setActingLabel("confirm in wallet");
+    setActingLabel(t("trade.confirmWallet"));
     setLastHash(undefined);
     try {
       if (!(await ensureReady())) return;
-      if (!address) throw new Error("connect a wallet first.");
-      if (input <= 0n) throw new Error("enter a positive amount.");
+      if (!address) throw new Error(t("trade.connectFirst"));
+      if (input <= 0n) throw new Error(t("trade.positiveAmount"));
       let executionOutput = output;
       if (mode === "flip") {
         executionOutput = await freshFlipOutput();
       } else if (!quoteReady || output <= 0n) {
-        throw new Error("a valid live quote is required.");
+        throw new Error(t("trade.validQuote"));
       }
 
       if (balance < input) {
-        if (mode !== "buy") throw new Error(`insufficient side ${side === 0 ? "a" : "b"} balance.`);
+        if (mode !== "buy") throw new Error(t("trade.insufficientSide", { side: side === 0 ? "A" : "B" }));
         const hash = await writeContractAsync({
           address: contracts.settlementToken, abi: erc20Abi, functionName: "mint",
           args: [address, parseUnits("10000", 6)], chainId: robinhoodTestnet.id,
         });
-        await submitAndWait(hash, `${settlementTokenLabel} mint`);
+        await submitAndWait(hash, t("trade.mint", { symbol: settlementTokenLabel }));
         await refetchBalance();
         return;
       }
@@ -255,102 +259,103 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
 
       const deadline = BigInt(Math.floor(Date.now() / 1_000) + 10 * 60);
       const executionMinimumOutput = (executionOutput * BigInt(10_000 - slippageBps)) / 10_000n;
-      if (!publicClient) throw new Error("rpc client is not ready.");
+      if (!publicClient) throw new Error(t("trade.rpc"));
       if (mode === "buy") {
         const simulation = await publicClient.simulateContract({ account: address, address: marketVault, abi: marketVaultAbi, functionName: "buy", args: [side, input, minimumOutput, deadline, referrer] });
-        await submitAndWait(await writeContractAsync(simulation.request), `back side ${side === 0 ? "a" : "b"}`);
+        await submitAndWait(await writeContractAsync(simulation.request), t("trade.backSide", { side: side === 0 ? "A" : "B" }));
       } else if (mode === "sell") {
         const simulation = await publicClient.simulateContract({ account: address, address: marketVault, abi: marketVaultAbi, functionName: "sell", args: [side, input, minimumOutput, deadline] });
-        await submitAndWait(await writeContractAsync(simulation.request), `sell side ${side === 0 ? "a" : "b"}`);
+        await submitAndWait(await writeContractAsync(simulation.request), t("trade.sellSide", { side: side === 0 ? "A" : "B" }));
       } else {
         const simulation = await publicClient.simulateContract({ account: address, address: marketVault, abi: marketVaultAbi, functionName: "flip", args: [side, input, executionMinimumOutput, deadline] });
-        await submitAndWait(await writeContractAsync(simulation.request), `flip side ${side === 0 ? "a" : "b"} into side ${side === 0 ? "b" : "a"}`);
+        await submitAndWait(await writeContractAsync(simulation.request), t("trade.flipSides", { source: side === 0 ? "A" : "B", destination: side === 0 ? "B" : "A" }));
       }
       const refetchActiveQuote = mode === "buy" ? refetchBuy : mode === "sell" ? refetchSell : refetchFlip;
       await Promise.all([refetchBalance(), refetchAllowance(), refetchActiveQuote()]);
       onConfirmed();
     } catch (error) {
-      setStatus(errorMessage(error));
+      const nextStatus = errorMessage(error);
+      setStatus(nextStatus.startsWith("trade.") ? t(nextStatus as MessageKey) : nextStatus);
     } finally {
       setIsActing(false);
     }
   }
 
   const effectiveSymbol = mode === "sell" ? "usdc" : mode === "buy" ? (side === 0 ? contest.metadata.sideA.symbol : contest.metadata.sideB.symbol) : (side === 0 ? contest.metadata.sideB.symbol : contest.metadata.sideA.symbol);
-  const formattedOutput = Number(formatUnits(output, outputDecimals)).toLocaleString(undefined, { maximumFractionDigits: 4 });
-  let actionLabel = mode === "buy" ? `buy ${formattedOutput} ${effectiveSymbol}` : mode === "sell" ? `sell for ${formattedOutput} ${effectiveSymbol}` : `flip into ${formattedOutput} ${effectiveSymbol}`;
-  if (!isConnected) actionLabel = "connect wallet";
-  else if (chainId !== robinhoodTestnet.id) actionLabel = `switch to ${networkLabel}`;
-  else if (mode === "buy" && balance < input && robinhoodTestnet.testnet) actionLabel = `mint 10,000 ${settlementTokenLabel}`;
-  else if (mode === "buy" && balance < input) actionLabel = `insufficient ${settlementTokenLabel} balance`;
-  else if (mode !== "buy" && balance < input) actionLabel = "insufficient token balance";
-  else if (flipQuoteIssue) actionLabel = "recheck flip value";
+  const formattedOutput = Number(formatUnits(output, outputDecimals)).toLocaleString(numberLocale, { maximumFractionDigits: 4 });
+  let actionLabel = mode === "buy" ? t("trade.buyOutput", { amount: formattedOutput, symbol: effectiveSymbol }) : mode === "sell" ? t("trade.sellOutput", { amount: formattedOutput, symbol: effectiveSymbol }) : t("trade.flipOutput", { amount: formattedOutput, symbol: effectiveSymbol });
+  if (!isConnected) actionLabel = t("wallet.connect");
+  else if (chainId !== robinhoodTestnet.id) actionLabel = t("trade.switchNetwork", { network: t("chain.testnet") });
+  else if (mode === "buy" && balance < input && robinhoodTestnet.testnet) actionLabel = t("trade.mintAmount", { symbol: settlementTokenLabel });
+  else if (mode === "buy" && balance < input) actionLabel = t("trade.insufficientBalance", { symbol: settlementTokenLabel });
+  else if (mode !== "buy" && balance < input) actionLabel = t("trade.insufficientToken");
+  else if (flipQuoteIssue) actionLabel = t("trade.recheckFlip");
   else if (input > 0n && !quoteReady) actionLabel = quoteLoading
-    ? mode === "flip" ? "checking flip value…" : "fetching quote…"
-    : mode === "flip" ? "flip quote unavailable" : "quote unavailable";
-  else if (allowance < input) actionLabel = mode === "buy" ? `approve & buy ${formattedOutput} ${effectiveSymbol}` : `approve & ${mode} ${sourceSymbol}`;
+    ? mode === "flip" ? t("trade.checkingFlip") : t("trade.fetchingQuote")
+    : mode === "flip" ? t("trade.flipUnavailable") : t("trade.quoteUnavailable");
+  else if (allowance < input) actionLabel = mode === "buy" ? t("trade.approveBuy", { amount: formattedOutput, symbol: effectiveSymbol }) : t("trade.approveMode", { mode: t(`trade.${mode}` as MessageKey), symbol: sourceSymbol });
   const isDirectTrade = isConnected && chainId === robinhoodTestnet.id && balance >= input && allowance >= input;
   const quoteBlocked = input > 0n && !quoteReady && !flipQuoteIssue;
 
   const balanceDecimals = mode === "buy" ? 6 : 18;
-  const balanceLabel = Number(formatUnits(balance, balanceDecimals)).toLocaleString(undefined, { maximumFractionDigits: 4 });
+  const balanceLabel = Number(formatUnits(balance, balanceDecimals)).toLocaleString(numberLocale, { maximumFractionDigits: 4 });
   const amountSymbol = mode === "buy" ? "usdc" : sourceSymbol;
   return (
-    <div className={embedded ? "tradeTicket tradeTicketEmbedded" : "tradeTicket"} role={embedded ? undefined : "dialog"} aria-label={embedded ? "trade execution" : "trade drawer"}>
+    <div className={embedded ? "tradeTicket tradeTicketEmbedded" : "tradeTicket"} role={embedded ? undefined : "dialog"} aria-label={t(embedded ? "trade.execution" : "trade.drawer")}>
       {!embedded && <div className="ticketHeader">
-        <div><p className="eyebrow">trade drawer</p><h2>move the market</h2></div>
-        {onClose ? <button aria-label="close trade drawer" className="iconButton" onClick={onClose} type="button"><CloseIcon /></button> : <span className="liveDot">live</span>}
+        <div><p className="eyebrow">{t("trade.drawer")}</p><h2>{t("trade.moveMarket")}</h2></div>
+        {onClose ? <button aria-label={t("trade.closeDrawer")} className="iconButton" onClick={onClose} type="button"><CloseIcon /></button> : <span className="liveDot">{t("common.live")}</span>}
       </div>}
-      <div className="ticketTabs">{(["buy", "sell", "flip"] as const).map((item) => <button className={mode === item ? "active" : ""} key={item} onClick={() => changeMode(item)} type="button">{item}</button>)}</div>
+      <div className="ticketTabs">{(["buy", "sell", "flip"] as const).map((item) => <button className={mode === item ? "active" : ""} key={item} onClick={() => changeMode(item)} type="button">{t(`trade.${item}` as MessageKey)}</button>)}</div>
       <div className="sideSelector">
-        <button className={side === 0 ? "sideA selected" : "sideA"} onClick={() => changeSide(0)} type="button">{mode === "flip" ? "from " : ""}side a</button>
-        <button className={side === 1 ? "sideB selected" : "sideB"} onClick={() => changeSide(1)} type="button">{mode === "flip" ? "from " : ""}side b</button>
+        <button className={side === 0 ? "sideA selected" : "sideA"} onClick={() => changeSide(0)} type="button">{mode === "flip" ? t("trade.fromSide", { side: "A" }) : t("common.sideA")}</button>
+        <button className={side === 1 ? "sideB selected" : "sideB"} onClick={() => changeSide(1)} type="button">{mode === "flip" ? t("trade.fromSide", { side: "B" }) : t("common.sideB")}</button>
       </div>
 
       {embedded ? <>
         <label className="compactAmountField">
-          <span>{mode === "buy" ? "you pay" : "token amount"}</span>
-          <input aria-label={`${mode === "buy" ? "you pay" : "token amount"} ${amountSymbol}`} inputMode="decimal" onChange={(event) => changeAmount(event.target.value)} value={amount} />
+          <span>{t(mode === "buy" ? "trade.youPay" : "trade.tokenAmount")}</span>
+          <input aria-label={`${t(mode === "buy" ? "trade.youPay" : "trade.tokenAmount")} ${amountSymbol}`} inputMode="decimal" onChange={(event) => changeAmount(event.target.value)} value={amount} />
           <b>{amountSymbol}</b>
         </label>
-        <div className="compactBalance"><span>balance {balanceLabel}</span><button disabled={!isConnected || balance === 0n} onClick={() => changeAmount(formatUnits(balance, balanceDecimals))} type="button">max</button></div>
-        <button className={side === 0 ? "tradeAction actionA" : "tradeAction actionB"} disabled={isActing || input <= 0n || quoteBlocked || (mode !== "buy" && balance < input)} onClick={() => void act()} type="button">{isActing ? actingLabel : isDirectTrade && quoteLoading && !flipQuoteIssue ? "updating quote…" : actionLabel}</button>
+        <div className="compactBalance"><span>{t("trade.balance", { amount: balanceLabel })}</span><button disabled={!isConnected || balance === 0n} onClick={() => changeAmount(formatUnits(balance, balanceDecimals))} type="button">{t("trade.max")}</button></div>
+        <button className={side === 0 ? "tradeAction actionA" : "tradeAction actionB"} disabled={isActing || input <= 0n || quoteBlocked || (mode !== "buy" && balance < input)} onClick={() => void act()} type="button">{isActing ? actingLabel : isDirectTrade && quoteLoading && !flipQuoteIssue ? t("trade.updatingQuote") : actionLabel}</button>
         <div className="compactTradeFooter">
           <SlippageControl onChange={setSlippageBps} value={slippageBps} />
-          <button aria-controls={detailsId} aria-expanded={detailsOpen} className="tradeDetailsTrigger" onClick={() => setDetailsOpen((current) => !current)} title="show transaction details" type="button"><InfoIcon /><span>details</span></button>
+          <button aria-controls={detailsId} aria-expanded={detailsOpen} className="tradeDetailsTrigger" onClick={() => setDetailsOpen((current) => !current)} title={t("trade.showDetails")} type="button"><InfoIcon /><span>{t("trade.details")}</span></button>
         </div>
         {detailsOpen && <div className="compactTradeDetails" id={detailsId}>
-          {mode === "sell" && <div><span>gross usdc</span><span>{formatUnits(sellQuote?.grossOutputUnits ?? 0n, 6)}</span></div>}
-          {mode === "flip" && <div><span>source gross</span><span>{formatUnits(flipQuote?.sourceGrossOutputUnits ?? 0n, 6)} usdc</span></div>}
-          <div><span>minimum received</span><span>{formatUnits(minimumOutput, outputDecimals)} {effectiveSymbol}</span></div>
-          <div><span>trading fee</span><span>{formatUnits(fee, 6)} usdc · 1%</span></div>
-          <div><span>deadline</span><span>10 minutes</span></div>
-          {mode === "buy" && referrer !== zeroAddress && <div><span>referrer</span><span>{referrer.slice(0, 6)}…{referrer.slice(-4)}</span></div>}
-          {mode === "flip" && <p>one atomic transaction · source is burned only if destination output succeeds</p>}
-          <small>real onchain transaction · minimum received is protected</small>
+          {mode === "sell" && <div><span>{t("trade.grossUsdc")}</span><span>{formatUnits(sellQuote?.grossOutputUnits ?? 0n, 6)}</span></div>}
+          {mode === "flip" && <div><span>{t("trade.sourceGross")}</span><span>{formatUnits(flipQuote?.sourceGrossOutputUnits ?? 0n, 6)} usdc</span></div>}
+          <div><span>{t("trade.minimumReceived")}</span><span>{formatUnits(minimumOutput, outputDecimals)} {effectiveSymbol}</span></div>
+          <div><span>{t("trade.tradingFee")}</span><span>{formatUnits(fee, 6)} usdc · 1%</span></div>
+          <div><span>{t("trade.deadline")}</span><span>{t("trade.tenMinutes")}</span></div>
+          {mode === "buy" && referrer !== zeroAddress && <div><span>{t("trade.referrer")}</span><span>{referrer.slice(0, 6)}…{referrer.slice(-4)}</span></div>}
+          {mode === "flip" && <p>{t("trade.atomicDescription")}</p>}
+          <small>{t("trade.protected")}</small>
         </div>}
-        {(flipQuoteIssue || status !== defaultTradeStatus || lastHash) && <p className="ticketStatus" aria-live="polite">{flipQuoteIssue ?? status}</p>}
-        {lastHash ? <a className="explorerLink" href={`${robinhoodTestnet.blockExplorers.default.url}/tx/${lastHash}`} rel="noreferrer" target="_blank">view transaction ↗</a> : null}
+        {(flipQuoteIssue || status || lastHash) && <p className="ticketStatus" aria-live="polite">{flipQuoteIssue ?? status}</p>}
+        {lastHash ? <a className="explorerLink" href={`${robinhoodTestnet.blockExplorers.default.url}/tx/${lastHash}`} rel="noreferrer" target="_blank">{t("common.viewTransaction")}</a> : null}
       </> : <>
         <label className="amountField">
-          <span>{mode === "buy" ? "you pay" : "token amount"}</span>
+          <span>{t(mode === "buy" ? "trade.youPay" : "trade.tokenAmount")}</span>
           <div><input inputMode="decimal" onChange={(event) => changeAmount(event.target.value)} value={amount} /><b>{amountSymbol}</b></div>
-          <small>balance {balanceLabel}</small>
+          <small>{t("trade.balance", { amount: balanceLabel })}</small>
         </label>
         <div className="quickAmounts">{(mode === "buy" ? ["10", "100", "1000"] : ["25%", "50%", "100%"]).map((value) => <button key={value} onClick={() => changeAmount(value.endsWith("%") ? formatUnits((balance * BigInt(value.slice(0, -1))) / 100n, 18) : value)} type="button">{value.endsWith("%") ? value : `${value} usdc`}</button>)}</div>
         <div className="quoteSummary">
-          <div><span>{mode === "flip" ? "destination output" : "you receive"}</span><strong>{quoteLoading ? "quoting…" : `${Number(formatUnits(output, outputDecimals)).toLocaleString(undefined, { maximumFractionDigits: 4 })} ${effectiveSymbol}`}</strong></div>
-          {mode === "sell" && <div><span>gross usdc</span><span>{formatUnits(sellQuote?.grossOutputUnits ?? 0n, 6)}</span></div>}
-          {mode === "flip" && <div><span>source gross</span><span>{formatUnits(flipQuote?.sourceGrossOutputUnits ?? 0n, 6)} usdc</span></div>}
-          <div><span>minimum received</span><span>{formatUnits(minimumOutput, outputDecimals)} {effectiveSymbol}</span></div>
-          <div><span>trading fee</span><span>{formatUnits(fee, 6)} usdc · 1%</span></div>
+          <div><span>{t(mode === "flip" ? "trade.destinationOutput" : "trade.youReceive")}</span><strong>{quoteLoading ? t("trade.quoting") : `${Number(formatUnits(output, outputDecimals)).toLocaleString(numberLocale, { maximumFractionDigits: 4 })} ${effectiveSymbol}`}</strong></div>
+          {mode === "sell" && <div><span>{t("trade.grossUsdc")}</span><span>{formatUnits(sellQuote?.grossOutputUnits ?? 0n, 6)}</span></div>}
+          {mode === "flip" && <div><span>{t("trade.sourceGross")}</span><span>{formatUnits(flipQuote?.sourceGrossOutputUnits ?? 0n, 6)} usdc</span></div>}
+          <div><span>{t("trade.minimumReceived")}</span><span>{formatUnits(minimumOutput, outputDecimals)} {effectiveSymbol}</span></div>
+          <div><span>{t("trade.tradingFee")}</span><span>{formatUnits(fee, 6)} usdc · 1%</span></div>
         </div>
-        {mode === "flip" && <p className="atomicNote">one atomic transaction · one fee · source is burned only if destination output succeeds</p>}
-        <div className="ticketExecutionSettings"><SlippageControl onChange={setSlippageBps} value={slippageBps} /><span>10 minute deadline</span></div>
+        {mode === "flip" && <p className="atomicNote">{t("trade.atomicFeeDescription")}</p>}
+        <div className="ticketExecutionSettings"><SlippageControl onChange={setSlippageBps} value={slippageBps} /><span>{t("trade.tenMinuteDeadline")}</span></div>
         <button className={side === 0 ? "tradeAction actionA" : "tradeAction actionB"} disabled={isActing || input <= 0n || quoteBlocked || (mode !== "buy" && balance < input)} onClick={() => void act()} type="button">{isActing ? actingLabel : actionLabel}</button>
-        <p className="ticketStatus" aria-live="polite">{flipQuoteIssue ?? status}</p>
-        {lastHash ? <a className="explorerLink" href={`${robinhoodTestnet.blockExplorers.default.url}/tx/${lastHash}`} rel="noreferrer" target="_blank">view transaction ↗</a> : null}
-        <div className="ticketFootnote">real onchain transaction · minimum received is protected</div>
+        <p className="ticketStatus" aria-live="polite">{(flipQuoteIssue ?? status) || t("trade.defaultStatus")}</p>
+        {lastHash ? <a className="explorerLink" href={`${robinhoodTestnet.blockExplorers.default.url}/tx/${lastHash}`} rel="noreferrer" target="_blank">{t("common.viewTransaction")}</a> : null}
+        <div className="ticketFootnote">{t("trade.protected")}</div>
       </>}
     </div>
   );

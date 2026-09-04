@@ -1,3 +1,5 @@
+import { I18nText } from "@/lib/i18n/locale-context";
+
 function Block({ className = "" }: { className?: string }) {
   return <i className={`skeletonBlock ${className}`} />;
 }
@@ -126,7 +128,7 @@ export function DirectorySkeleton() {
 export default function Loading() {
   return (
     <main aria-busy="true" aria-live="polite" className="pageShell skeletonPage" role="status">
-      <span className="visuallyHidden">loading page content</span>
+      <span className="visuallyHidden"><I18nText id="common.loadingPage" /></span>
       <div aria-hidden="true"><HomeSkeleton /></div>
     </main>
   );

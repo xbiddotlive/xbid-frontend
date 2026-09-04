@@ -1,5 +1,6 @@
 import { EarningsOverview } from "@/features/portfolio/components/earnings-overview";
 import { pageMetadata } from "@/lib/seo/site";
+import { I18nText } from "@/lib/i18n/locale-context";
 
 export const metadata = pageMetadata({
   title: "earnings",
@@ -8,5 +9,5 @@ export const metadata = pageMetadata({
 });
 
 export default function EarningsPage() {
-  return <main className="pageShell utilityPage"><header className="pageHeader"><p className="eyebrow">portfolio</p><h1>earnings</h1><span>claimable creator fees and referral rewards.</span></header><EarningsOverview /></main>;
+  return <main className="pageShell utilityPage"><header className="pageHeader"><p className="eyebrow"><I18nText id="nav.portfolio" /></p><h1><I18nText id="page.earnings.title" /></h1><span><I18nText id="page.earnings.description" /></span></header><EarningsOverview /></main>;
 }

@@ -1,0 +1,19 @@
+{
+  "campaign": "robinhood-chain-breakout-20260904",
+  "title": "What will define Robinhood Chain's breakout?",
+  "description": "Robinhood Chain is seeing rapid onchain activity. Will durable demand come from tokenized real-world assets, or will high-velocity speculative markets remain the primary growth engine?",
+  "category": "crypto",
+  "referenceUrl": "https://unchainedcrypto.com/the-chopping-block-robinhood-chains-memecoin-mania-and-tokenized-stocks/",
+  "sideAName": "Tokenized Assets",
+  "sideASymbol": "RWA",
+  "sideALogoLabel": "TOKENIZED ASSETS",
+  "sideBName": "Speculative Markets",
+  "sideBSymbol": "SPEC",
+  "sideBLogoLabel": "SPECULATIVE MARKETS",
+  "mentions": ["@RobinhoodApp", "@arbitrum", "@CoinDesk"],
+  "sources": [
+    "https://unchainedcrypto.com/the-chopping-block-robinhood-chains-memecoin-mania-and-tokenized-stocks/",
+    "https://cryptoslate.com/robinhood-put-stocks-on-a-permissionless-blockchain-memecoin-traders-are-stress-testing-what-happens-next/",
+    "https://defillama.com/chain/robinhood-chain"
+  ]
+}

@@ -1,34 +1,18 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 
+import { ThemeToggle } from "@/components/navigation/theme-toggle";
 import { DiscordIcon, GlobeIcon, XIcon } from "@/components/ui/icons";
+import { useI18n } from "@/lib/i18n/locale-context";
 
-type FooterLanguage = "en" | "zh";
 const brandName = "WEconomy Labs";
 
-const copy = {
-  en: {
-    companyLine: "the live onchain contest market",
-    language: "Footer language",
-    optionLabel: "English",
-    risk: "XBID is currently operating on testnet. Market prices move with trading activity; returns are never guaranteed.",
-  },
-  zh: {
-    companyLine: "实时链上对阵市场",
-    language: "底部语言",
-    optionLabel: "中文",
-    risk: "XBID 目前运行于测试网。市场价格会随交易活动变化，任何收益均不作保证。",
-  },
-} as const;
-
-const xUrl = process.env.NEXT_PUBLIC_X_URL ?? "https://x.com";
-const discordUrl = process.env.NEXT_PUBLIC_DISCORD_URL ?? "https://discord.com";
+const xUrl = process.env.NEXT_PUBLIC_X_URL ?? "https://x.com/xbid_live";
+const discordUrl = process.env.NEXT_PUBLIC_DISCORD_URL ?? "https://discord.gg/xnD5vcPU9B";
 
 export function ExploreFooter() {
-  const [language, setLanguage] = useState<FooterLanguage>("en");
-  const text = copy[language];
+  const { locale, setLocale, t } = useI18n();
 
   return (
     <footer className="exploreFooter">
@@ -40,20 +24,23 @@ export function ExploreFooter() {
           </nav>
 
           <div className="exploreFooterBrand">
-            <div><strong>{brandName} © 2026</strong><span>{text.companyLine}</span></div>
-            <nav aria-label="product information"><Link href="/how-it-works">how it works</Link><Link href="/docs">docs</Link></nav>
+            <div><strong>{brandName} © 2026</strong><span>{t("footer.market")}</span></div>
+            <nav aria-label={t("footer.product")}><Link href="/how-it-works">{t("nav.how")}</Link><Link href="/docs">{t("footer.docs")}</Link></nav>
           </div>
 
-          <label className="exploreLanguage">
-            <GlobeIcon />
-            <span className="visuallyHidden">{text.language}</span>
-            <select aria-label={text.language} onChange={(event) => setLanguage(event.target.value as FooterLanguage)} value={language}>
-              <option value="en">{copy.en.optionLabel}</option>
-              <option value="zh">{copy.zh.optionLabel}</option>
-            </select>
-          </label>
+          <div className="exploreFooterControls">
+            <ThemeToggle />
+            <label className="exploreLanguage">
+              <GlobeIcon />
+              <span className="visuallyHidden">{t("footer.language")}</span>
+              <select aria-label={t("footer.language")} onChange={(event) => setLocale(event.target.value === "zh" ? "zh" : "en")} value={locale}>
+                <option value="en">{t("footer.english")}</option>
+                <option value="zh">{t("footer.chinese")}</option>
+              </select>
+            </label>
+          </div>
         </div>
-        <p>{text.risk}</p>
+        <p>{t("footer.risk")}</p>
       </div>
     </footer>
   );

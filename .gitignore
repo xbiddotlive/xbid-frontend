@@ -12,6 +12,9 @@ broadcast/
 .env
 .env.*
 !.env.example
+!.env.x.example
+
+.x-publish-history/
 
 *.log
 *.swp

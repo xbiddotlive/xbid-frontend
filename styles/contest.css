@@ -1,7 +1,7 @@
 /* contest arena */
 .contestPageShell { width: min(var(--container), calc(100% - 32px)); margin: 0 auto; padding: 8px 0 80px; }
 .contestWorkspace { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 8px; align-items: start; }
-.contestMain, .liveCommentary { border: 1px solid var(--line); border-radius: var(--radius); background: rgb(17 21 29 / 94%); }
+.contestMain, .liveCommentary { border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel-glass); }
 .contestMain { position: relative; min-width: 0; padding: 14px 14px 0; }
 .contestTitleRow { display: flex; align-items: flex-start; justify-content: space-between; min-height: 62px; gap: 20px; padding-bottom: 10px; }
 .contestTitleRow h1 { max-width: 760px; font-weight: 850; }
@@ -16,7 +16,7 @@
 .contestCrownedStatus svg { width: 14px; height: 14px; filter: drop-shadow(0 0 5px rgb(255 200 87 / 28%)); }
 .statusOk, .statusWarning { display: inline-flex; align-items: center; min-height: 28px; padding: 0 9px; border: 1px solid rgb(53 208 127 / 28%); border-radius: var(--radius); color: var(--positive); background: rgb(53 208 127 / 8%); font-weight: 700; white-space: nowrap; }
 .statusWarning { border-color: rgb(255 200 87 / 28%); color: var(--crown); background: rgb(255 200 87 / 8%); }
-.liveArena { display: block; min-height: 0; padding: 8px; background: #0b0e14; }
+.liveArena { display: block; min-height: 0; padding: 8px; background: var(--surface); }
 .arenaSides { display: grid; grid-template-columns: minmax(0, 1fr) 190px minmax(0, 1fr); align-items: stretch; gap: 8px; }
 .arenaSide { display: grid; min-width: 0; grid-template-columns: 30px minmax(0, 1fr); align-items: center; gap: 9px; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
 .arenaSideA { border-left: 3px solid var(--side-a); }
@@ -59,7 +59,7 @@
 .mobileArenaTabs { display: none; }
 
 /* contest terminal */
-.contestTerminal { margin: 0 -14px; border-top: 1px solid var(--line); background: #0b0e14; }
+.contestTerminal { margin: 0 -14px; border-top: 1px solid var(--line); background: var(--surface); }
 .terminalTabs { display: flex; align-items: center; min-height: 42px; padding: 0 12px; border-bottom: 1px solid var(--line); background: var(--panel); }
 .terminalTabs > button { position: relative; align-self: stretch; min-width: 96px; padding: 0 12px; border: 0; color: var(--muted); background: transparent; cursor: pointer; text-align: left; }
 .terminalTabs > button::after { position: absolute; right: 12px; bottom: -1px; left: 12px; height: 2px; background: transparent; content: ""; }
@@ -91,7 +91,7 @@
 .battleMove > span, .battleCapital span, .battleImpact span { display: block; margin-top: 2px; overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }
 .battleCapital strong, .battleImpact strong { display: block; overflow: hidden; color: var(--text); font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
 .battleImpact[data-impact="lead"] strong { color: var(--crown); }
-.battleTx { display: grid; width: 28px; height: 28px; place-items: center; border-radius: 6px; color: #8ab3ff; background: rgb(138 179 255 / 8%); font-weight: 800; }
+.battleTx { display: grid; width: 28px; height: 28px; place-items: center; border-radius: 6px; color: var(--link); background: rgb(138 179 255 / 8%); font-weight: 800; }
 .battleTx:hover { background: rgb(138 179 255 / 15%); }
 .terminalEmpty { display: flex; min-height: 264px; flex-direction: column; align-items: center; justify-content: center; gap: 5px; padding: 24px; color: var(--muted); text-align: center; }
 .terminalEmpty strong { color: var(--text); }
@@ -107,7 +107,7 @@
 .terminalPositionScroller { margin-top: 8px; overflow-x: auto; }
 .terminalPositionTable { min-width: 760px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); }
 .terminalPositionHead, .terminalPositionRow { display: grid; grid-template-columns: 1.4fr .72fr .72fr 1fr 1fr 1fr; align-items: center; gap: 12px; min-height: 42px; padding: 0 12px; }
-.terminalPositionHead { color: var(--muted); background: #090b10; }
+.terminalPositionHead { color: var(--muted); background: var(--bg); }
 .terminalPositionRow { min-height: 66px; background: var(--panel); }
 .terminalPositionRow > div span { display: block; margin-top: 3px; color: var(--muted); }
 .terminalPositionRow strong { font-weight: 800; }
@@ -120,11 +120,11 @@
 .terminalDetails span, .terminalDetails strong, .terminalDetails a { display: block; }
 .terminalDetails span { margin-bottom: 5px; color: var(--muted); }
 .terminalDetails strong, .terminalDetails a { font-weight: 800; }
-.terminalDetails a { color: #8ab3ff; }
+.terminalDetails a { color: var(--link); }
 
 /* right rail: quick trade + commentary */
 .contestRightRail { position: sticky; top: calc(var(--header-height) + 8px); display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 8px; height: calc(100vh - var(--header-height) - 16px); min-height: 620px; }
-.quickTradePanel { padding: 10px; border: 1px solid var(--line); border-radius: var(--radius); background: rgb(17 21 29 / 96%); }
+.quickTradePanel { padding: 10px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel-glass); }
 .quickTradePanel > header { display: flex; min-height: 24px; align-items: center; gap: 7px; }
 .quickTradePanel > header svg { width: 15px; height: 15px; color: var(--side-b); }
 .quickTradePanel > header strong { font-weight: 800; }
@@ -143,10 +143,10 @@
 .slippagePanel header strong { font-weight: 800; }
 .slippagePanel header span { color: var(--muted); }
 .slippagePresets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 9px; }
-.slippagePresets button { min-height: 30px; border: 1px solid var(--line); border-radius: 4px; color: var(--muted); background: #0b0e14; cursor: pointer; }
-.slippagePresets button[aria-pressed="true"] { border-color: rgb(255 96 61 / 48%); color: #ff9a83; background: var(--side-b-soft); font-weight: 750; }
+.slippagePresets button { min-height: 30px; border: 1px solid var(--line); border-radius: 4px; color: var(--muted); background: var(--surface); cursor: pointer; }
+.slippagePresets button[aria-pressed="true"] { border-color: rgb(255 96 61 / 48%); color: var(--side-b-text); background: var(--side-b-soft); font-weight: 750; }
 .slippagePanel label { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; min-height: 34px; margin-top: 6px; color: var(--muted); }
-.slippagePanel label > div { display: flex; align-items: center; gap: 4px; min-width: 0; padding: 0 7px; border: 1px solid var(--line); border-radius: 4px; background: #0b0e14; }
+.slippagePanel label > div { display: flex; align-items: center; gap: 4px; min-width: 0; padding: 0 7px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); }
 .slippagePanel input { width: 100%; min-width: 0; padding: 5px 0; border: 0; outline: 0; color: var(--text); background: transparent; text-align: right; }
 .slippagePanel p { margin: 6px 0 0; color: var(--faint); }
 .slippagePanel .slippageWarning { color: var(--crown); }
@@ -170,12 +170,12 @@
 .commentMeta strong { overflow: hidden; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
 .commentMeta > span { flex: none; color: var(--faint); }
 .commentPosition { flex: none; padding: 1px 5px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--muted); font-size: var(--font-size-ui); line-height: 15px; }
-.commentPosition[data-side="a"] { border-color: rgb(55 125 246 / 45%); color: #8ab3ff; background: rgb(55 125 246 / 10%); }
+.commentPosition[data-side="a"] { border-color: rgb(55 125 246 / 45%); color: var(--side-a-text); background: rgb(55 125 246 / 10%); }
 .commentPosition[data-side="b"] { border-color: rgb(255 96 61 / 45%); color: #ff9b83; background: rgb(255 96 61 / 10%); }
 .commentPosition[data-side="both"] { border-color: rgb(46 213 154 / 35%); color: var(--positive); background: rgb(46 213 154 / 8%); }
 .userComment p { margin: 3px 0 0; color: var(--muted); overflow-wrap: anywhere; }
 .commentActions { display: flex; align-items: center; gap: 10px; margin-top: 5px; color: var(--faint); }
-.commentActions button { min-height: 20px; padding: 0; border: 0; color: #8ab3ff; background: transparent; cursor: pointer; }
+.commentActions button { min-height: 20px; padding: 0; border: 0; color: var(--link); background: transparent; cursor: pointer; }
 .commentReply { margin: 9px 0 0 36px; }
 .commentReply .commentAvatar { width: 24px; height: 24px; }
 .commentaryEmpty { display: flex; height: 100%; min-height: 220px; flex-direction: column; align-items: center; justify-content: center; gap: 5px; padding: 20px; color: var(--muted); text-align: center; }
@@ -186,13 +186,13 @@
 .commentComposerHeading label { font-weight: 700; }
 .commentComposerHeading button { padding: 0; border: 0; color: var(--muted); background: transparent; cursor: pointer; }
 .commentComposerRow { display: grid; grid-template-columns: 1fr auto; gap: 6px; }
-.commentComposer input { min-width: 0; height: 34px; padding: 0 9px; border: 1px solid var(--line); border-radius: var(--radius); color: var(--muted); background: #0b0e14; }
+.commentComposer input { min-width: 0; height: 34px; padding: 0 9px; border: 1px solid var(--line); border-radius: var(--radius); color: var(--muted); background: var(--surface); }
 .commentComposerRow > button { min-width: 48px; border: 1px solid var(--line); border-radius: var(--radius); color: var(--faint); background: var(--panel-raised); }
 .commentComposerRow > button:not(:disabled) { border-color: rgb(255 96 61 / 45%); color: #fff; background: var(--side-b); cursor: pointer; }
 .commentComposer > span { display: block; margin-top: 5px; color: var(--faint); }
 
 /* trade dock and drawer */
-.tradeDock { position: sticky; z-index: 20; bottom: 8px; display: none; grid-template-columns: 1fr 120px 1fr; height: 48px; margin: 0 -6px 8px; overflow: hidden; border: 1px solid var(--line-strong); border-radius: var(--radius); background: rgb(9 11 16 / 94%); box-shadow: 0 12px 32px rgb(0 0 0 / 42%); backdrop-filter: blur(16px); }
+.tradeDock { position: sticky; z-index: 20; bottom: 8px; display: none; grid-template-columns: 1fr 120px 1fr; height: 48px; margin: 0 -6px 8px; overflow: hidden; border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--header-bg); box-shadow: 0 12px 32px rgb(0 0 0 / 24%); backdrop-filter: blur(16px); }
 .tradeDock button { display: flex; align-items: center; justify-content: center; gap: 7px; border: 0; cursor: pointer; }
 .tradeDock button + button { border-left: 1px solid var(--line); }
 .tradeDock span { color: rgb(255 255 255 / 70%); }
@@ -207,36 +207,36 @@
 .tradeTicketEmbedded { margin-top: 8px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
 .tradeTicketEmbedded .ticketTabs { margin-top: 0; }
 .tradeTicketEmbedded .sideSelector button { min-height: 32px; }
-.compactAmountField { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px; min-height: 38px; margin-top: 7px; padding: 0 9px; border: 1px solid var(--line); border-radius: var(--radius); color: var(--muted); background: #0b0e14; }
+.compactAmountField { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px; min-height: 38px; margin-top: 7px; padding: 0 9px; border: 1px solid var(--line); border-radius: var(--radius); color: var(--muted); background: var(--surface); }
 .compactAmountField input { width: 100%; min-width: 0; padding: 6px 0; border: 0; outline: 0; color: var(--text); background: transparent; font-weight: 800; text-align: right; }
 .compactAmountField b { color: var(--text); }
 .compactBalance { display: flex; min-height: 24px; align-items: center; justify-content: space-between; color: var(--muted); }
-.compactBalance button { min-height: 20px; padding: 0 5px; border: 0; color: #8ab3ff; background: transparent; cursor: pointer; }
+.compactBalance button { min-height: 20px; padding: 0 5px; border: 0; color: var(--link); background: transparent; cursor: pointer; }
 .compactBalance button:disabled { color: var(--faint); cursor: not-allowed; }
 .tradeTicketEmbedded .tradeAction { min-height: 36px; margin-top: 2px; }
 .compactTradeFooter { display: flex; min-height: 28px; align-items: center; justify-content: space-between; gap: 8px; margin-top: 3px; }
 .tradeDetailsTrigger { display: inline-flex; min-height: 28px; align-items: center; gap: 4px; padding: 0 6px; border: 0; border-radius: 4px; color: var(--muted); background: transparent; cursor: pointer; }
 .tradeDetailsTrigger:hover, .tradeDetailsTrigger[aria-expanded="true"] { color: var(--text); background: rgb(255 255 255 / 4%); }
 .tradeDetailsTrigger svg { width: 13px; height: 13px; }
-.compactTradeDetails { display: grid; gap: 5px; padding: 8px; border: 1px solid var(--line); border-radius: var(--radius); color: var(--muted); background: #0b0e14; }
+.compactTradeDetails { display: grid; gap: 5px; padding: 8px; border: 1px solid var(--line); border-radius: var(--radius); color: var(--muted); background: var(--surface); }
 .compactTradeDetails div { display: flex; justify-content: space-between; gap: 10px; }
 .compactTradeDetails div span:last-child { overflow-wrap: anywhere; text-align: right; }
 .compactTradeDetails p, .compactTradeDetails small { margin: 0; color: var(--faint); }
 .tradeTicketEmbedded .ticketStatus { margin-top: 4px; }
 .ticketHeader { display: flex; align-items: center; justify-content: space-between; }
 .ticketHeader h2 { margin: 0; font-weight: 800; }
-.liveDot { color: #ff8a70; font-weight: 700; }
+.liveDot { color: var(--side-b-text); font-weight: 700; }
 .liveDot::before { display: inline-block; width: 5px; height: 5px; margin-right: 5px; border-radius: 50%; background: currentColor; content: ""; }
-.ticketTabs { display: grid; grid-template-columns: repeat(3, 1fr); margin: 14px 0 10px; padding: 2px; border: 1px solid var(--line); border-radius: var(--radius); background: #0b0e14; }
+.ticketTabs { display: grid; grid-template-columns: repeat(3, 1fr); margin: 14px 0 10px; padding: 2px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
 .ticketTabs button { min-height: 30px; border: 0; border-radius: 4px; color: var(--muted); background: transparent; cursor: pointer; }
 .ticketTabs button.active { color: var(--text); background: var(--panel-raised); font-weight: 750; }
 .sideSelector { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .sideSelector button { min-height: 38px; border: 1px solid transparent; border-radius: var(--radius); font-weight: 750; cursor: pointer; }
-.sideA { color: #8ab3ff; background: var(--side-a-soft); }
-.sideB { color: #ff9a83; background: var(--side-b-soft); }
+.sideA { color: var(--side-a-text); background: var(--side-a-soft); }
+.sideB { color: var(--side-b-text); background: var(--side-b-soft); }
 .sideA.selected { border-color: rgb(52 120 246 / 55%); color: #fff; background: rgb(52 120 246 / 24%); }
 .sideB.selected { border-color: rgb(255 96 61 / 55%); color: #fff; background: rgb(255 96 61 / 24%); }
-.amountField { display: block; margin-top: 12px; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius); background: #0b0e14; }
+.amountField { display: block; margin-top: 12px; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
 .amountField > span, .amountField small { display: block; color: var(--muted); }
 .amountField > div { display: flex; align-items: center; gap: 8px; }
 .amountField input { min-width: 0; width: 100%; padding: 5px 0; border: 0; outline: 0; color: var(--text); background: transparent; font-weight: 800; }
@@ -252,5 +252,5 @@
 .actionA { background: var(--side-a); }
 .actionB { background: var(--side-b); }
 .ticketStatus { min-height: 18px; margin: 8px 0 0; color: var(--muted); }
-.explorerLink { display: block; color: #8ab3ff; font-weight: 700; }
+.explorerLink { display: block; color: var(--link); font-weight: 700; }
 .ticketFootnote { margin-top: 8px; color: var(--faint); text-align: center; }

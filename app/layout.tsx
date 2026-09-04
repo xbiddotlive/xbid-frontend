@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import type { ReactNode } from "react";
 
 import { GlobalHeader } from "@/components/navigation/global-header";
@@ -67,12 +68,17 @@ export const metadata: Metadata = {
   formatDetection: { address: false, email: false, telephone: false },
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const localeCookie = (await cookies()).get("xbid-locale")?.value;
+  const initialLocale = localeCookie === "zh" ? "zh" : "en";
   return (
-    <html data-scroll-behavior="smooth" lang="en">
+    <html data-locale={initialLocale} data-scroll-behavior="smooth" lang={initialLocale === "zh" ? "zh-CN" : "en"} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var saved=localStorage.getItem("xbid-theme");var mode=saved==="dark"||saved==="light"?saved:(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");document.documentElement.dataset.theme=mode}catch(e){document.documentElement.dataset.theme="dark"}try{var locale=localStorage.getItem("xbid-locale");locale=locale==="zh"||locale==="en"?locale:(navigator.language||"").toLowerCase().startsWith("zh")?"zh":"en";document.documentElement.dataset.locale=locale;document.documentElement.lang=locale==="zh"?"zh-CN":"en"}catch(e){document.documentElement.dataset.locale="en"}})();` }} />
+      </head>
       <body>
         <JsonLd data={[organizationSchema, websiteSchema, applicationSchema]} />
-        <AppProviders>
+        <AppProviders initialLocale={initialLocale}>
           <GlobalHeader />
           {children}
         </AppProviders>
