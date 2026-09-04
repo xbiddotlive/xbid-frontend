@@ -1,4 +1,3 @@
-import { ExploreFooter } from "@/components/navigation/explore-footer";
 import { MarketDiscovery } from "@/features/discovery/components/market-discovery";
 import { listContests, type IndexedContest } from "@/lib/api/contests";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
@@ -22,10 +21,5 @@ export default async function HomePage() {
     apiAvailable = false;
   }
 
-  return (
-    <>
-      <main className="pageShell homePage"><MarketDiscovery contests={contests} apiAvailable={apiAvailable} /></main>
-      <ExploreFooter />
-    </>
-  );
+  return <main className="pageShell homePage"><MarketDiscovery contests={contests} apiAvailable={apiAvailable} /></main>;
 }

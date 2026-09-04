@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { ExploreFooter } from "@/components/navigation/explore-footer";
 import { JsonLd } from "@/components/seo/json-ld";
 import { ArrowIcon, CrownIcon, InfoIcon } from "@/components/ui/icons";
 import { I18nText } from "@/lib/i18n/locale-context";
@@ -72,6 +71,5 @@ export default function HowItWorksPage() {
 
       <section className="educationCta"><div><p className="eyebrow"><I18nText id="how.ready" /></p><h2><I18nText id="how.readyTitle" /></h2></div><Link className="button buttonPrimary" href="/"><I18nText id="how.openArena" /> <ArrowIcon /></Link></section>
     </main>
-    <ExploreFooter />
   </>;
 }

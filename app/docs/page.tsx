@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { ExploreFooter } from "@/components/navigation/explore-footer";
 import { JsonLd } from "@/components/seo/json-ld";
 import { ArrowIcon, CrownIcon, InfoIcon } from "@/components/ui/icons";
 import { contracts } from "@/lib/blockchain/contracts";
@@ -60,6 +59,5 @@ export default function DocsPage() {
         </article>
       </div>
     </main>
-    <ExploreFooter />
   </>;
 }

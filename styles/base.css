@@ -98,6 +98,9 @@ body {
   -webkit-font-smoothing: antialiased;
   transition: color 160ms ease, background-color 160ms ease;
 }
+.appFrame { display: flex; min-height: 100dvh; flex-direction: column; }
+.appFrameContent { display: flex; min-width: 0; flex: 1 0 auto; flex-direction: column; }
+.appFrameContent > main { flex: 1 0 auto; }
 :root[data-locale="zh"] body { letter-spacing: 0; }
 body * { font-size: var(--font-size-ui); }
 button, input, select, textarea { font: inherit; }

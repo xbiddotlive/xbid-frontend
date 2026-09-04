@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import type { ReactNode } from "react";
 
+import { ExploreFooter } from "@/components/navigation/explore-footer";
 import { GlobalHeader } from "@/components/navigation/global-header";
 import { AppProviders } from "@/components/providers/app-providers";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -79,8 +80,11 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body>
         <JsonLd data={[organizationSchema, websiteSchema, applicationSchema]} />
         <AppProviders initialLocale={initialLocale}>
-          <GlobalHeader />
-          {children}
+          <div className="appFrame">
+            <GlobalHeader />
+            <div className="appFrameContent">{children}</div>
+            <ExploreFooter />
+          </div>
         </AppProviders>
       </body>
     </html>
