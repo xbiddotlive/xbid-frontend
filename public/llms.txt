@@ -10,6 +10,7 @@ Core facts:
 - Trading fee: 1% of the trade amount, rounded up to the smallest Test USDC unit.
 - Current fee split: 70% protocol, 20% contest creator, 10% bound referrer. Without a referrer, the unused share goes to the protocol.
 - Contest creation fee: 5 Test USDC.
+- Market versions: V1 keeps b=270,000; new V2 contests use b=150,000. Existing contests never change curve version.
 - Crown: activates after 70,000 Test USDC of curve reserve; a challenger opens at 48% control and takes the crown after maintaining at least 52% for 60 seconds.
 - Testnet use carries smart-contract, liquidity, wallet and market risk. Returns are not guaranteed.
 

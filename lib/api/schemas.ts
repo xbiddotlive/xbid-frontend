@@ -54,7 +54,8 @@ export const marketSchema = z.object({
   leadFlipCount24h: decimalString,
   qA24hAgoWei: decimalString.nullable(),
   qB24hAgoWei: decimalString.nullable(),
-  crownSide: z.number().int().min(0).max(1).nullable(),
+  // Solidity CrownSide: None=0, A=1, B=2. The indexer persists only assigned A/B values.
+  crownSide: z.union([z.literal(1), z.literal(2)]).nullable(),
   crownActivated: z.boolean(),
   crownSince: decimalString.nullable(),
   commentCount: decimalString,

@@ -95,7 +95,7 @@ function LogoUploadField({ draft, error, name, onRemove, onSelect, side }: {
 const previewContest: IndexedContest = {
   chainId: "46630", contestId: referenceContest.contestId, marketVault: referenceContest.marketVault,
   creator: "0x0000000000000000000000000000000000000000", sideAToken: referenceContest.sideAToken,
-  sideBToken: referenceContest.sideBToken, marketVersion: 1, metadataHash: "0x", createdBlock: "0", createdAt: "0",
+  sideBToken: referenceContest.sideBToken, marketVersion: 2, metadataHash: "0x", createdBlock: "0", createdAt: "0",
   metadata: { title: referenceContest.title, description: "", category: referenceContest.category, sideA: referenceContest.sideA, sideB: referenceContest.sideB },
   market: { qAWei: "0", qBWei: "0", qA24hAgoWei: "0", qB24hAgoWei: "0", reserveUnits: "0", cumulativeVolumeUnits: "0", cumulativeFeeUnits: "0", tradeCount: "0", volume24hUnits: "0", tradeCount24h: "0", uniqueTraders24h: "0", sideAVolume24hUnits: "0", sideBVolume24hUnits: "0", sideATradeCount24h: "0", sideBTradeCount24h: "0", sideANetFlow24hUnits: "0", sideBNetFlow24hUnits: "0", atomicFlipCount24h: "0", leadFlipCount24h: "0", crownSide: null, crownActivated: false, crownSince: null, commentCount: "0", updatedBlock: "0", history: [] },
 };

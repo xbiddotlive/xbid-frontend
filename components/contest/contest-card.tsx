@@ -3,6 +3,7 @@ import { formatUnits } from "viem";
 
 import { ArrowIcon } from "@/components/ui/icons";
 import type { IndexedContest } from "@/lib/api/contests";
+import { crownSideIndex } from "@/lib/product/crown";
 import { DominanceMeter } from "./dominance-meter";
 import { DuelCurve } from "./duel-curve";
 import { SideLogoPair } from "./side-logo-pair";
@@ -47,6 +48,7 @@ export function ContestCard({ contest, featured = false, preview, rank = 1 }: Co
   const sideA = preview?.sideA || contest.metadata.sideA.name;
   const sideB = preview?.sideB || contest.metadata.sideB.name;
   const href = preview ? "/launch" : `/contest/${contest.contestId}`;
+  const crownSide = crownSideIndex(market?.crownSide ?? null);
 
   return (
     <article
@@ -78,7 +80,7 @@ export function ContestCard({ contest, featured = false, preview, rank = 1 }: Co
           <span>{compactUsdc(market?.reserveUnits ?? "0")} usdc reserve</span>
           <span>{compactUsdc(market?.cumulativeVolumeUnits ?? "0")} usdc volume</span>
           <span>{market?.tradeCount ?? "0"} trades</span>
-          <span>{market?.crownActivated ? `crown · side ${market.crownSide === 0 ? "a" : "b"}` : "crown open"}</span>
+          <span>{market?.crownActivated && crownSide !== null ? `crown · side ${crownSide === 0 ? "a" : "b"}` : "crown open"}</span>
         </div>
       </div>
       <Link className="cardArrow" href={href} aria-label="open contest"><ArrowIcon /></Link>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CrownIcon, MessageIcon } from "@/components/ui/icons";
 import { listContests } from "@/lib/api/contests";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
+import { crownSideIndex } from "@/lib/product/crown";
 import { contestMetrics, formatDuration, formatUsdc } from "@/lib/product/market-metrics";
 import { pageMetadata } from "@/lib/seo/site";
 
@@ -34,13 +35,14 @@ export default async function CrownedPage() {
       {crowned.map((contest, index) => {
         const market = contest.market!;
         const metrics = contestMetrics(contest);
-        const leaderSide = market.crownSide === 1 ? 1 : 0;
-        const leader = leaderSide === 0 ? contest.metadata.sideA : contest.metadata.sideB;
-        const opponent = leaderSide === 0 ? contest.metadata.sideB : contest.metadata.sideA;
-        const control = leaderSide === 0 ? metrics.sideAPercent : metrics.sideBPercent;
+        const holderSide = crownSideIndex(market.crownSide);
+        if (holderSide === null) return null;
+        const holder = holderSide === 0 ? contest.metadata.sideA : contest.metadata.sideB;
+        const opponent = holderSide === 0 ? contest.metadata.sideB : contest.metadata.sideA;
+        const control = holderSide === 0 ? metrics.sideAPercent : metrics.sideBPercent;
         return <article className="crownedCard" key={contest.contestId}>
           <header><span>#{String(index + 1).padStart(2, "0")}</span><div><p>{contest.metadata.category}</p><h2>{contest.metadata.title}</h2></div><span className="crownedBadge"><CrownIcon />crowned</span></header>
-          <div className="crownedControl"><div><span>current leader</span><strong>{leader.name}</strong></div><strong>{control.toFixed(1)}% control</strong><div><span>challenger</span><strong>{opponent.name}</strong></div></div>
+          <div className="crownedControl"><div><span>crown holder</span><strong>{holder.name}</strong></div><strong>{control.toFixed(1)}% control</strong><div><span>opposing side</span><strong>{opponent.name}</strong></div></div>
           <progress className="crownedTrack" max="100" value={control}>{control.toFixed(1)}% control</progress>
           <div className="crownedMetrics"><div><span>liquidity</span><strong>{formatUsdc(market.reserveUnits)} usdc</strong></div><div><span>24h volume</span><strong>{formatUsdc(market.volume24hUnits)}</strong></div><div><span>control time</span><strong>{formatDuration(market.crownSince)}</strong></div><div><span>comments</span><strong><MessageIcon />{market.commentCount}</strong></div></div>
           <Link href={`/contest/${contest.contestId}`}>open crowned contest ↗</Link>
