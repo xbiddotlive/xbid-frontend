@@ -20,8 +20,7 @@ import { contracts, marketVaultAbi, riskControllerAbi } from "@/lib/blockchain/c
 import { formatChange, marketControl, marketPrices } from "@/lib/product/market-metrics";
 import { contestKeys, useContestDetail, useContestTrades } from "@/lib/queries/contest";
 import { siteUrl } from "@/lib/seo/site";
-
-const shareCardVersion = "8";
+import { contestShareCardVersion } from "@/lib/share/contest-card-version";
 
 function compactUsdc(value: bigint) {
   return new Intl.NumberFormat("en", { maximumFractionDigits: 2, notation: "compact" })
@@ -123,7 +122,7 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
   const sideANetFlow24h = marketStats?.sideANetFlow24hUnits;
   const sideBNetFlow24h = marketStats?.sideBNetFlow24hUnits;
   const shareRevision = marketStats?.updatedBlock ?? contest.createdBlock;
-  const shareVersion = `${shareCardVersion}-${shareRevision}`;
+  const shareVersion = `${contestShareCardVersion}-${shareRevision}`;
   const contestUrl = `${siteUrl}/contest/${contest.contestId}?share=${shareVersion}`;
   const shareImageUrl = `${siteUrl}/share/contest/${contest.contestId}/${shareVersion}/card.jpg`;
   const shareText = `${contest.metadata.title}\n\n${contest.metadata.sideA.name} vs ${contest.metadata.sideB.name} — back your side. move the market. profit when your side takes the lead.\n\n@xbid_live`;

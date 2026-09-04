@@ -57,8 +57,9 @@
 .launchPreview { position: sticky; top: calc(var(--header-height) + 12px); padding: 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
 .launchPreview .contestCard { pointer-events: none; }
 
-/* utility pages */
-.utilityPage { max-width: 1200px; }
+/* utility pages use the shared outer shell while keeping readable content centered */
+.utilityPage { max-width: none; }
+.utilityPage > * { width: 100%; max-width: var(--content-container); margin-inline: auto; }
 .pageHeader { padding: 10px 0 18px; margin-bottom: 14px; }
 .pageHeader > span, .pageHeader div > span { color: var(--muted); }
 .crownHeader { display: flex; align-items: center; gap: 12px; color: var(--crown); }
@@ -234,7 +235,8 @@
 .earningsClaimTx { color: #8ab3ff; }
 
 /* education and documentation */
-.educationPage, .docsPage { max-width: 1200px; }
+.educationPage, .docsPage { max-width: none; }
+.educationPage > *, .docsPage > * { width: 100%; max-width: var(--content-container); margin-inline: auto; }
 .educationHero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(380px, .86fr); align-items: center; gap: 44px; min-height: 310px; padding: 34px 28px; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(120deg, rgb(52 120 246 / 10%), transparent 45%, rgb(255 96 61 / 8%)), var(--panel); }
 .educationHero h1 { max-width: 610px; margin: 0; font-weight: 880; letter-spacing: -.02em; }
 .educationHero h1 + p { max-width: 620px; margin: 10px 0 0; color: var(--muted); line-height: 1.75; }
@@ -459,7 +461,7 @@
 @media (max-width: 767px) {
   :root { --header-height: 44px; }
   body { padding-bottom: 58px; background-size: 44px 44px, 44px 44px, auto, auto, auto; }
-  .headerInner, .pageShell { width: calc(100% - 20px); }
+  .headerInner, .pageShell, .contestPageShell { width: calc(100% - 20px); }
   .globalHeader { height: 44px; }
   .wordmark { min-height: 40px; }
   .primaryNav, .searchShell, .buttonLaunch { display: none; }
@@ -513,7 +515,7 @@
   .marketCollection[data-view="list"] .contestCard { grid-template-columns: 44px minmax(0, 1fr) 28px; }
   .marketCollection[data-view="list"] .contestCardBody { display: block; grid-column: 1 / -1; }
   .marketCollection[data-view="list"] .contestCard h3 { margin-top: 6px; }
-  .contestPageShell { padding: 6px 6px 116px; }
+  .contestPageShell { padding: 6px 0 116px; }
   .contestMain { padding: 10px 10px 0; }
   .contestTitleRow { min-height: 0; flex-direction: column; gap: 8px; }
   .liveArena { min-height: 0; padding: 6px; }

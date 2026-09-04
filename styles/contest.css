@@ -1,5 +1,5 @@
 /* contest arena */
-.contestPageShell { width: min(1600px, 100%); margin: 0 auto; padding: 8px 8px 80px; }
+.contestPageShell { width: min(var(--container), calc(100% - 32px)); margin: 0 auto; padding: 8px 0 80px; }
 .contestWorkspace { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 8px; align-items: start; }
 .contestMain, .liveCommentary { border: 1px solid var(--line); border-radius: var(--radius); background: rgb(17 21 29 / 94%); }
 .contestMain { position: relative; min-width: 0; padding: 14px 14px 0; }

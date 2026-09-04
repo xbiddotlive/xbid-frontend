@@ -22,7 +22,8 @@
   --negative: #ff6b64;
   --focus: 0 0 0 3px rgb(52 120 246 / 28%);
   --radius: 6px;
-  --container: 1440px;
+  --container: 1600px;
+  --content-container: 1200px;
   --font-size-ui: 12px;
   --header-height: 48px;
 }

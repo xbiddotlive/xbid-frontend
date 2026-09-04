@@ -6,6 +6,7 @@ import { ContestDetail } from "@/widgets/contest-detail/contest-detail";
 import { getContest, listContestTrades, type IndexedContest, type IndexedTradePoint } from "@/lib/api/contests";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
 import { siteName } from "@/lib/seo/site";
+import { contestShareCardFormat, contestShareCardVersion } from "@/lib/share/contest-card-version";
 
 const contestIdPattern = /^0x[0-9a-fA-F]{64}$/;
 const getPageContest = cache((contestId: string) => getContest(robinhoodTestnet.id, contestId));
@@ -27,8 +28,10 @@ export async function generateMetadata({
     const description = `${contest.metadata.sideA.name} vs ${contest.metadata.sideB.name} — back your side. move the market. profit when your side takes the lead.`;
     const path = `/contest/${contestId}`;
     const shareRevision = contest.market?.updatedBlock ?? contest.createdBlock;
-    const shareVersion = /^[234567]-[0-9]+$/.test(query.share ?? "") ? query.share! : `7-${shareRevision}`;
-    const shareImage = /^[4567]-/.test(shareVersion)
+    const requestedShareVersion = query.share ?? "";
+    const requestedFormat = contestShareCardFormat(requestedShareVersion);
+    const shareVersion = requestedFormat ? requestedShareVersion : `${contestShareCardVersion}-${shareRevision}`;
+    const shareImage = contestShareCardFormat(shareVersion) === "jpeg"
       ? `/share/contest/${contestId}/${shareVersion}/card.jpg`
       : `/share/contest/${contestId}/${shareVersion}/card.png`;
     return {
