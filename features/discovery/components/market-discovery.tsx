@@ -55,13 +55,18 @@ function MarketSide({ market, side }: { market: MarketView; side: 0 | 1 }) {
   const metadata = side === 0 ? market.contest.metadata.sideA : market.contest.metadata.sideB;
   const percent = side === 0 ? market.metrics.sideAPercent : market.metrics.sideBPercent;
   const change = market.metrics.changes[side];
+  const changeTone = Number(change.toFixed(2)) === 0 ? "muted" : change < 0 ? "negative" : "positive";
   const tone = side === 0 ? "a" : "b";
-  return <div className="homeMarketSide" data-tone={tone}><div className="marketSideIdentity"><SideLogo imageUrl={metadata.logoUrl} name={metadata.name} tone={tone} /><div className="marketSideCopy"><strong>{metadata.name}</strong><span>${market.metrics.current[side].toFixed(4)}</span></div></div><div className="marketSidePerformance"><b>{percent.toFixed(1)}%</b><em className="priceChange" data-tone={change < 0 ? "negative" : "positive"}>{formatChange(change)} · 24h</em></div></div>;
+  return <div className="homeMarketSide" data-tone={tone}><div className="marketSideIdentity"><SideLogo imageUrl={metadata.logoUrl} name={metadata.name} tone={tone} /><div className="marketSideCopy"><strong>{metadata.name}</strong><span>${market.metrics.current[side].toFixed(4)}</span></div></div><div className="marketSidePerformance"><b>{percent.toFixed(1)}%</b><em className="priceChange" data-tone={changeTone}>{formatChange(change)} · 24h</em></div></div>;
 }
 
 function CapitalStrip({ market }: { market: MarketView }) {
   const state = market.contest.market;
-  return <div className="marketCapitalStrip featuredCapitalStrip"><div><span>liquidity</span><strong>{formatUsdc(state?.reserveUnits ?? "0")} usdc</strong></div><div><span>24h net flow</span><strong data-tone={BigInt(market.flowUnits) < 0n ? "negative" : "positive"}>{formatUsdc(market.flowUnits, true)}</strong></div><div><span>24h volume</span><strong>{formatUsdc(state?.volume24hUnits ?? "0")}</strong></div><div><span>comments</span><strong><MessageIcon />{state?.commentCount ?? "0"}</strong></div></div>;
+  const flow = BigInt(market.flowUnits);
+  const materialFlow = flow <= -5_000n || flow >= 5_000n;
+  const flowTone = !materialFlow ? "muted" : flow < 0n ? "negative" : "positive";
+  const flowLabel = materialFlow ? formatUsdc(market.flowUnits, true) : "$0";
+  return <div className="marketCapitalStrip featuredCapitalStrip"><div><span>liquidity</span><strong>{formatUsdc(state?.reserveUnits ?? "0")} usdc</strong></div><div><span title="net settlement value added to the market during the last 24 hours">24h flow</span><strong data-tone={flowTone}>{flowLabel}</strong></div><div><span>24h volume</span><strong>{formatUsdc(state?.volume24hUnits ?? "0")}</strong></div><div><span>comments</span><strong><MessageIcon />{state?.commentCount ?? "0"}</strong></div></div>;
 }
 
 function MarketCard({ market }: { market: MarketView }) {

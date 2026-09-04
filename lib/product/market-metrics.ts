@@ -42,6 +42,7 @@ export function formatUsdc(units: string, signed = false) {
 }
 
 export function formatChange(value: number) {
+  if (Number(value.toFixed(2)) === 0) return "flat";
   return `${value >= 0 ? "+" : ""}${value.toFixed(2)}%`;
 }
 

@@ -31,11 +31,12 @@ function compactUsdc(value: bigint) {
 function signedCompactUsdc(value: string | undefined) {
   if (value === undefined) return "—";
   const units = BigInt(value);
+  if (units > -5_000n && units < 5_000n) return "0 usdc";
   return `${units > 0n ? "+" : ""}${compactUsdc(units)} usdc`;
 }
 
 function flowTone(value: string | undefined) {
-  if (value === undefined || BigInt(value) === 0n) return "muted";
+  if (value === undefined || (BigInt(value) > -5_000n && BigInt(value) < 5_000n)) return "muted";
   return BigInt(value) > 0n ? "positive" : "negative";
 }
 
@@ -95,7 +96,7 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
   const sideALabel = contest.metadata.sideA.name === "side a" ? contest.metadata.sideA.symbol : contest.metadata.sideA.name;
   const sideBLabel = contest.metadata.sideB.name === "side b" ? contest.metadata.sideB.symbol : contest.metadata.sideB.name;
   const history = tradesQuery.data;
-  const [priceA, priceB] = marketPrices(qA.toString(), qB.toString());
+  const [priceA, priceB] = marketPrices(qA.toString(), qB.toString(), contest.marketVersion);
   const dayAgo = nowSeconds === null ? null : nowSeconds - 24 * 60 * 60;
   const anchorPoint = dayAgo === null ? undefined : history.filter((point) => Number(point.blockTimestamp) <= dayAgo).at(-1);
   const createdAt = contest.createdAt ? Date.parse(contest.createdAt) / 1_000 : Number.NaN;
@@ -111,7 +112,9 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
     : dayAgo !== null && ((Number.isFinite(createdAt) && createdAt > dayAgo) || completeHistory)
       ? [0n, 0n] as const
       : null);
-  const anchorPrices = anchorQuantities ? marketPrices(anchorQuantities[0].toString(), anchorQuantities[1].toString()) : null;
+  const anchorPrices = anchorQuantities
+    ? marketPrices(anchorQuantities[0].toString(), anchorQuantities[1].toString(), contest.marketVersion)
+    : null;
   const priceChangeA = !displayLoading && anchorPrices ? percentChange(priceA, anchorPrices[0]) : null;
   const priceChangeB = !displayLoading && anchorPrices ? percentChange(priceB, anchorPrices[1]) : null;
   const volume24h = marketStats?.volume24hUnits;
