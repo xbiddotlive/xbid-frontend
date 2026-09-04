@@ -231,6 +231,9 @@
 .curveLine { stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .curveLineA { stroke: var(--side-a); filter: drop-shadow(0 0 3px rgb(52 120 246 / 32%)); }
 .curveLineB { stroke: var(--side-b); filter: drop-shadow(0 0 3px rgb(255 96 61 / 30%)); }
+.duelCurve[data-overlap="true"] .curveLineA { stroke-dasharray: 5 5; }
+.duelCurve[data-overlap="true"] .curveLineB { stroke-dasharray: 5 5; stroke-dashoffset: 5; }
+.curveRange { position: absolute; top: 8px; left: 8px; padding: 2px 6px; border: 1px solid var(--line); border-radius: 999px; background: rgb(11 14 20 / 82%); color: var(--faint); font-size: var(--font-size-ui); letter-spacing: .04em; pointer-events: none; }
 .curveScale { position: absolute; top: 6px; right: 8px; bottom: 32px; display: flex; align-items: flex-end; justify-content: space-between; flex-direction: column; color: var(--faint); font-variant-numeric: tabular-nums; pointer-events: none; }
 .curveScale span { padding: 0 2px; border-radius: 2px; background: rgb(11 14 20 / 72%); }
 .curveAxis { display: flex; justify-content: space-between; height: 26px; padding: 4px 8px 0; border-top: 1px solid var(--line); color: var(--faint); }

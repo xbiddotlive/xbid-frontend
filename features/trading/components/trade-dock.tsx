@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { TradeTicket, type TradeMode } from "./trade-ticket";
 import type { IndexedContest } from "@/lib/api/contests";
+import { QuickTradePanel } from "./quick-trade-panel";
+import type { TradeMode } from "./trade-ticket";
 
 type Side = 0 | 1;
 
@@ -30,7 +31,7 @@ export function TradeDock({ contest, initialMode, initialSide = 0, onConfirmed }
       {openTrade && (
         <div className="tradeDrawerLayer">
           <button aria-label="close trade drawer" className="drawerScrim" onClick={() => setOpenTrade(null)} type="button" />
-          <div aria-modal="true" className="tradeDrawerPanel" ref={panelRef} role="dialog" tabIndex={-1}><TradeTicket contest={contest} initialMode={openTrade.mode} initialSide={openTrade.side} key={`${openTrade.mode}-${openTrade.side}`} onClose={() => setOpenTrade(null)} onConfirmed={onConfirmed} /></div>
+          <div aria-modal="true" className="tradeDrawerPanel" ref={panelRef} role="dialog" tabIndex={-1}><QuickTradePanel contest={contest} initialMode={openTrade.mode} initialSide={openTrade.side} key={`${openTrade.mode}-${openTrade.side}`} onClose={() => setOpenTrade(null)} onConfirmed={onConfirmed} /></div>
         </div>
       )}
       <div className="tradeDock" aria-label="quick trade">

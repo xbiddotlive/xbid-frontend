@@ -216,7 +216,7 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
               <div className="curveLegend" aria-label="current control"><span><i className="legendA" />side a <b>{aShare.toFixed(1)}%</b></span><span><i className="legendB" />side b <b>{bShare.toFixed(1)}%</b></span></div>
               <span className="chartLiveStatus"><i />live · 8s</span>
             </div>
-            <DuelCurve history={history} marketVersion={contest.marketVersion} />
+            <DuelCurve history={history} includeOrigin={completeHistory} marketVersion={contest.marketVersion} />
           </section>
 
           <nav className="mobileArenaTabs" aria-label="contest sections">

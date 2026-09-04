@@ -412,6 +412,15 @@
   .skeletonContestWorkspace { grid-template-columns: minmax(0, 1fr) 320px; }
 }
 
+@media (max-width: 1100px) {
+  .contestWorkspace { grid-template-columns: 1fr; }
+  .contestRightRail { position: static; height: auto; min-height: 0; grid-template-rows: auto 430px; }
+  .liveCommentary { position: static; height: 430px; min-height: 0; }
+  .tradeDrawerPanel { right: 16px; }
+  .skeletonContestWorkspace { grid-template-columns: 1fr; }
+  .skeletonRightRail { grid-template-columns: 1fr 1fr; }
+}
+
 @media (max-width: 1023px) {
   .primaryNav a:nth-child(2), .primaryNav a:nth-child(3) { display: none; }
   .searchShell { width: min(240px, 30vw); }
@@ -455,7 +464,7 @@
   .wordmark { min-height: 40px; }
   .primaryNav, .searchShell, .buttonLaunch { display: none; }
   .headerActions { margin-left: auto; }
-  .headerActions .button { min-height: 40px; padding: 0 9px; }
+  .headerActions .button { height: 32px; min-height: 32px; padding: 0 9px; white-space: nowrap; }
   button, .button, .cardArrow, .sideActions a { min-height: 40px; }
   .mobileNav { position: fixed; z-index: 60; right: 0; bottom: 0; left: 0; display: grid; grid-template-columns: repeat(6, 1fr); height: 58px; padding-bottom: env(safe-area-inset-bottom); border-top: 1px solid var(--line); background: rgb(9 11 16 / 96%); backdrop-filter: blur(18px); }
   .mobileNav a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 44px; color: var(--muted); }
@@ -536,10 +545,12 @@
   .mobileArenaTabs button[aria-pressed="true"] { color: var(--text); font-weight: 750; }
   .liveCommentary { height: 380px; }
   .contestRightRail { display: block; }
-  .quickTradePanel { display: none; }
+  .contestRightRail > .quickTradePanel { display: none; }
   .contestRightRail .liveCommentary { height: 380px; }
   .tradeDock { position: fixed; z-index: 55; right: 6px; bottom: 62px; left: 6px; display: grid; grid-template-columns: 1fr 86px 1fr; height: 48px; margin: 0; }
   .tradeDrawerPanel { right: 6px; bottom: 62px; left: 6px; width: auto; max-height: calc(100vh - 74px); }
+  .tradeDrawerPanel .quickTradePanel { display: block; }
+  .tradeDrawerPanel .tradeTicketEmbedded { padding: 0; }
   .tradeTicket { padding: 14px; }
   .launchIntro { display: block; }
   .launchFacts { grid-template-columns: repeat(3, 1fr); margin-top: 12px; }

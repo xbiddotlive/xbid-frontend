@@ -4,25 +4,33 @@ import { marketControl } from "@/lib/product/market-metrics";
 type DuelCurveProps = {
   history: IndexedTradePoint[];
   compact?: boolean;
+  includeOrigin?: boolean;
   marketVersion?: number;
 };
 
-function shareOf(point: IndexedTradePoint, marketVersion: number) {
-  return marketControl(point.qAAfterWei, point.qBAfterWei, marketVersion)[0];
+type ControlDomain = {
+  maximum: number;
+  minimum: number;
+};
+
+function controlSeries(history: IndexedTradePoint[], marketVersion: number, includeOrigin: boolean) {
+  const sideA = history.map((point) => marketControl(point.qAAfterWei, point.qBAfterWei, marketVersion)[0]);
+  if (includeOrigin) sideA.unshift(50);
+  if (sideA.length === 1) sideA.unshift(sideA[0]);
+  return { sideA, sideB: sideA.map((value) => 100 - value) };
 }
 
-function linePoints(history: IndexedTradePoint[], side: "A" | "B", marketVersion: number) {
-  const values = history.map((point) => {
-    const sideAShare = shareOf(point, marketVersion);
-    return side === "A" ? sideAShare : 100 - sideAShare;
-  });
+function controlDomain(values: number[]): ControlDomain {
+  const maximumDeviation = Math.max(...values.map((value) => Math.abs(value - 50)));
+  const halfRange = [2, 5, 10, 20, 50].find((range) => range >= maximumDeviation * 1.2) ?? 50;
+  return { maximum: 50 + halfRange, minimum: 50 - halfRange };
+}
 
-  if (values.length === 1) values.unshift(values[0]);
-
+function linePoints(values: number[], domain: ControlDomain) {
   return values
     .map((value, index) => {
       const x = values.length === 1 ? 50 : 2 + (index / (values.length - 1)) * 96;
-      const y = 48 - value * 0.46;
+      const y = 48 - ((value - domain.minimum) / (domain.maximum - domain.minimum)) * 46;
       return `${x.toFixed(2)},${y.toFixed(2)}`;
     })
     .join(" ");
@@ -36,7 +44,7 @@ function timeLabel(timestamp: string) {
   }).format(new Date(Number(timestamp) * 1_000));
 }
 
-export function DuelCurve({ history, compact = false, marketVersion = 1 }: DuelCurveProps) {
+export function DuelCurve({ history, compact = false, includeOrigin = false, marketVersion = 1 }: DuelCurveProps) {
   if (history.length === 0) {
     return (
       <div className={compact ? "duelCurve duelCurveCompact" : "duelCurve"} data-empty="true">
@@ -47,9 +55,13 @@ export function DuelCurve({ history, compact = false, marketVersion = 1 }: DuelC
 
   const first = history[0];
   const last = history[history.length - 1];
+  const series = controlSeries(history, marketVersion, includeOrigin);
+  const domain = compact ? { maximum: 100, minimum: 0 } : controlDomain([...series.sideA, ...series.sideB]);
+  const zoomed = domain.minimum !== 0 || domain.maximum !== 100;
+  const overlapping = series.sideA.every((value, index) => Math.abs(value - series.sideB[index]) < 0.02);
 
   return (
-    <div className={compact ? "duelCurve duelCurveCompact" : "duelCurve"}>
+    <div className={compact ? "duelCurve duelCurveCompact" : "duelCurve"} data-overlap={overlapping}>
       <svg
         aria-label={`side a and side b control across ${history.length} onchain trades; both sides total 100 percent`}
         preserveAspectRatio="none"
@@ -58,14 +70,15 @@ export function DuelCurve({ history, compact = false, marketVersion = 1 }: DuelC
       >
         <path className="curveGrid" d="M0 12.5H100 M0 25H100 M0 37.5H100" />
         <path className="curveMidline" d="M0 25H100" />
-        <polyline className="curveLine curveLineA" points={linePoints(history, "A", marketVersion)} />
-        <polyline className="curveLine curveLineB" points={linePoints(history, "B", marketVersion)} />
+        <polyline className="curveLine curveLineA" points={linePoints(series.sideA, domain)} />
+        <polyline className="curveLine curveLineB" points={linePoints(series.sideB, domain)} />
       </svg>
       {!compact && (
         <>
-          <div className="curveScale" aria-hidden="true"><span>100%</span><span>50%</span><span>0%</span></div>
+          {zoomed ? <span className="curveRange">zoom · {domain.minimum}–{domain.maximum}%</span> : null}
+          <div className="curveScale" aria-hidden="true"><span>{domain.maximum}%</span><span>50%</span><span>{domain.minimum}%</span></div>
           <div className="curveAxis" aria-hidden="true">
-            <span>{timeLabel(first.blockTimestamp)}</span>
+            <span>{includeOrigin ? "market open" : timeLabel(first.blockTimestamp)}</span>
             <span>{history.length} real moves</span>
             <span>{timeLabel(last.blockTimestamp)}</span>
           </div>

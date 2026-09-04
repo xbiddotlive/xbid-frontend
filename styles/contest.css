@@ -126,6 +126,8 @@
 .quickTradePanel > header { display: flex; min-height: 24px; align-items: center; gap: 7px; }
 .quickTradePanel > header svg { width: 15px; height: 15px; color: var(--side-b); }
 .quickTradePanel > header strong { font-weight: 800; }
+.quickTradePanel > header .iconButton { width: 28px; height: 28px; margin-left: auto; color: var(--muted); }
+.quickTradePanel > header .iconButton svg { color: currentColor; }
 .ticketExecutionSettings { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 30px; color: var(--muted); }
 
 .slippageControl { position: relative; }

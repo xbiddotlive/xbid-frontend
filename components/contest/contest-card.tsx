@@ -39,6 +39,7 @@ export function ContestCard({ contest, featured = false, preview, rank = 1 }: Co
     contest.marketVersion,
   );
   const market = contest.market;
+  const completeHistory = market ? BigInt(market.tradeCount) === BigInt(market.history.length) : false;
   const title = preview?.title || contest.metadata.title;
   const category = preview?.category || contest.metadata.category;
   const sideA = preview?.sideA || contest.metadata.sideA.name;
@@ -62,7 +63,7 @@ export function ContestCard({ contest, featured = false, preview, rank = 1 }: Co
           <span>market v{contest.marketVersion}</span>
         </div>
         <Link href={href} tabIndex={preview ? -1 : undefined}><h3>{title.toLowerCase()}</h3></Link>
-        <DuelCurve compact history={market?.history ?? []} marketVersion={contest.marketVersion} />
+        <DuelCurve compact history={market?.history ?? []} includeOrigin={completeHistory} marketVersion={contest.marketVersion} />
         <div className="cardSides">
           <span><i className="sideToken sideTokenA">a</i><b>{sideA.toLowerCase()}{preview?.sideASymbol ? ` · ${preview.sideASymbol.toLowerCase()}` : ""}</b><strong>{sideAPercent.toFixed(1)}%</strong></span>
           <span><i className="sideToken sideTokenB">b</i><b>{sideB.toLowerCase()}{preview?.sideBSymbol ? ` · ${preview.sideBSymbol.toLowerCase()}` : ""}</b><strong>{sideBPercent.toFixed(1)}%</strong></span>
