@@ -234,6 +234,9 @@
 .earningsClaimStatus[data-tone="negative"] { color: var(--negative); }
 .earningsClaimTx { color: #8ab3ff; }
 
+/* Component spacing may use margin shorthands; keep every utility section on the centered content rail. */
+.utilityPage > * { margin-right: auto; margin-left: auto; }
+
 /* education and documentation */
 .educationPage, .docsPage { max-width: none; }
 .educationPage > *, .docsPage > * { width: 100%; max-width: var(--content-container); margin-inline: auto; }
