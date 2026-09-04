@@ -8,10 +8,12 @@
 .contestAddressLink { display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; color: var(--muted); }
 .contestAddressLink:hover { color: var(--text); }
 .contestAddressLink svg { width: 12px; height: 12px; }
-.contestTitleActions { display: flex; align-items: center; gap: 8px; }
+.contestTitleActions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; }
 .contestShareButton { display: inline-flex; min-height: 28px; align-items: center; gap: 6px; padding: 0 9px; border: 1px solid var(--line-strong); border-radius: var(--radius); color: var(--muted); background: rgb(255 255 255 / 2%); font-weight: 700; white-space: nowrap; }
 .contestShareButton:hover { border-color: var(--text); color: var(--text); background: rgb(255 255 255 / 6%); }
 .contestShareButton svg { width: 13px; height: 13px; }
+.contestCrownedStatus { display: inline-flex; min-height: 28px; align-items: center; gap: 6px; padding: 0 9px; border: 1px solid rgb(255 200 87 / 38%); border-radius: var(--radius); color: var(--crown); background: linear-gradient(180deg, rgb(255 200 87 / 12%), rgb(255 200 87 / 6%)); font-weight: 700; white-space: nowrap; }
+.contestCrownedStatus svg { width: 14px; height: 14px; filter: drop-shadow(0 0 5px rgb(255 200 87 / 28%)); }
 .statusOk, .statusWarning { display: inline-flex; align-items: center; min-height: 28px; padding: 0 9px; border: 1px solid rgb(53 208 127 / 28%); border-radius: var(--radius); color: var(--positive); background: rgb(53 208 127 / 8%); font-weight: 700; white-space: nowrap; }
 .statusWarning { border-color: rgb(255 200 87 / 28%); color: var(--crown); background: rgb(255 200 87 / 8%); }
 .liveArena { display: block; min-height: 0; padding: 8px; background: #0b0e14; }

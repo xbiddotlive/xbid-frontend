@@ -8,7 +8,7 @@ import { useReadContracts } from "wagmi";
 import { DominanceMeter } from "@/components/contest/dominance-meter";
 import { DuelCurve } from "@/components/contest/duel-curve";
 import { SideLogo } from "@/components/contest/side-logo-pair";
-import { ArrowIcon, XIcon } from "@/components/ui/icons";
+import { ArrowIcon, CrownIcon, XIcon } from "@/components/ui/icons";
 import { LiveCommentary } from "@/features/comments/components/live-commentary";
 import { ContestTerminal } from "@/features/trading/components/contest-terminal";
 import { QuickTradePanel } from "@/features/trading/components/quick-trade-panel";
@@ -17,6 +17,7 @@ import type { TradeMode } from "@/features/trading/components/trade-ticket";
 import type { IndexedContest, IndexedTradePoint } from "@/lib/api/contests";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
 import { contracts, marketVaultAbi, riskControllerAbi } from "@/lib/blockchain/contracts";
+import { crownSideIndex } from "@/lib/product/crown";
 import { formatChange, marketControl, marketPrices } from "@/lib/product/market-metrics";
 import { contestKeys, useContestDetail, useContestTrades } from "@/lib/queries/contest";
 import { siteUrl } from "@/lib/seo/site";
@@ -121,6 +122,8 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
   const sideBTrades24h = marketStats?.sideBTradeCount24h;
   const sideANetFlow24h = marketStats?.sideANetFlow24hUnits;
   const sideBNetFlow24h = marketStats?.sideBNetFlow24hUnits;
+  const crownedSide = crownSideIndex(marketStats?.crownSide ?? null);
+  const crownedLabel = crownedSide === null ? "crowned" : `crowned · side ${crownedSide === 0 ? "a" : "b"}`;
   const shareRevision = marketStats?.updatedBlock ?? contest.createdBlock;
   const shareVersion = `${contestShareCardVersion}-${shareRevision}`;
   const contestUrl = `${siteUrl}/contest/${contest.contestId}?share=${shareVersion}`;
@@ -175,6 +178,7 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
             </div>
             <div className="contestTitleActions">
               <a aria-label="share this contest on x" className="contestShareButton" href={xShareUrl} onClick={openXShare} onFocus={warmShareImage} onPointerEnter={warmShareImage} onTouchStart={warmShareImage} rel="noreferrer" target="_blank"><XIcon /><span>share</span></a>
+              {marketStats?.crownActivated ? <span className="contestCrownedStatus"><CrownIcon />{crownedLabel}</span> : null}
               <span className={riskMode === 0 ? "statusOk" : "statusWarning"}>{riskMode === 0 ? "trading active" : `risk mode ${riskMode}`}</span>
             </div>
           </div>
