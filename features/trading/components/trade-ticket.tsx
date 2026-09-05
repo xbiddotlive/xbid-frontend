@@ -243,6 +243,7 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
 
       if (balance < input) {
         if (mode !== "buy") throw new Error(t("trade.insufficientSide", { side: side === 0 ? "A" : "B" }));
+        if (!robinhoodTestnet.testnet) throw new Error(t("trade.insufficientBalance", { symbol: settlementTokenLabel }));
         const hash = await writeContractAsync({
           address: contracts.settlementToken, abi: erc20Abi, functionName: "mint",
           args: [address, parseUnits("10000", 6)], chainId: robinhoodTestnet.id,

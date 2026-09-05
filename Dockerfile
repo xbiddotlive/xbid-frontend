@@ -1,3 +1,5 @@
+ARG XBID_ENVIRONMENT=testnet
+
 FROM node:22-alpine AS dependencies
 WORKDIR /app
 RUN corepack enable
@@ -6,6 +8,7 @@ COPY patches ./patches
 RUN pnpm install --frozen-lockfile
 
 FROM node:22-alpine AS builder
+ARG XBID_ENVIRONMENT
 WORKDIR /app
 RUN corepack enable
 COPY --from=dependencies /app/node_modules ./node_modules
@@ -26,6 +29,7 @@ ARG NEXT_PUBLIC_XBID_FEE_VAULT_ADDRESS=0x82D9159cB488175cAcdcD145A7285d80563e69d
 ARG NEXT_PUBLIC_XBID_SETTLEMENT_TOKEN_ADDRESS=0xAc80194dc1aE8eF52df73e7e1864fB3C62290fe0
 ARG NEXT_PUBLIC_DEFAULT_CONTEST_ID=0xb73517e2deacfc81a60953d1545f6602b186483d3e9b59fc43a5a8e75497513d
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV XBID_ENVIRONMENT=$XBID_ENVIRONMENT
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_CHAIN_ID=$NEXT_PUBLIC_CHAIN_ID
@@ -44,8 +48,10 @@ ENV NEXT_PUBLIC_DEFAULT_CONTEST_ID=$NEXT_PUBLIC_DEFAULT_CONTEST_ID
 RUN pnpm build
 
 FROM node:22-alpine AS runner
+ARG XBID_ENVIRONMENT
 WORKDIR /app
 ENV NODE_ENV=production
+ENV XBID_IMAGE_ENVIRONMENT=$XBID_ENVIRONMENT
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
@@ -54,6 +60,8 @@ RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --chown=nextjs:nodejs scripts/start-container.sh ./start-container.sh
+RUN chmod 0555 ./start-container.sh
 USER nextjs
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["./start-container.sh"]

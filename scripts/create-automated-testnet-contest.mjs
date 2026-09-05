@@ -104,11 +104,13 @@ async function api(pathname, init) {
 }
 
 async function logo(symbol, label, color, destination) {
+  const symbolSize = symbol.length <= 2 ? 142 : symbol.length <= 4 ? 100 : symbol.length <= 6 ? 72 : 58;
+  const labelSize = label.length <= 12 ? 30 : label.length <= 18 ? 25 : 21;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
     <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${color}"/><stop offset="1" stop-color="#080b12"/></linearGradient></defs>
     <rect width="512" height="512" rx="128" fill="#0b0e16"/><rect x="18" y="18" width="476" height="476" rx="112" fill="url(#g)" stroke="${color}" stroke-width="10"/>
-    <text x="256" y="285" fill="#fff" font-family="DejaVu Sans,Arial,sans-serif" font-size="142" font-weight="400" text-anchor="middle">${escapeXml(symbol)}</text>
-    <text x="256" y="370" fill="#d8deea" font-family="DejaVu Sans,Arial,sans-serif" font-size="30" font-weight="400" text-anchor="middle">${escapeXml(label)}</text>
+    <text x="256" y="285" fill="#fff" font-family="DejaVu Sans,Arial,sans-serif" font-size="${symbolSize}" font-weight="400" text-anchor="middle">${escapeXml(symbol)}</text>
+    <text x="256" y="370" fill="#d8deea" font-family="DejaVu Sans,Arial,sans-serif" font-size="${labelSize}" font-weight="400" text-anchor="middle">${escapeXml(label)}</text>
   </svg>`;
   await sharp(Buffer.from(svg)).png().toFile(destination);
 }
@@ -164,15 +166,6 @@ async function main() {
   const projectDirectory = process.cwd();
   const inputPath = path.resolve(projectDirectory, inputArgument);
   const input = JSON.parse(await readFile(inputPath, "utf8"));
-  const env = parseEnv(await readFile(path.resolve(projectDirectory, "../contracts-solidity-foundry/.env"), "utf8"));
-  const privateKey = env.E2E_PRIVATE_KEY;
-  const rpcUrl = env.ROBINHOOD_TESTNET_RPC_URL;
-  if (!privateKey || !rpcUrl) throw new Error("Missing E2E testnet credentials or RPC URL.");
-
-  const account = privateKeyToAccount(privateKey);
-  const chain = defineChain({ id: CHAIN_ID, name: "Robinhood Chain Testnet", nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 }, rpcUrls: { default: { http: [rpcUrl] } } });
-  const publicClient = createPublicClient({ chain, transport: http(rpcUrl) });
-  const walletClient = createWalletClient({ account, chain, transport: http(rpcUrl) });
   const artifactDirectory = path.resolve(projectDirectory, "content/x-posts", input.campaign);
   await mkdir(artifactDirectory, { recursive: true });
   const destinations = {
@@ -185,6 +178,23 @@ async function main() {
     logo(input.sideASymbol, input.sideALogoLabel, "#3478f6", destinations.logoA),
     logo(input.sideBSymbol, input.sideBLogoLabel, "#ff603d", destinations.logoB),
   ]);
+
+  if (process.argv.includes("--render-only")) {
+    const existingRecord = JSON.parse(await readFile(destinations.record, "utf8"));
+    await renderPostImage(input, { marketVersion: existingRecord.marketVersion }, destinations);
+    console.log(JSON.stringify({ mode: "render-only", imagePath: path.relative(projectDirectory, destinations.card) }, null, 2));
+    return;
+  }
+
+  const env = parseEnv(await readFile(path.resolve(projectDirectory, "../contracts-solidity-foundry/.env"), "utf8"));
+  const privateKey = env.E2E_PRIVATE_KEY;
+  const rpcUrl = env.ROBINHOOD_TESTNET_RPC_URL;
+  if (!privateKey || !rpcUrl) throw new Error("Missing E2E testnet credentials or RPC URL.");
+
+  const account = privateKeyToAccount(privateKey);
+  const chain = defineChain({ id: CHAIN_ID, name: "Robinhood Chain Testnet", nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 }, rpcUrls: { default: { http: [rpcUrl] } } });
+  const publicClient = createPublicClient({ chain, transport: http(rpcUrl) });
+  const walletClient = createWalletClient({ account, chain, transport: http(rpcUrl) });
 
   const challenge = await api(`/v1/chains/${CHAIN_ID}/write-session/challenge`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ walletAddress: account.address }) });
   const signature = await account.signMessage({ message: challenge.message });

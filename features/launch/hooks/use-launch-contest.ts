@@ -110,6 +110,7 @@ export function useLaunchContest() {
 
   async function ensureTestUsdc(requiredUnits: bigint, account: Address) {
     if (balance >= requiredUnits) return;
+    if (!robinhoodTestnet.testnet) throw new Error("insufficient usdc balance.");
     setLocalizedStatus("launch.status.faucet");
     const mintAmount = requiredUnits > parseUnits("10000", 6) ? requiredUnits : parseUnits("10000", 6);
     await confirm(await writeContractAsync({

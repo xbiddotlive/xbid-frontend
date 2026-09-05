@@ -166,7 +166,9 @@ export async function contestCardResponse(
     }
     card = renderContestCard(contestId, format);
     cardCache.set(cacheKey, card);
-    card.catch(() => cardCache.delete(cacheKey));
+    card.catch(() => {
+      if (cardCache.get(cacheKey) === card) cardCache.delete(cacheKey);
+    });
   }
 
   const png = await card;

@@ -34,6 +34,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
+            XBID_ENVIRONMENT=testnet
             NEXT_PUBLIC_APP_URL=https://testnet.xbid.live
             NEXT_PUBLIC_API_URL=https://api-testnet.xbid.live
             NEXT_PUBLIC_CHAIN_ID=46630

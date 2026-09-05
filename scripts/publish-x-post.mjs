@@ -3,6 +3,8 @@ import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 
+import twitterText from "twitter-text";
+
 const X_API_ORIGIN = "https://api.x.com";
 const MAX_POST_LENGTH = 280;
 const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
@@ -88,8 +90,9 @@ function validateContent(content) {
       throw new Error(`Content field ${field} must be a non-empty string.`);
     }
   }
-  if (Array.from(content.text).length > MAX_POST_LENGTH) {
-    throw new Error(`Post text exceeds ${MAX_POST_LENGTH} Unicode code points.`);
+  const parsedText = twitterText.parseTweet(content.text);
+  if (!parsedText.valid || parsedText.weightedLength > MAX_POST_LENGTH) {
+    throw new Error(`Post text exceeds X's ${MAX_POST_LENGTH}-character weighted limit (${parsedText.weightedLength}).`);
   }
   if (content.mediaType !== "image/png" && content.mediaType !== "image/jpeg") {
     throw new Error("Only image/png and image/jpeg launch media are supported.");
@@ -119,11 +122,13 @@ async function main() {
   }
 
   if (!process.argv.includes("--publish")) {
+    const parsedText = twitterText.parseTweet(content.text);
     console.log(JSON.stringify({
       mode: "dry-run",
       campaign: content.campaign,
       expectedUsername: content.expectedUsername,
-      characters: Array.from(content.text).length,
+      weightedCharacters: parsedText.weightedLength,
+      rawCodePoints: Array.from(content.text).length,
       mediaPath,
       mediaBytes: mediaStats.size,
       text: content.text,

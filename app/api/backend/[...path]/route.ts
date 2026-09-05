@@ -14,8 +14,9 @@ async function proxy(request: NextRequest, context: RouteContext<"/api/backend/[
   if (contentType) headers.set("content-type", contentType);
   const authorization = request.headers.get("authorization");
   if (authorization) headers.set("authorization", authorization);
-  const clientIp = request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for");
-  if (clientIp) headers.set("x-forwarded-for", clientIp.split(",")[0].trim().slice(0, 64));
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  const clientIp = forwardedFor?.split(",").at(-1)?.trim();
+  if (clientIp) headers.set("x-forwarded-for", clientIp.slice(0, 64));
   const body = request.method === "GET" || request.method === "HEAD" ? undefined : await request.arrayBuffer();
   if (body && body.byteLength > 2_200_000) {
     return Response.json({ code: "REQUEST_TOO_LARGE" }, { status: 413 });
