@@ -1,3 +1,10 @@
+import { createRequire } from "node:module";
+
+// Match next build's .env.production[.local] / .env.local loading order.
+const requireFromNext = createRequire(import.meta.resolve("next/package.json"));
+const { loadEnvConfig } = requireFromNext("@next/env");
+loadEnvConfig(process.cwd(), false);
+
 const TESTNET = Object.freeze({
   NEXT_PUBLIC_CHAIN_ID: "46630",
   NEXT_PUBLIC_CHAIN_RPC_URL: "https://rpc.testnet.chain.robinhood.com",
@@ -10,7 +17,9 @@ const TESTNET = Object.freeze({
 });
 
 const environment = process.env.XBID_ENVIRONMENT ?? "testnet";
-const chainIsTestnet = (process.env.NEXT_PUBLIC_CHAIN_TESTNET ?? "true") === "true";
+const testnetFlag = process.env.NEXT_PUBLIC_CHAIN_TESTNET ?? "true";
+if (!["true", "false"].includes(testnetFlag)) throw new Error("NEXT_PUBLIC_CHAIN_TESTNET must be true or false.");
+const chainIsTestnet = testnetFlag === "true";
 
 if (!new Set(["testnet", "mainnet"]).has(environment)) {
   throw new Error("XBID_ENVIRONMENT must be either testnet or mainnet.");
@@ -36,7 +45,11 @@ if (environment === "mainnet") {
   if (missing.length > 0) throw new Error(`mainnet frontend build must explicitly set: ${missing.join(", ")}`);
 
   for (const [key, testnetValue] of Object.entries(TESTNET)) {
-    if (process.env[key]?.toLowerCase() === testnetValue.toLowerCase()) {
+    const value = process.env[key];
+    const matchesTestnet = key.endsWith("_URL") && URL.canParse(value)
+      ? new URL(value).hostname.replace(/\.$/, "") === new URL(testnetValue).hostname
+      : value?.toLowerCase() === testnetValue.toLowerCase();
+    if (matchesTestnet) {
       throw new Error(`mainnet frontend build cannot use the Robinhood Testnet value for ${key}`);
     }
   }
@@ -47,6 +60,7 @@ if (environment === "mainnet") {
   }
   for (const key of ["NEXT_PUBLIC_CHAIN_RPC_URL", "NEXT_PUBLIC_CHAIN_EXPLORER_URL"]) {
     if (!URL.canParse(process.env[key])) throw new Error(`${key} must be a valid URL.`);
+    if (new URL(process.env[key]).protocol !== "https:") throw new Error(`${key} requires HTTPS on mainnet.`);
   }
   const addressPattern = /^0x[0-9a-fA-F]{40}$/;
   const zeroAddress = "0x0000000000000000000000000000000000000000";
