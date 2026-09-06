@@ -10,7 +10,6 @@ import {
   LeaderboardIcon,
   PlusIcon,
   PortfolioIcon,
-  ProfileIcon,
   SearchIcon,
 } from "@/components/ui/icons";
 import { ChainSelector } from "@/components/navigation/chain-selector";
@@ -51,7 +50,6 @@ export function GlobalHeader() {
         <Link href="/leaderboard"><LeaderboardIcon /><span>{t("nav.leaders")}</span></Link>
         <Link className="mobileLaunch" href="/launch"><PlusIcon /><span>{t("nav.launch")}</span></Link>
         <Link href="/portfolio"><PortfolioIcon /><span>{t("nav.portfolio")}</span></Link>
-        <Link href="/profile/me"><ProfileIcon /><span>{t("nav.profile")}</span></Link>
       </nav>
     </>
   );

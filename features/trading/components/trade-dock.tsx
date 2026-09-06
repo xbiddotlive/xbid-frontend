@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
+import { ActivityIcon } from "@/components/ui/icons";
 import type { IndexedContest } from "@/lib/api/contests";
 import { useI18n } from "@/lib/i18n/locale-context";
 import { QuickTradePanel } from "./quick-trade-panel";
@@ -13,6 +14,7 @@ export function TradeDock({ contest, initialMode, initialSide = 0, onConfirmed }
   const { t } = useI18n();
   const [openTrade, setOpenTrade] = useState<{ mode: TradeMode; side: Side } | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const dialogId = useId();
 
   useEffect(() => {
     if (!openTrade) return;
@@ -33,13 +35,11 @@ export function TradeDock({ contest, initialMode, initialSide = 0, onConfirmed }
       {openTrade && (
         <div className="tradeDrawerLayer">
           <button aria-label={t("trade.closeDrawer")} className="drawerScrim" onClick={() => setOpenTrade(null)} type="button" />
-          <div aria-modal="true" className="tradeDrawerPanel" ref={panelRef} role="dialog" tabIndex={-1}><QuickTradePanel contest={contest} initialMode={openTrade.mode} initialSide={openTrade.side} key={`${openTrade.mode}-${openTrade.side}`} onClose={() => setOpenTrade(null)} onConfirmed={onConfirmed} /></div>
+          <div aria-label={t("trade.quick")} aria-modal="true" className="tradeDrawerPanel" id={dialogId} ref={panelRef} role="dialog" tabIndex={-1}><QuickTradePanel contest={contest} initialMode={openTrade.mode} initialSide={openTrade.side} key={`${openTrade.mode}-${openTrade.side}`} onClose={() => setOpenTrade(null)} onConfirmed={onConfirmed} /></div>
         </div>
       )}
       <div className="tradeDock" aria-label={t("trade.quick")}>
-        <button className="dockSideA" onClick={() => setOpenTrade({ mode: initialMode === "sell" ? "sell" : "buy", side: 0 })} type="button"><span>{t(initialMode === "sell" ? "trade.sell" : "trade.back")}</span><strong>{t("common.sideA")}</strong></button>
-        <button className="dockFlip" onClick={() => setOpenTrade({ mode: "flip", side: initialSide })} type="button"><span>{t("trade.atomic")}</span><strong>{t("trade.flip")}</strong></button>
-        <button className="dockSideB" onClick={() => setOpenTrade({ mode: initialMode === "sell" ? "sell" : "buy", side: 1 })} type="button"><span>{t(initialMode === "sell" ? "trade.sell" : "trade.back")}</span><strong>{t("common.sideB")}</strong></button>
+        <button aria-controls={openTrade ? dialogId : undefined} aria-expanded={Boolean(openTrade)} aria-haspopup="dialog" className="dockQuickTrade" onClick={() => setOpenTrade({ mode: initialMode ?? "buy", side: initialSide })} type="button"><ActivityIcon /><strong>{t("trade.quick")}</strong></button>
       </div>
     </>
   );
