@@ -204,6 +204,7 @@ export const leaderboardSchema = z.object({
     referralRewardsUnits: decimalString,
     referredVolumeUnits: decimalString,
     creators: z.number().int().nonnegative(),
+    creatorRewardsUnits: z.string().regex(/^\d+$/),
   }),
   trading: z.array(z.object({
     address,

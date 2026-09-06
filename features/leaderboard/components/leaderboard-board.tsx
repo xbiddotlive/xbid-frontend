@@ -25,11 +25,11 @@ export function LeaderboardBoard({ content }: { content: Leaderboard }) {
     { label: t("leaderboard.rankedTraders"), value: content.summary.rankedTraders.toLocaleString(numberLocale) },
     { label: t("leaderboard.topPnl"), value: units(content.summary.topRealizedPnlUnits, numberLocale, true) },
     { label: t("leaderboard.referralRewards"), value: units(content.summary.referralRewardsUnits, numberLocale) },
-    { label: t("leaderboard.creators"), value: content.summary.creators.toLocaleString(numberLocale) },
+    { label: t("leaderboard.creators"), value: content.summary.creators.toLocaleString(numberLocale), detail: t("leaderboard.totalCreatorRewards", { amount: units(content.summary.creatorRewardsUnits, numberLocale) }) },
   ];
 
   return <>
-    <section className="leaderboardSummary">{summary.map((stat) => <div key={stat.label}><span>{stat.label}</span><strong>{stat.value}</strong></div>)}</section>
+    <section className="leaderboardSummary">{summary.map((stat) => <div key={stat.label}><span>{stat.label}</span><strong>{stat.value}</strong>{stat.detail && <span className="leaderboardSummaryDetail">{stat.detail}</span>}</div>)}</section>
     <div className="leaderboardNotice"><div><i /><strong>{t("leaderboard.live")}</strong><span>{t("leaderboard.liveDescription")}</span></div><span>{t("common.allTime")}</span></div>
     <nav className="leaderboardTabs" aria-label={t("leaderboard.type")}>
       <button aria-pressed={activeTab === "trading"} onClick={() => setActiveTab("trading")} type="button">{t("leaderboard.tradingProfit")}</button>

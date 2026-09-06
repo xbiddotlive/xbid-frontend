@@ -185,6 +185,7 @@
 .leaderboardSummary span, .leaderboardSummary strong { display: block; }
 .leaderboardSummary span { color: var(--muted); }
 .leaderboardSummary strong { margin-top: 4px; font-weight: 850; }
+.leaderboardSummary .leaderboardSummaryDetail { margin-top: 4px; color: var(--crown); overflow-wrap: anywhere; }
 .leaderboardSummary > div:nth-child(2) strong { color: var(--positive); }
 .leaderboardSummary > div:nth-child(3) strong { color: var(--crown); }
 .leaderboardNotice { display: flex; align-items: center; justify-content: space-between; min-height: 42px; margin: 8px 0; padding: 0 12px; border: 1px solid var(--line); border-radius: var(--radius); color: var(--muted); background: var(--surface); }

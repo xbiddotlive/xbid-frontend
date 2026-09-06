@@ -13,7 +13,7 @@ const wallet = (n) => `0x${n.toString(16).padStart(40, "0")}`;
 let empty = false;
 const fixture = () => ({
   chainId: "46630", dataSource: "indexed",
-  summary: { rankedTraders: 0, topRealizedPnlUnits: "0", referralRewardsUnits: "0", referredVolumeUnits: "0", creators: empty ? 0 : 58 },
+  summary: { rankedTraders: 0, topRealizedPnlUnits: "0", referralRewardsUnits: "0", referredVolumeUnits: "0", creators: empty ? 0 : 58, creatorRewardsUnits: empty ? "0" : "254023156" },
   trading: [], referrals: [],
   creators: empty ? [] : [
     { address: wallet(1), contestCount: 3, creatorEarnedUnits: "124567890" },
@@ -55,7 +55,7 @@ try {
     localStorage.setItem("xbid-theme", "light");
   });
   await page.goto(`${base}/leaderboard`, { waitUntil: "load" });
-  assert.equal(await page.locator(".leaderboardSummary > div").last().innerText(), "creators\n58");
+  assert.equal(await page.locator(".leaderboardSummary > div").last().innerText(), "creators\n58\n$254.02 total rewards");
   assert.equal(await page.locator(".leaderboardSummary").getByText("referred volume", { exact: true }).count(), 0);
   await page.locator(".leaderboardTabs").getByRole("button", { name: "creators", exact: true }).click();
   const table = page.getByRole("table", { name: "creator earnings leaderboard" });
@@ -81,13 +81,14 @@ try {
   await page.locator(".leaderboardTabs").getByRole("button", { name: "创作者", exact: true }).click();
   await page.getByRole("table", { name: "创作者收入排行榜" }).waitFor();
   await page.getByRole("columnheader", { name: "创作者累计收入" }).waitFor();
+  assert.equal(await page.locator(".leaderboardSummaryDetail").innerText(), "累计奖励 $254.02");
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({ path: "/private/tmp/xbid-creator-leaderboard-mobile.png", fullPage: true });
   empty = true;
   await page.reload({ waitUntil: "load" });
   await page.locator(".leaderboardTabs").getByRole("button", { name: "creators", exact: true }).click();
   await page.getByText("no creators yet", { exact: true }).waitFor();
-  assert.equal(await page.locator(".leaderboardSummary > div").last().innerText(), "creators\n0");
+  assert.equal(await page.locator(".leaderboardSummary > div").last().innerText(), "creators\n0\n$0.00 total rewards");
   assert.deepEqual(errors, []);
   console.log("PASS creator ranking, summary, zero earnings, empty state, existing tabs, en/zh, light/dark, 320–1440px");
 } finally {
