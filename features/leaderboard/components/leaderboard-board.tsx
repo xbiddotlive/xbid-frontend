@@ -6,7 +6,7 @@ import { formatUnits } from "viem";
 import type { Leaderboard } from "@/lib/api/leaderboard";
 import { useI18n } from "@/lib/i18n/locale-context";
 
-type LeaderboardTab = "trading" | "referrals";
+type LeaderboardTab = "trading" | "referrals" | "creators";
 
 function address(value: string) {
   return `${value.slice(0, 6)}…${value.slice(-4)}`;
@@ -25,7 +25,7 @@ export function LeaderboardBoard({ content }: { content: Leaderboard }) {
     { label: t("leaderboard.rankedTraders"), value: content.summary.rankedTraders.toLocaleString(numberLocale) },
     { label: t("leaderboard.topPnl"), value: units(content.summary.topRealizedPnlUnits, numberLocale, true) },
     { label: t("leaderboard.referralRewards"), value: units(content.summary.referralRewardsUnits, numberLocale) },
-    { label: t("leaderboard.referredVolume"), value: units(content.summary.referredVolumeUnits, numberLocale) },
+    { label: t("leaderboard.creators"), value: content.summary.creators.toLocaleString(numberLocale) },
   ];
 
   return <>
@@ -34,18 +34,23 @@ export function LeaderboardBoard({ content }: { content: Leaderboard }) {
     <nav className="leaderboardTabs" aria-label={t("leaderboard.type")}>
       <button aria-pressed={activeTab === "trading"} onClick={() => setActiveTab("trading")} type="button">{t("leaderboard.tradingProfit")}</button>
       <button aria-pressed={activeTab === "referrals"} onClick={() => setActiveTab("referrals")} type="button">{t("leaderboard.referralRewards")}</button>
+      <button aria-pressed={activeTab === "creators"} onClick={() => setActiveTab("creators")} type="button">{t("leaderboard.creators")}</button>
     </nav>
     <div className="leaderboardTableWrap">
       {activeTab === "trading" ? <div aria-label={t("leaderboard.tradingLabel")} className="leaderboardTable leaderboardTradingTable" role="table">
         <div className="leaderboardHead" role="row"><span>{t("leaderboard.rank")}</span><span>{t("leaderboard.trader")}</span><span>{t("leaderboard.realizedPnl")}</span><span>{t("leaderboard.roi")}</span><span>{t("leaderboard.winRate")}</span><span>{t("leaderboard.tradeVolume")}</span><span>{t("leaderboard.streak")}</span></div>
         {content.trading.map((trader, index) => <div className="leaderboardRow" data-rank={index + 1} key={trader.address}><strong className="leaderboardRank">#{String(index + 1).padStart(2, "0")}</strong><div className="leaderboardIdentity"><i>0x</i><strong>{address(trader.address)}</strong></div><strong data-tone={BigInt(trader.realizedPnlUnits) >= 0n ? "positive" : "negative"}>{units(trader.realizedPnlUnits, numberLocale, true)}</strong><span data-tone={trader.roiPercent >= 0 ? "positive" : "negative"}>{trader.roiPercent >= 0 ? "+" : ""}{trader.roiPercent.toFixed(2)}%</span><span>{trader.winRatePercent.toFixed(1)}%</span><span>{units(trader.volumeUnits, numberLocale)}</span><span>{t("leaderboard.wins", { count: trader.currentStreak })}</span></div>)}
         {content.trading.length === 0 && <div className="terminalEmpty"><strong>{t("leaderboard.noTrading")}</strong><span>{t("leaderboard.noTradingDescription")}</span></div>}
-      </div> : <div aria-label={t("leaderboard.referralLabel")} className="leaderboardTable leaderboardReferralTable" role="table">
+      </div> : activeTab === "referrals" ? <div aria-label={t("leaderboard.referralLabel")} className="leaderboardTable leaderboardReferralTable" role="table">
         <div className="leaderboardHead" role="row"><span>{t("leaderboard.rank")}</span><span>{t("leaderboard.referrer")}</span><span>{t("leaderboard.rewardsEarned")}</span><span>{t("common.traders")}</span><span>{t("leaderboard.referredTrades")}</span><span>{t("leaderboard.referralVolume")}</span><span>{t("leaderboard.rewardShare")}</span></div>
         {content.referrals.map((leader, index) => <div className="leaderboardRow" data-rank={index + 1} key={leader.address}><strong className="leaderboardRank">#{String(index + 1).padStart(2, "0")}</strong><div className="leaderboardIdentity"><i>0x</i><strong>{address(leader.address)}</strong></div><strong data-tone="crown">{units(leader.rewardsUnits, numberLocale)}</strong><span>{leader.referredTraders}</span><span>{leader.referredTrades}</span><span>{units(leader.volumeUnits, numberLocale)}</span><span>{leader.rewardShare.toFixed(2)}%</span></div>)}
         {content.referrals.length === 0 && <div className="terminalEmpty"><strong>{t("leaderboard.noReferrals")}</strong><span>{t("leaderboard.noReferralsDescription")}</span></div>}
+      </div> : <div aria-label={t("leaderboard.creatorLabel")} className="leaderboardTable leaderboardCreatorTable" role="table">
+        <div className="leaderboardHead" role="row"><span role="columnheader">{t("leaderboard.rank")}</span><span role="columnheader">{t("leaderboard.creator")}</span><span role="columnheader">{t("leaderboard.contestsCreated")}</span><span role="columnheader">{t("leaderboard.creatorEarned")}</span></div>
+        {content.creators.map((creator, index) => <div className="leaderboardRow" role="row" data-rank={index + 1} key={creator.address}><strong role="cell" className="leaderboardRank">#{String(index + 1).padStart(2, "0")}</strong><div role="cell" className="leaderboardIdentity" title={creator.address}><i aria-hidden="true">0x</i><strong>{address(creator.address)}</strong></div><span role="cell">{creator.contestCount.toLocaleString(numberLocale)}</span><strong role="cell" data-tone="crown">{units(creator.creatorEarnedUnits, numberLocale)}</strong></div>)}
+        {content.creators.length === 0 && <div className="terminalEmpty"><strong>{t("leaderboard.noCreators")}</strong><span>{t("leaderboard.noCreatorsDescription")}</span></div>}
       </div>}
     </div>
-    <p className="leaderboardFootnote">{t("leaderboard.footnote")}</p>
+    <p className="leaderboardFootnote">{t(activeTab === "creators" ? "leaderboard.creatorFootnote" : "leaderboard.footnote")}</p>
   </>;
 }

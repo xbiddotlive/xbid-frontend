@@ -7,7 +7,7 @@ import { I18nText } from "@/lib/i18n/locale-context";
 
 export const metadata = pageMetadata({
   title: "leaderboard",
-  description: "XBID Testnet rankings for realized trading profit and settled referral rewards.",
+  description: "XBID Testnet rankings for realized trading profit, referral rewards and cumulative creator earnings.",
   path: "/leaderboard",
 });
 

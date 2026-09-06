@@ -203,6 +203,7 @@ export const leaderboardSchema = z.object({
     topRealizedPnlUnits: decimalString,
     referralRewardsUnits: decimalString,
     referredVolumeUnits: decimalString,
+    creators: z.number().int().nonnegative(),
   }),
   trading: z.array(z.object({
     address,
@@ -220,6 +221,11 @@ export const leaderboardSchema = z.object({
     referredTrades: decimalString,
     volumeUnits: decimalString,
     rewardShare: z.number(),
+  })),
+  creators: z.array(z.object({
+    address,
+    contestCount: z.number().int().positive(),
+    creatorEarnedUnits: z.string().regex(/^\d+$/),
   })),
   freshness: freshnessSchema.optional(),
 });
