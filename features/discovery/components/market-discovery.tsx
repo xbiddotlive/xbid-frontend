@@ -86,7 +86,7 @@ function CapitalStrip({ market }: { market: MarketView }) {
 
 function MarketCard({ market }: { market: MarketView }) {
   const { t } = useI18n();
-  return <article className="homeMarketCard"><Link className="homeMarketCardOpen" href={market.href}><span className="visuallyHidden">{t("market.open", { title: market.contest.metadata.title })}</span></Link><header><h3>{market.contest.metadata.title}</h3><span className="marketSignal">{t(market.badge)}</span></header><div className="homeCardSides"><Link aria-label={t("market.back", { side: market.contest.metadata.sideA.name })} href={`${market.href}?trade=buy&side=a`}><MarketSide market={market} side={0} /></Link><Link aria-label={t("market.back", { side: market.contest.metadata.sideB.name })} href={`${market.href}?trade=buy&side=b`}><MarketSide market={market} side={1} /></Link></div><CapitalStrip market={market} /></article>;
+  return <article className="homeMarketCard"><Link className="homeMarketCardOpen" href={market.href}><span className="visuallyHidden">{t("market.open", { title: market.contest.metadata.title })}</span></Link><header><h3>{market.contest.metadata.title}</h3><span className="marketSignal" data-crowned={market.badge === "filter.crowned"}>{t(market.badge)}</span></header><div className="homeCardSides"><Link aria-label={t("market.back", { side: market.contest.metadata.sideA.name })} href={`${market.href}?trade=buy&side=a`}><MarketSide market={market} side={0} /></Link><Link aria-label={t("market.back", { side: market.contest.metadata.sideB.name })} href={`${market.href}?trade=buy&side=b`}><MarketSide market={market} side={1} /></Link></div><CapitalStrip market={market} /></article>;
 }
 
 export function MarketDiscovery({ contests, apiAvailable }: { contests: IndexedContest[]; apiAvailable: boolean }) {
@@ -133,7 +133,7 @@ export function MarketDiscovery({ contests, apiAvailable }: { contests: IndexedC
         </div>
         <article className="featuredBattle featuredSlide" key={featuredMarket.contest.contestId} onTouchEnd={(event) => { const end = event.changedTouches[0]?.clientX; if (featuredTouchStart.current !== null && end !== undefined && Math.abs(end - featuredTouchStart.current) > 44) showFeatured(end > featuredTouchStart.current ? -1 : 1); featuredTouchStart.current = null; }} onTouchStart={(event) => { featuredTouchStart.current = event.touches[0]?.clientX ?? null; }}>
           <div className="featuredCopy" aria-live="polite">
-            <div className="featuredBadges"><span>{t(featuredMarket.badge)}</span><span>{t("market.tradeCount", { count: featuredMarket.contest.market?.tradeCount24h ?? "0" })} · 24h</span><span>{featuredMarket.contest.market?.uniqueTraders24h ?? "0"} {t("common.traders")}</span></div>
+            <div className="featuredBadges"><span data-crowned={featuredMarket.badge === "filter.crowned"}>{t(featuredMarket.badge)}</span><span>{t("market.tradeCount", { count: featuredMarket.contest.market?.tradeCount24h ?? "0" })} · 24h</span><span>{featuredMarket.contest.market?.uniqueTraders24h ?? "0"} {t("common.traders")}</span></div>
             <h2><Link href={featuredMarket.href}>{featuredMarket.contest.metadata.title}</Link></h2>
             <p>{featuredMarket.contest.metadata.description || t("discovery.fallbackDescription")}</p>
             <div className="featuredSides">

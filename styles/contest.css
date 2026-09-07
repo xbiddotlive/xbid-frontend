@@ -12,8 +12,8 @@
 .contestShareButton { display: inline-flex; min-height: 28px; align-items: center; gap: 6px; padding: 0 9px; border: 1px solid var(--line-strong); border-radius: var(--radius); color: var(--muted); background: rgb(255 255 255 / 2%); font-weight: 700; white-space: nowrap; }
 .contestShareButton:hover { border-color: var(--text); color: var(--text); background: rgb(255 255 255 / 6%); }
 .contestShareButton svg { width: 13px; height: 13px; }
-.contestCrownedStatus { display: inline-flex; min-height: 28px; align-items: center; gap: 6px; padding: 0 9px; border: 1px solid rgb(255 200 87 / 38%); border-radius: var(--radius); color: var(--crown); background: linear-gradient(180deg, rgb(255 200 87 / 12%), rgb(255 200 87 / 6%)); font-weight: 700; white-space: nowrap; }
-.contestCrownedStatus svg { width: 14px; height: 14px; filter: drop-shadow(0 0 5px rgb(255 200 87 / 28%)); }
+.contestCrownedStatus { display: inline-flex; min-height: 28px; align-items: center; gap: 6px; padding: 0 9px; border: 1px solid rgb(255 200 87 / 38%); border-radius: var(--radius); color: var(--crown); background: transparent; font-weight: 700; white-space: nowrap; }
+.contestCrownedStatus svg { width: 14px; height: 14px;  }
 .statusOk, .statusWarning { display: inline-flex; align-items: center; min-height: 28px; padding: 0 9px; border: 1px solid rgb(53 208 127 / 28%); border-radius: var(--radius); color: var(--positive); background: rgb(53 208 127 / 8%); font-weight: 700; white-space: nowrap; }
 .statusWarning { border-color: rgb(255 200 87 / 28%); color: var(--crown); background: rgb(255 200 87 / 8%); }
 .liveArena { display: block; min-height: 0; padding: 8px; background: var(--surface); }
@@ -32,7 +32,7 @@
 .arenaSideQuote em { margin-left: auto; font-style: normal; font-weight: 600; text-align: right; }
 .arenaVersus { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); }
 .arenaVersus span { display: flex; align-items: center; gap: 5px; color: var(--positive); font-weight: 850; }
-.arenaVersus i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px rgb(53 208 127 / 60%); animation: live-breathe 1.4s ease-in-out infinite; }
+.arenaVersus i { width: 6px; height: 6px; border-radius: 50%; background: currentColor;  }
 .arenaVersus small { margin-top: 5px; color: var(--muted); font-weight: 750; }
 .liveArena .dominanceMeter { margin-top: 9px; }
 .liveArena .dominanceLabels { display: none; }
@@ -51,7 +51,7 @@
 .chartToolbar { display: flex; align-items: center; gap: 18px; min-height: 30px; color: var(--muted); }
 .chartTitle { color: var(--text); font-weight: 800; letter-spacing: .045em; }
 .chartLiveStatus { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
-.chartLiveStatus i { width: 6px; height: 6px; border-radius: 50%; background: var(--positive); box-shadow: 0 0 7px rgb(53 208 127 / 55%); animation: live-breathe 1.4s ease-in-out infinite; }
+.chartLiveStatus i { width: 6px; height: 6px; border-radius: 50%; background: var(--positive);  }
 .activityFeed { display: grid; border-top: 1px solid var(--line); }
 .activityFeed a { display: grid; grid-template-columns: 1.2fr 1fr auto; gap: 14px; padding: 10px 5px; border-bottom: 1px solid var(--line); }
 .activityFeed a:hover { background: rgb(255 255 255 / 2%); }
@@ -66,7 +66,7 @@
 .terminalTabs > button[aria-pressed="true"] { color: var(--text); font-weight: 800; }
 .terminalTabs > button[aria-pressed="true"]::after { background: var(--side-b); }
 .terminalStatus { display: flex; align-items: center; gap: 6px; margin-left: auto; color: var(--muted); }
-.terminalStatus i { width: 5px; height: 5px; border-radius: 50%; background: var(--positive); box-shadow: 0 0 8px rgb(53 208 127 / 55%); }
+.terminalStatus i { width: 5px; height: 5px; border-radius: 50%; background: var(--positive);  }
 .terminalTableWrap { min-height: 306px; padding: 6px 10px 10px; overflow-x: auto; }
 .terminalTable { min-width: 760px; }
 .terminalTradeFilters { display: flex; min-height: 34px; align-items: center; gap: 4px; padding: 0 10px; }
@@ -188,7 +188,7 @@
 .commentComposerRow { display: grid; grid-template-columns: 1fr auto; gap: 6px; }
 .commentComposer input { min-width: 0; height: 34px; padding: 0 9px; border: 1px solid var(--line); border-radius: var(--radius); color: var(--muted); background: var(--surface); }
 .commentComposerRow > button { min-width: 48px; border: 1px solid var(--line); border-radius: var(--radius); color: var(--faint); background: var(--panel-raised); }
-.commentComposerRow > button:not(:disabled) { border-color: rgb(255 96 61 / 45%); color: #fff; background: var(--side-b); cursor: pointer; }
+.commentComposerRow > button:not(:disabled) { border-color: var(--line-strong); color: var(--primary-text); background: var(--primary-bg); cursor: pointer; }
 .commentComposer > span { display: block; margin-top: 5px; color: var(--faint); }
 
 /* trade dock and drawer */
@@ -232,8 +232,8 @@
 .sideSelector button { min-height: 38px; border: 1px solid transparent; border-radius: var(--radius); font-weight: 750; cursor: pointer; }
 .sideA { color: var(--side-a-text); background: var(--side-a-soft); }
 .sideB { color: var(--side-b-text); background: var(--side-b-soft); }
-.sideA.selected { border-color: rgb(52 120 246 / 55%); color: #fff; background: rgb(52 120 246 / 24%); }
-.sideB.selected { border-color: rgb(255 96 61 / 55%); color: #fff; background: rgb(255 96 61 / 24%); }
+.sideA.selected { border-color: var(--side-a); color: var(--text); background: var(--side-a-soft); box-shadow: inset 0 -2px var(--side-a); }
+.sideB.selected { border-color: var(--side-b); color: var(--text); background: var(--side-b-soft); box-shadow: inset 0 -2px var(--side-b); }
 .amountField { display: block; margin-top: 12px; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
 .amountField > span, .amountField small { display: block; color: var(--muted); }
 .amountField > div { display: flex; align-items: center; gap: 8px; }
@@ -247,8 +247,9 @@
 .ticketExecutionSettings { margin: -4px 0 8px; }
 .tradeAction { width: 100%; min-height: 40px; border: 0; border-radius: var(--radius); color: #fff; font-weight: 800; cursor: pointer; }
 .tradeAction:disabled { color: var(--faint); background: var(--panel-raised); cursor: not-allowed; }
-.actionA { background: var(--side-a); }
-.actionB { background: var(--side-b); }
+.actionA { color: var(--text); background: var(--panel-raised); box-shadow: inset 3px 0 var(--side-a); }
+.actionB { color: var(--text); background: var(--panel-raised); box-shadow: inset 3px 0 var(--side-b); }
+.tradeAction:hover:not(:disabled) { background: var(--control-hover); }
 .ticketStatus { min-height: 18px; margin: 8px 0 0; color: var(--muted); }
 .explorerLink { display: block; color: var(--link); font-weight: 700; }
 .ticketFootnote { margin-top: 8px; color: var(--faint); text-align: center; }

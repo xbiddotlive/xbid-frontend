@@ -5,11 +5,27 @@ import ts from "typescript";
 const cssFiles = ["styles/base.css", "styles/discovery.css", "styles/contest.css", "styles/utility.css"];
 const css = cssFiles.map((file) => readFileSync(new URL(`../${file}`, import.meta.url), "utf8")).join("\n");
 const requiredTokens = [
-  "--bg: #090b10", "--panel: #11151d", "--line: #252c38", "--text: #f4f7fb", "--muted: #8f99aa",
-  "--side-a: #3478f6", "--side-b: #ff603d", "--crown: #ffc857", "--positive: #35d07f", "--font-size-ui: 12px",
+  "--bg: #101113", "--panel: #181a1d", "--line: #2c2f33", "--text: #eceef0", "--muted: #a1a6ad",
+  "--side-a: #6386bd", "--side-b: #bd786b", "--crown: #c8ad74", "--positive: #80ba9b", "--font-size-ui: 12px",
 ];
 
 const failures = requiredTokens.filter((token) => !css.includes(token)).map((token) => `missing token ${token}`);
+// Neutral palettes must retain readable copy and meaningful gain/loss colors.
+const baseCss = readFileSync(new URL("../styles/base.css", import.meta.url), "utf8");
+const palette = (block) => Object.fromEntries([...block.matchAll(/(--[\w-]+):\s*(#[\da-f]{6});/gi)].map((match) => [match[1], match[2]]));
+const darkPalette = palette(baseCss.match(/:root\s*\{([^}]+)\}/)[1]);
+const lightPalette = { ...darkPalette, ...palette(baseCss.match(/:root\[data-theme="light"\]\s*\{([^}]+)\}/)[1]) };
+function luminance(hex) {
+  const rgb = hex.slice(1).match(/../g).map((value) => parseInt(value, 16) / 255).map((value) => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4);
+  return rgb[0] * .2126 + rgb[1] * .7152 + rgb[2] * .0722;
+}
+for (const [theme, tokens] of Object.entries({ dark: darkPalette, light: lightPalette })) {
+  for (const [foreground, background] of ["--text", "--muted", "--positive", "--negative"].map((token) => [token, "--panel"]).concat([["--primary-text", "--primary-bg"]])) {
+    const a = luminance(tokens[foreground]), b = luminance(tokens[background]);
+    const ratio = (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
+    if (ratio < 4.5) failures.push(`${theme} ${foreground} contrast too low: ${ratio.toFixed(2)}`);
+  }
+}
 const fontSizes = [...css.matchAll(/font-size\s*:\s*([^;]+);/g)].map((match) => match[1].trim());
 for (const value of fontSizes) if (value !== "var(--font-size-ui)") failures.push(`unsupported font-size: ${value}`);
 if (/text-transform\s*:\s*uppercase/i.test(css)) failures.push("uppercase text transform is forbidden");
