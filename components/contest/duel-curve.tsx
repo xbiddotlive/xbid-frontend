@@ -3,6 +3,7 @@
 import type { IndexedTradePoint } from "@/lib/api/contests";
 import { marketControl } from "@/lib/product/market-metrics";
 import { useI18n } from "@/lib/i18n/locale-context";
+import { localeInfo } from "@/lib/i18n/locales";
 
 type DuelCurveProps = {
   history: IndexedTradePoint[];
@@ -82,9 +83,9 @@ export function DuelCurve({ history, compact = false, includeOrigin = false, mar
           {zoomed ? <span className="curveRange">{t("curve.zoom")} · {domain.minimum}–{domain.maximum}%</span> : null}
           <div className="curveScale" aria-hidden="true"><span>{domain.maximum}%</span><span>50%</span><span>{domain.minimum}%</span></div>
           <div className="curveAxis" aria-hidden="true">
-            <span>{includeOrigin ? t("curve.marketOpen") : timeLabel(first.blockTimestamp, locale === "zh" ? "zh-CN" : "en")}</span>
+            <span>{includeOrigin ? t("curve.marketOpen") : timeLabel(first.blockTimestamp, localeInfo(locale).htmlLang)}</span>
             <span>{t("curve.moves", { count: history.length })}</span>
-            <span>{timeLabel(last.blockTimestamp, locale === "zh" ? "zh-CN" : "en")}</span>
+            <span>{timeLabel(last.blockTimestamp, localeInfo(locale).htmlLang)}</span>
           </div>
         </>
       )}

@@ -4,6 +4,8 @@ import { useId, useState } from "react";
 
 import { ChevronIcon } from "@/components/ui/icons";
 import { useI18n } from "@/lib/i18n/locale-context";
+import { localeInfo } from "@/lib/i18n/locales";
+import { normalizeDecimalInput } from "@/lib/i18n/decimal-input";
 
 const presets = [10, 50, 100] as const;
 
@@ -16,11 +18,12 @@ export function SlippageControl({ onChange, value }: { onChange: (value: number)
   const [open, setOpen] = useState(false);
   const [custom, setCustom] = useState("");
   const panelId = useId();
-  const display = `${(value / 100).toLocaleString(locale === "zh" ? "zh-CN" : "en-US", { maximumFractionDigits: 2 })}%`;
+  const display = `${(value / 100).toLocaleString(localeInfo(locale).htmlLang, { maximumFractionDigits: 2 })}%`;
 
   const applyCustom = (next: string) => {
-    setCustom(next);
-    const percent = Number(next);
+    const normalized = normalizeDecimalInput(next, localeInfo(locale).htmlLang);
+    setCustom(normalized);
+    const percent = Number(normalized);
     if (Number.isFinite(percent) && percent > 0 && percent <= 5) onChange(normalizeSlippageBps(percent * 100));
   };
 

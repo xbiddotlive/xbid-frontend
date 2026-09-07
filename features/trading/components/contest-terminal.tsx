@@ -7,6 +7,7 @@ import { WalletButton } from "@/features/wallet/components/wallet-button";
 import type { IndexedContest, IndexedTradePoint } from "@/lib/api/contests";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
 import { useI18n } from "@/lib/i18n/locale-context";
+import { localeInfo } from "@/lib/i18n/locales";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { useContestPositions } from "@/lib/queries/contest";
 import { amountMoved, amountVerb, battleImpact, compactAddress, effectiveSide, eventAction, eventTime, moveDetail, moveLabel, signedPercent, signedUsdcValue, tokenLabel, usdcValue } from "../model/battle";
@@ -16,7 +17,7 @@ type TradeFilter = "all" | "side a" | "side b" | "impact";
 
 export function ContestTerminal({ contest, history }: { contest: IndexedContest; history: IndexedTradePoint[] }) {
   const { locale, t } = useI18n();
-  const numberLocale = locale === "zh" ? "zh-CN" : "en-US";
+  const numberLocale = localeInfo(locale).htmlLang;
   const { address, isConnected } = useAccount();
   const [activeTab, setActiveTab] = useState<TerminalTab>("history");
   const [tradeFilter, setTradeFilter] = useState<TradeFilter>("all");

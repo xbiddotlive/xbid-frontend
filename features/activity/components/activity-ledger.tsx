@@ -5,6 +5,7 @@ import { formatUnits } from "viem";
 
 import type { NetworkActivity, NetworkActivityEvent } from "@/lib/api/activity";
 import { useI18n } from "@/lib/i18n/locale-context";
+import { localeInfo } from "@/lib/i18n/locales";
 import type { MessageKey } from "@/lib/i18n/messages";
 
 type ActivityFilter = "all" | "trades" | "flips" | "lead changes" | "crowns" | "comments";
@@ -40,7 +41,7 @@ function copy(event: NetworkActivityEvent, t: ReturnType<typeof useI18n>["t"]) {
 
 export function ActivityLedger({ content }: { content: NetworkActivity }) {
   const { locale, t } = useI18n();
-  const numberLocale = locale === "zh" ? "zh-CN" : "en-US";
+  const numberLocale = localeInfo(locale).htmlLang;
   const [filter, setFilter] = useState<ActivityFilter>("all");
   const matches = (event: NetworkActivityEvent, item: ActivityFilter) => item === "all"
     || (item === "trades" && event.kind === "trade")

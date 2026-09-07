@@ -12,6 +12,7 @@ import { referenceContest } from "@/lib/blockchain/contracts";
 import { contestCategories } from "@/lib/product/contest-categories";
 import { robinhoodTestnet, settlementTokenLabel } from "@/lib/blockchain/chain";
 import { useI18n } from "@/lib/i18n/locale-context";
+import { localeInfo } from "@/lib/i18n/locales";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { normalizeTokenSymbol, tokenSymbol, useLaunchContest } from "../hooks/use-launch-contest";
 
@@ -178,7 +179,7 @@ export function LaunchBuilder() {
       initialAmount,
     });
   };
-  const walletBalance = Number(formatUnits(launchContest.balance, 6)).toLocaleString(locale === "zh" ? "zh-CN" : "en-US", { maximumFractionDigits: 2 });
+  const walletBalance = Number(formatUnits(launchContest.balance, 6)).toLocaleString(localeInfo(locale).htmlLang, { maximumFractionDigits: 2 });
 
   return (
     <main className="pageShell launchPage">

@@ -7,6 +7,8 @@ import type { Locale, MessageKey, MessageValues } from "./messages";
 type LocaleContextValue = {
   locale: Locale;
   setLocale: (locale: Locale) => void;
+  localeLoading: boolean;
+  localeError: boolean;
   t: (key: MessageKey, values?: MessageValues) => string;
 };
 

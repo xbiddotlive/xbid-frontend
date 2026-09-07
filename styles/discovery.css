@@ -129,7 +129,9 @@
 .exploreFooterControls .themeToggle { width: 30px; height: 30px; min-height: 30px; }
 .exploreLanguage { display: flex; align-items: center; justify-self: end; gap: 6px; min-height: 30px; padding: 0 7px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--control-bg); }
 .exploreLanguage svg { width: 14px; height: 14px; }
-.exploreLanguage select { min-width: 68px; border: 0; outline: 0; color: var(--text); background: transparent; cursor: pointer; }
+.exploreLanguage select { min-width: 68px; max-width: min(180px, 48vw); min-height: 30px; border: 0; color: var(--text); background: transparent; cursor: pointer; font: inherit; }
+.exploreLanguage select:focus-visible { outline: 2px solid var(--side-a); outline-offset: 3px; }
+.exploreLanguage option { color: var(--text); background: var(--panel); }
 .exploreFooterInner > p { max-width: 920px; margin: 12px auto 0; color: var(--faint); line-height: 1.65; text-align: center; }
 .visuallyHidden { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 

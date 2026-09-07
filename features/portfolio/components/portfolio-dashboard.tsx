@@ -8,6 +8,7 @@ import { WalletButton } from "@/features/wallet/components/wallet-button";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
 import { formatUsdcUnits } from "@/lib/formatters/usdc";
 import { useI18n } from "@/lib/i18n/locale-context";
+import { localeInfo } from "@/lib/i18n/locales";
 import { useWalletPortfolio } from "@/lib/queries/portfolio";
 
 type PortfolioTab = "positions" | "created" | "activity";
@@ -24,7 +25,7 @@ function eventTime(timestamp: string, locale: string) {
 
 export function PortfolioDashboard() {
   const { locale, t } = useI18n();
-  const numberLocale = locale === "zh" ? "zh-CN" : "en-US";
+  const numberLocale = localeInfo(locale).htmlLang;
   const { address, isConnected } = useAccount();
   const [activeTab, setActiveTab] = useState<PortfolioTab>("positions");
   const portfolio = useWalletPortfolio(robinhoodTestnet.id, address);

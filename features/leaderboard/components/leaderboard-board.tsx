@@ -5,6 +5,7 @@ import { formatUnits } from "viem";
 
 import type { Leaderboard } from "@/lib/api/leaderboard";
 import { useI18n } from "@/lib/i18n/locale-context";
+import { localeInfo } from "@/lib/i18n/locales";
 
 type LeaderboardTab = "trading" | "referrals" | "creators";
 
@@ -19,7 +20,7 @@ function units(value: string, locale: string, signed = false) {
 
 export function LeaderboardBoard({ content }: { content: Leaderboard }) {
   const { locale, t } = useI18n();
-  const numberLocale = locale === "zh" ? "zh-CN" : "en-US";
+  const numberLocale = localeInfo(locale).htmlLang;
   const [activeTab, setActiveTab] = useState<LeaderboardTab>("trading");
   const summary = [
     { label: t("leaderboard.rankedTraders"), value: content.summary.rankedTraders.toLocaleString(numberLocale) },

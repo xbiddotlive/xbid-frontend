@@ -18,6 +18,7 @@ import type { IndexedContest, IndexedTradePoint } from "@/lib/api/contests";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
 import { contracts, marketVaultAbi, riskControllerAbi } from "@/lib/blockchain/contracts";
 import { useI18n } from "@/lib/i18n/locale-context";
+import { localeInfo } from "@/lib/i18n/locales";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { crownSideIndex } from "@/lib/product/crown";
 import { formatChange, marketControl, marketPrices } from "@/lib/product/market-metrics";
@@ -57,7 +58,7 @@ function changeTone(value: number | null) {
 
 export function ContestDetail({ indexedContest, initialHistory, initialMode, initialSide = 0 }: { indexedContest: IndexedContest; initialHistory: IndexedTradePoint[]; initialMode?: TradeMode; initialSide?: 0 | 1 }) {
   const { locale, t } = useI18n();
-  const numberLocale = locale === "zh" ? "zh-CN" : "en-US";
+  const numberLocale = localeInfo(locale).htmlLang;
   const [nowSeconds, setNowSeconds] = useState<number | null>(null);
   const queryClient = useQueryClient();
   const chainId = Number(indexedContest.chainId);

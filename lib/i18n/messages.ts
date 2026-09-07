@@ -505,7 +505,7 @@ export const en = {
   "contest.marketVault": "market vault {address}",
   "contest.shareAria": "share this contest on x",
   "contest.share": "share",
-  "contest.shareText": "{title}\n\n{sideA} vs {sideB} — back your side. move the market. profit when your side takes the lead.\n\n@xbid_live",
+  "contest.shareText": "{title}\n\n{sideA} vs {sideB} — Pick a side. Back your view.",
   "contest.crowned": "crowned",
   "contest.crownedSide": "crowned · side {side}",
   "contest.tradingActive": "trading active",
@@ -739,7 +739,8 @@ export const en = {
 } as const;
 
 export type MessageKey = keyof typeof en;
-export type Locale = "en" | "zh";
+export type { Locale } from "./locales";
+export type Dictionary = Record<MessageKey, string>;
 export type MessageValues = Record<string, string | number>;
 
 export const zh: Record<MessageKey, string> = {
@@ -1249,7 +1250,7 @@ export const zh: Record<MessageKey, string> = {
   "contest.marketVault": "市场金库 {address}",
   "contest.shareAria": "分享到 X",
   "contest.share": "分享",
-  "contest.shareText": "{title}\n\n{sideA} 对阵 {sideB} —— 支持你的立场，推动市场；当你支持的一方领先时把握机会。\n\n@xbid_live",
+  "contest.shareText": "{title}\n\n{sideA} 对阵 {sideB} —— 选一边，支持你的观点。",
   "contest.crowned": "已加冕",
   "contest.crownedSide": "已加冕 · {side} 方",
   "contest.tradingActive": "交易进行中",
@@ -1481,14 +1482,3 @@ export const zh: Record<MessageKey, string> = {
   "error.view.description": "没有提交任何交易，请重试只读请求。",
   "error.retry": "重试",
 };
-
-const dictionaries = { en, zh } as const;
-
-export function message(locale: Locale, key: MessageKey, values?: MessageValues) {
-  const template = dictionaries[locale][key] ?? en[key];
-  if (!values) return template;
-  return Object.entries(values).reduce(
-    (copy, [name, value]) => copy.replaceAll(`{${name}}`, String(value)),
-    template,
-  );
-}

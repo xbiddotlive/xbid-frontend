@@ -14,6 +14,7 @@ import {
 import { ensureWriteSession } from "@/lib/api/write-session";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
 import { useI18n } from "@/lib/i18n/locale-context";
+import { localeInfo } from "@/lib/i18n/locales";
 import type { MessageKey } from "@/lib/i18n/messages";
 
 function compactAddress(value: string) {
@@ -52,7 +53,7 @@ function PositionBadge({ side }: { side: ContestComment["positionSideAtPost"] })
 
 export function LiveCommentary({ contestId }: { contestId: string }) {
   const { locale, t } = useI18n();
-  const dateLocale = locale === "zh" ? "zh-CN" : "en-GB";
+  const dateLocale = localeInfo(locale).htmlLang;
   const { address, isConnected } = useAccount();
   const queryClient = useQueryClient();
   const { signMessageAsync } = useSignMessage();

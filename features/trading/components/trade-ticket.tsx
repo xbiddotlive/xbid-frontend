@@ -20,6 +20,8 @@ import type { IndexedContest } from "@/lib/api/contests";
 import { robinhoodTestnet, settlementTokenLabel } from "@/lib/blockchain/chain";
 import { contracts, erc20Abi, marketVaultAbi } from "@/lib/blockchain/contracts";
 import { useI18n } from "@/lib/i18n/locale-context";
+import { localeInfo } from "@/lib/i18n/locales";
+import { normalizeDecimalInput } from "@/lib/i18n/decimal-input";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { normalizeSlippageBps, SlippageControl } from "./slippage-control";
 
@@ -83,7 +85,7 @@ function retryFlipQuote(failureCount: number, error: Error) {
 
 export function TradeTicket({ contest, embedded = false, initialAmount, initialMode = "buy", initialSide = 0, initialSlippageBps = 50, onClose, onConfirmed }: TradeTicketProps) {
   const { locale, t } = useI18n();
-  const numberLocale = locale === "zh" ? "zh-CN" : "en-US";
+  const numberLocale = localeInfo(locale).htmlLang;
   const [mode, setMode] = useState<TradeMode>(initialMode);
   const [side, setSide] = useState<Side>(initialSide);
   const [amount, setAmount] = useState(initialAmount ?? (initialMode === "buy" ? "10" : "0"));
@@ -170,7 +172,7 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
   }
 
   function changeAmount(nextAmount: string) {
-    setAmount(nextAmount);
+    setAmount(normalizeDecimalInput(nextAmount, numberLocale));
     setLastHash(undefined);
     setStatus("");
   }
@@ -258,6 +260,8 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
         if (mode === "flip") executionOutput = await freshFlipOutput();
       }
 
+      // act() runs only from the submit click, not while rendering the quote.
+      // eslint-disable-next-line react-hooks/purity
       const deadline = BigInt(Math.floor(Date.now() / 1_000) + 10 * 60);
       const executionMinimumOutput = (executionOutput * BigInt(10_000 - slippageBps)) / 10_000n;
       if (!publicClient) throw new Error(t("trade.rpc"));
