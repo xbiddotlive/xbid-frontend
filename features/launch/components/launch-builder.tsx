@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { formatUnits } from "viem";
 
 import { ContestCard } from "@/components/contest/contest-card";
+import { StockPicker } from "./stock-picker";
+import { selectedStocks, validStockSelection } from "@/lib/product/stock-catalog";
 import { SideLogo } from "@/components/contest/side-logo-pair";
 import { PlusIcon } from "@/components/ui/icons";
 import type { IndexedContest } from "@/lib/api/contests";
@@ -116,6 +118,7 @@ export function LaunchBuilder() {
   const [description, setDescription] = useState("");
   const [referenceUrl, setReferenceUrl] = useState("");
   const [category, setCategory] = useState("crypto");
+  const [stockIds, setStockIds] = useState<string[]>([]);
   const [region, setRegion] = useState("GLOBAL");
   const [languageOverride, setLanguageOverride] = useState<string | null>(null);
   const contentLanguage = languageOverride ?? locale;
@@ -142,13 +145,14 @@ export function LaunchBuilder() {
     && description.trim().length >= 10
     && description.trim().length <= 800
     && contestCategories.some((item) => item.value === category)
+    && (category !== "stocks" || validStockSelection(stockIds))
     && isRegion(region) && isContentLanguage(contentLanguage)
     && validReferenceUrl(referenceUrl)
     && validInitialPosition(initialSide, initialAmount)
     && !logoErrors.a
     && !logoErrors.b;
   const canSubmit = launchContest.isConnected && formIsValid && !launchContest.isBusy;
-  const preview = useMemo(() => ({ title: title || t("launch.previewTitle"), sideA: sideA || t("common.sideA"), sideASymbol: resolvedSideASymbol, sideALogoUrl: sideALogo?.url, sideB: sideB || t("common.sideB"), sideBSymbol: resolvedSideBSymbol, sideBLogoUrl: sideBLogo?.url, category }), [category, resolvedSideASymbol, resolvedSideBSymbol, sideA, sideALogo, sideB, sideBLogo, t, title]);
+  const preview = useMemo(() => ({ title: title || t("launch.previewTitle"), sideA: sideA || t("common.sideA"), sideASymbol: resolvedSideASymbol, sideALogoUrl: sideALogo?.url, sideB: sideB || t("common.sideB"), sideBSymbol: resolvedSideBSymbol, sideBLogoUrl: sideBLogo?.url, category, stocks: category === "stocks" ? selectedStocks(stockIds) : undefined }), [stockIds, category, resolvedSideASymbol, resolvedSideBSymbol, sideA, sideALogo, sideB, sideBLogo, t, title]);
 
   useEffect(() => () => { if (sideALogo) URL.revokeObjectURL(sideALogo.url); }, [sideALogo]);
   useEffect(() => () => { if (sideBLogo) URL.revokeObjectURL(sideBLogo.url); }, [sideBLogo]);
@@ -174,6 +178,7 @@ export function LaunchBuilder() {
       title: title.trim(),
       description: description.trim(),
       category,
+      ...(category === "stocks" ? { stockIds } : {}),
       region,
       contentLanguage,
       referenceUrl: referenceUrl.trim() || undefined,
@@ -210,6 +215,7 @@ export function LaunchBuilder() {
           </div>
           <label className="field fieldWide"><span>{t("launch.descriptionLabel")} <em aria-label={t("launch.required")} className="fieldRequirement" data-kind="required">※</em></span><textarea maxLength={800} minLength={10} name="description" onChange={(event) => setDescription(event.target.value)} placeholder={t("launch.descriptionPlaceholder")} rows={4} required value={description} /></label>
           <label className="field"><span>{t("launch.category")} <em aria-label={t("launch.required")} className="fieldRequirement" data-kind="required">※</em></span><select name="category" onChange={(event) => setCategory(event.target.value)} required value={category}>{contestCategories.map((item) => <option key={item.value} value={item.value}>{t(`category.${item.value}` as MessageKey)}</option>)}</select></label>
+          {category === "stocks" && <StockPicker value={stockIds} onChange={setStockIds} disabled={launchContest.isBusy} />}
           <label className="field"><span>{t("launch.reference")} <em className="fieldRequirement">{t("launch.optional")}</em></span><input maxLength={500} name="reference" onChange={(event) => setReferenceUrl(event.target.value)} placeholder="https://…" type="url" value={referenceUrl} /></label>
           <label className="field"><span>{t("scope.region")}</span><RegionSelect value={region} onChange={setRegion} /><small>{t("scope.regionHelp")}</small></label>
           <label className="field"><span>{t("scope.language")}</span><select name="contentLanguage" value={contentLanguage} onChange={event => setLanguageOverride(event.target.value)}>{locales.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select><small>{t("scope.languageHelp")}</small></label>

@@ -13,7 +13,7 @@
     "check:architecture": "node scripts/check-architecture.mjs",
     "check:performance": "node scripts/check-performance-budget.mjs",
     "check:i18n": "node scripts/check-i18n.mjs",
-    "check": "pnpm lint && pnpm typecheck && pnpm check:i18n && pnpm check:ui && pnpm check:architecture && node --test scripts/validate-public-chain-config.test.mjs scripts/discovery-tokens.test.mjs scripts/contest-scope.test.mjs",
+    "check": "pnpm lint && pnpm typecheck && pnpm check:i18n && pnpm check:ui && pnpm check:architecture && node --test scripts/validate-public-chain-config.test.mjs scripts/discovery-tokens.test.mjs scripts/contest-scope.test.mjs scripts/stocks.test.mjs",
     "x:preview": "node scripts/publish-x-post.mjs --content content/x-posts/launch.json",
     "x:publish": "node --use-env-proxy --env-file=.env.x.local scripts/publish-x-post.mjs --content content/x-posts/launch.json --publish"
   },

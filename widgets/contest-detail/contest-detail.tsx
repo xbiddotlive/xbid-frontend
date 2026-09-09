@@ -6,6 +6,7 @@ import { formatUnits, type Address } from "viem";
 import { useReadContracts } from "wagmi";
 
 import { DominanceMeter } from "@/components/contest/dominance-meter";
+import { StockLabels, StockNotice } from "@/components/contest/stock-labels";
 import { ContestDescription } from "@/components/contest/contest-description";
 import { ContestScopeLabel } from "@/components/contest/contest-scope";
 import { DuelCurve } from "@/components/contest/duel-curve";
@@ -167,6 +168,7 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
             <div>
               <p className="eyebrow"><span className="livePulse" />{t("contest.arena", { category: t(`category.${contest.metadata.category}` as MessageKey) })}</p>
               <h1>{contest.metadata.title}</h1>
+              <StockLabels category={contest.metadata.category} stocks={contest.metadata.stocks} />
               <div className="contestScopeDetails"><ContestScopeLabel metadata={contest.metadata} detailed />{contest.metadata.referenceUrl && /^https?:\/\//i.test(contest.metadata.referenceUrl) && <a href={contest.metadata.referenceUrl} target="_blank" rel="noopener noreferrer">{t("launch.reference")} ↗</a>}</div>
               <a
                 aria-label={t("contest.viewVault", { address: contest.marketVault, explorer: robinhoodTestnet.blockExplorers.default.name })}
@@ -187,6 +189,7 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
           </div>
 
           <ContestDescription key={contest.contestId} description={contest.metadata.description} />
+          <StockNotice category={contest.metadata.category} />
 
           <section className="liveArena" aria-label={t("contest.liveArena")}>
             <div className="arenaSides">

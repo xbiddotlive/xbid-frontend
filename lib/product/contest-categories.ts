@@ -1,5 +1,6 @@
 export const contestCategories = [
   { label: "crypto", value: "crypto" },
+  { label: "stocks", value: "stocks" },
   { label: "sports", value: "sports" },
   { label: "politics", value: "politics" },
   { label: "finance", value: "finance" },

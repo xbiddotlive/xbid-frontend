@@ -1,4 +1,11 @@
 export const en = {
+  "category.stocks": "stocks",
+  "stocks.label": "associated stocks",
+  "stocks.search": "Search company or ticker",
+  "stocks.help": "Choose 1–2 stocks. A/B tickers identify opinion tokens, not shares.",
+  "stocks.empty": "Stock not listed. Try another company.",
+  "stocks.limit": "Two stocks selected. Remove one to choose another.",
+  "stocks.disclaimer": "A/B tokens are opinion tokens, not stocks. They do not track stock prices or pay out based on stock performance.",
   "scope.region": "Topic region",
   "scope.language": "Content language",
   "scope.allRegions": "All regions",
@@ -779,6 +786,13 @@ export type Dictionary = Record<MessageKey, string>;
 export type MessageValues = Record<string, string | number>;
 
 export const zh: Record<MessageKey, string> = {
+  "category.stocks": "股票",
+  "stocks.label": "关联股票",
+  "stocks.search": "搜索公司名称或股票代码",
+  "stocks.help": "选择 1–2 个股票标的。A/B Ticker 标识观点 Token，不是股票。",
+  "stocks.empty": "暂未收录该股票，请搜索其他公司。",
+  "stocks.limit": "已选择 2 个标的，移除一个后可重新选择。",
+  "stocks.disclaimer": "A/B Token 是观点 Token，不是股票，不追踪股价，也不按股票表现到期赔付。",
   "scope.region": "议题地区",
   "scope.language": "内容语言",
   "scope.allRegions": "全部地区",

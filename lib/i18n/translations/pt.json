@@ -1,4 +1,11 @@
 {
+  "category.stocks": "ações",
+  "stocks.label": "Ações associadas",
+  "stocks.search": "Pesquisar empresa ou ticker",
+  "stocks.help": "Escolha 1–2 ações. Os tickers A/B identificam tokens de opinião, não ações.",
+  "stocks.empty": "Ação não listada. Pesquise outra empresa.",
+  "stocks.limit": "Duas ações selecionadas. Remova uma para escolher outra.",
+  "stocks.disclaimer": "Os tokens A/B são tokens de opinião, não ações. Não acompanham os preços das ações nem pagam com base no seu desempenho.",
   "contest.descriptionMore": "Ler mais",
   "contest.descriptionLess": "Mostrar menos",
   "scope.region": "Região do tema",

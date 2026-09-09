@@ -1,4 +1,11 @@
 {
+  "category.stocks": "akcje",
+  "stocks.label": "Powiązane akcje",
+  "stocks.search": "Szukaj spółki lub symbolu",
+  "stocks.help": "Wybierz 1–2 akcje. Symbole A/B oznaczają tokeny opinii, nie akcje.",
+  "stocks.empty": "Brak akcji na liście. Wyszukaj inną spółkę.",
+  "stocks.limit": "Wybrano dwie akcje. Usuń jedną, aby wybrać inną.",
+  "stocks.disclaimer": "Tokeny A/B to tokeny opinii, nie akcje. Nie śledzą cen akcji ani nie zapewniają wypłat na podstawie ich wyników.",
   "contest.descriptionMore": "Czytaj więcej",
   "contest.descriptionLess": "Pokaż mniej",
   "scope.region": "Region tematu",

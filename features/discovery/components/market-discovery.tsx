@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { StockLabels } from "@/components/contest/stock-labels";
 import { memo, useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ContestScopeLabel, RegionSelect } from "@/components/contest/contest-scope";
@@ -35,6 +36,7 @@ const filterMessages: Record<MarketFilter, MessageKey> = {
   crowned: "filter.crowned",
 };
 const categoryMessages: Record<ContestCategory, MessageKey> = {
+  stocks: "category.stocks",
   crypto: "category.crypto", sports: "category.sports", politics: "category.politics",
   finance: "category.finance", technology: "category.technology", culture: "category.culture", other: "category.other",
   entertainment: "category.entertainment", predictions: "category.predictions",
@@ -46,7 +48,7 @@ function Sparkline({ points }: { points: string }) {
 
 const MarketCard = memo(function MarketCard({ market }: { market: MarketView }) {
   const { t } = useI18n();
-  return <article className="homeMarketCard"><Link className="homeMarketCardOpen" href={market.href}><span className="visuallyHidden">{t("market.open", { title: market.contest.metadata.title })}</span></Link><header><h3>{market.contest.metadata.title}</h3><div className="homeMarketCardMeta"><span className="marketSignal" data-crowned={market.badge === "filter.crowned"}>{t(market.badge)}</span><ContestScopeLabel metadata={market.contest.metadata} /></div></header><div className="homeCardSides"><Link aria-label={t("market.back", { side: market.contest.metadata.sideA.name })} href={`${market.href}?trade=buy&side=a`}><MarketSide market={market} side={0} /></Link><Link aria-label={t("market.back", { side: market.contest.metadata.sideB.name })} href={`${market.href}?trade=buy&side=b`}><MarketSide market={market} side={1} /></Link></div><CapitalStrip market={market} /></article>;
+  return <article className="homeMarketCard"><Link className="homeMarketCardOpen" href={market.href}><span className="visuallyHidden">{t("market.open", { title: market.contest.metadata.title })}</span></Link><header><h3>{market.contest.metadata.title}</h3><StockLabels category={market.contest.metadata.category} stocks={market.contest.metadata.stocks} /><div className="homeMarketCardMeta"><span className="marketSignal" data-crowned={market.badge === "filter.crowned"}>{t(market.badge)}</span><ContestScopeLabel metadata={market.contest.metadata} /></div></header><div className="homeCardSides"><Link aria-label={t("market.back", { side: market.contest.metadata.sideA.name })} href={`${market.href}?trade=buy&side=a`}><MarketSide market={market} side={0} /></Link><Link aria-label={t("market.back", { side: market.contest.metadata.sideB.name })} href={`${market.href}?trade=buy&side=b`}><MarketSide market={market} side={1} /></Link></div><CapitalStrip market={market} /></article>;
 }, (previous, next) => previous.market.contest === next.market.contest && previous.market.badge === next.market.badge);
 
 const validView = (value: unknown): value is ViewMode => value === "list" || value === "grid";

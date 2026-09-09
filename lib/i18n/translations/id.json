@@ -1,4 +1,11 @@
 {
+  "category.stocks": "saham",
+  "stocks.label": "Saham terkait",
+  "stocks.search": "Cari perusahaan atau ticker",
+  "stocks.help": "Pilih 1–2 saham. Ticker A/B mewakili token opini, bukan saham.",
+  "stocks.empty": "Saham belum terdaftar. Cari perusahaan lain.",
+  "stocks.limit": "Dua saham dipilih. Hapus satu untuk memilih yang lain.",
+  "stocks.disclaimer": "Token A/B adalah token opini, bukan saham. Token ini tidak mengikuti harga saham atau memberikan pembayaran berdasarkan kinerja saham.",
   "contest.descriptionMore": "Baca selengkapnya",
   "contest.descriptionLess": "Tampilkan lebih sedikit",
   "scope.region": "Wilayah topik",

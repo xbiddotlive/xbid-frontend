@@ -1,4 +1,11 @@
 {
+  "category.stocks": "株式",
+  "stocks.label": "関連銘柄",
+  "stocks.search": "企業名・ティッカーを検索",
+  "stocks.help": "1〜2銘柄を選択。A/Bティッカーは意見トークンを表し、株式ではありません。",
+  "stocks.empty": "未登録の銘柄です。別の企業を検索してください。",
+  "stocks.limit": "2銘柄を選択済みです。変更するには1つ削除してください。",
+  "stocks.disclaimer": "A/Bトークンは意見トークンであり、株式ではありません。株価には連動せず、株式の運用成績に基づく払い戻しもありません。",
   "contest.descriptionMore": "全文を読む",
   "contest.descriptionLess": "折りたたむ",
   "scope.region": "議題の地域",

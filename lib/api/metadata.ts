@@ -8,6 +8,7 @@ export type PrepareContestMetadataInput = {
   title: string;
   description: string;
   category: string;
+  stockIds?: string[];
   region?: string;
   contentLanguage?: string;
   sideAName: string;
@@ -37,6 +38,12 @@ export async function prepareContestMetadata(input: PrepareContestMetadataInput,
     body: JSON.stringify(input),
   });
   const prepared = preparedContestMetadataSchema.parse(await apiJson(response));
+  if (input.category === "stocks" && (!input.stockIds?.length
+    || prepared.metadata.category !== "stocks"
+    || prepared.metadata.stocks?.length !== input.stockIds.length
+    || input.stockIds.some((id, index) => prepared.metadata.stocks?.[index]?.id !== id))) {
+    throw new Error("The server did not preserve the associated stocks. No contest transaction was submitted.");
+  }
   // Fail before a wallet transaction if an older backend silently strips these fields.
   if ((input.region !== undefined && prepared.metadata.region !== input.region)
     || (input.contentLanguage !== undefined && prepared.metadata.contentLanguage !== input.contentLanguage)) {

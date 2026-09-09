@@ -1,4 +1,11 @@
 {
+  "category.stocks": "actions",
+  "stocks.label": "Actions associées",
+  "stocks.search": "Rechercher une entreprise ou un symbole",
+  "stocks.help": "Choisissez 1–2 actions. Les symboles A/B désignent des jetons d’opinion, pas des actions.",
+  "stocks.empty": "Action non répertoriée. Essayez une autre entreprise.",
+  "stocks.limit": "Deux actions sélectionnées. Retirez-en une pour en choisir une autre.",
+  "stocks.disclaimer": "Les jetons A/B sont des jetons d’opinion, pas des actions. Ils ne suivent pas les cours des actions et ne versent aucun paiement lié à leur performance.",
   "contest.descriptionMore": "Lire la suite",
   "contest.descriptionLess": "Réduire",
   "scope.region": "Région du sujet",

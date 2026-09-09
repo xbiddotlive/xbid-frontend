@@ -18,6 +18,7 @@ export type LaunchContestInput = {
   title: string;
   description: string;
   category: string;
+  stockIds?: string[];
   region?: string;
   contentLanguage?: string;
   referenceUrl?: string;
@@ -169,6 +170,7 @@ export function useLaunchContest() {
         title: input.title,
         description: input.description,
         category: input.category,
+        ...(input.category === "stocks" ? { stockIds: input.stockIds } : {}),
         region: input.region,
         contentLanguage: input.contentLanguage,
         referenceUrl: input.referenceUrl || undefined,

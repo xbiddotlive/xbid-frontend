@@ -26,10 +26,18 @@ export const tradeSchema = z.object({
   blockTimestamp: decimalString,
 });
 
+export const stockReferencesSchema = z.array(z.object({
+  id: z.string().regex(/^[a-z0-9-]{2,64}$/),
+  symbol: z.string().min(1).max(16),
+  name: z.string().min(1).max(100),
+  exchange: z.string().min(1).max(32),
+})).min(1).max(2).refine(items => new Set(items.map(item => item.id)).size === items.length);
+
 export const contestMetadataSchema = z.object({
   title: z.string().min(1),
   description: z.string(),
   category: z.string(),
+  stocks: stockReferencesSchema.optional(),
   region: z.string().refine(isRegion).optional(),
   contentLanguage: z.enum(contentLanguages).optional(),
   referenceUrl: z.url().optional(),
@@ -137,6 +145,7 @@ export const preparedContestMetadataSchema = z.object({
     title: z.string(),
     description: z.string(),
     category: z.string(),
+    stocks: stockReferencesSchema.optional(),
     region: z.string().refine(isRegion).optional(),
     contentLanguage: z.enum(contentLanguages).optional(),
     creator: address,

@@ -1,4 +1,11 @@
 {
+  "category.stocks": "azioni",
+  "stocks.label": "Azioni associate",
+  "stocks.search": "Cerca azienda o simbolo",
+  "stocks.help": "Scegli 1–2 azioni. I simboli A/B identificano token di opinione, non azioni.",
+  "stocks.empty": "Azione non presente. Cerca un’altra azienda.",
+  "stocks.limit": "Due azioni selezionate. Rimuovine una per sceglierne un’altra.",
+  "stocks.disclaimer": "I token A/B sono token di opinione, non azioni. Non seguono i prezzi delle azioni e non pagano in base al loro rendimento.",
   "contest.descriptionMore": "Leggi di più",
   "contest.descriptionLess": "Mostra meno",
   "scope.region": "Regione del tema",

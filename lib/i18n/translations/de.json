@@ -1,4 +1,11 @@
 {
+  "category.stocks": "Aktien",
+  "stocks.label": "Zugeordnete Aktien",
+  "stocks.search": "Unternehmen oder Ticker suchen",
+  "stocks.help": "1–2 Aktien wählen. A/B-Ticker stehen für Meinungs-Token, nicht für Aktien.",
+  "stocks.empty": "Aktie nicht gelistet. Anderes Unternehmen suchen.",
+  "stocks.limit": "Zwei Aktien gewählt. Eine entfernen, um eine andere zu wählen.",
+  "stocks.disclaimer": "A/B-Token sind Meinungs-Token, keine Aktien. Sie bilden keine Aktienkurse ab und zahlen nicht abhängig von der Aktienentwicklung aus.",
   "contest.descriptionMore": "Mehr lesen",
   "contest.descriptionLess": "Weniger anzeigen",
   "scope.region": "Themenregion",

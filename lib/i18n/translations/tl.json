@@ -1,4 +1,11 @@
 {
+  "category.stocks": "mga stock",
+  "stocks.label": "Mga kaugnay na stock",
+  "stocks.search": "Maghanap ng kumpanya o ticker",
+  "stocks.help": "Pumili ng 1–2 stock. Ang mga ticker na A/B ay para sa mga opinion token, hindi share.",
+  "stocks.empty": "Wala sa listahan ang stock. Maghanap ng ibang kumpanya.",
+  "stocks.limit": "Dalawang stock na ang napili. Mag-alis ng isa para pumili ng iba.",
+  "stocks.disclaimer": "Ang mga A/B token ay opinion token, hindi stock. Hindi nila sinusundan ang presyo ng stock at walang payout batay sa performance nito.",
   "contest.descriptionMore": "Magbasa pa",
   "contest.descriptionLess": "Ipakita nang mas kaunti",
   "scope.region": "Rehiyon ng paksa",

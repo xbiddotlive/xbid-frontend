@@ -10,6 +10,8 @@ import { marketControl } from "@/lib/product/market-metrics";
 import { useI18n } from "@/lib/i18n/locale-context";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { DominanceMeter } from "./dominance-meter";
+import { StockLabels } from "./stock-labels";
+import type { StockReference } from "@/lib/product/stock-catalog";
 import { DuelCurve } from "./duel-curve";
 import { SideLogoPair } from "./side-logo-pair";
 
@@ -19,6 +21,7 @@ type ContestCardProps = {
   rank?: number;
   preview?: {
     category: string;
+    stocks?: StockReference[];
     sideA: string;
     sideASymbol?: string;
     sideALogoUrl?: string;
@@ -69,6 +72,7 @@ export function ContestCard({ contest, featured = false, preview, rank = 1 }: Co
           <span>{t("market.version", { version: contest.marketVersion })}</span>
         </div>
         <Link href={href} tabIndex={preview ? -1 : undefined}><h3>{title.toLowerCase()}</h3></Link>
+        <StockLabels category={category} stocks={preview ? preview.stocks : contest.metadata.stocks} />
         <DuelCurve compact history={market?.history ?? []} includeOrigin={completeHistory} marketVersion={contest.marketVersion} />
         <div className="cardSides">
           <span><i className="sideToken sideTokenA">a</i><b>{sideA.toLowerCase()}{preview?.sideASymbol ? ` · ${preview.sideASymbol.toLowerCase()}` : ""}</b><strong>{sideAPercent.toFixed(1)}%</strong></span>

@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { StockLabels } from "@/components/contest/stock-labels";
 import { useState } from "react";
 import { ChevronIcon } from "@/components/ui/icons";
 import { useI18n } from "@/lib/i18n/locale-context";
@@ -30,6 +31,7 @@ export default function FeaturedContests({ featured }: { featured: MarketView[] 
           <div className="featuredCopy" aria-live="polite">
             <div className="featuredBadges"><span data-crowned={featuredMarket.badge === "filter.crowned"}>{t(featuredMarket.badge)}</span><span>{t("market.tradeCount", { count: featuredMarket.contest.market?.tradeCount24h ?? "0" })} · 24h</span><span>{featuredMarket.contest.market?.uniqueTraders24h ?? "0"} {t("common.traders")}</span></div>
             <h2><Link href={featuredMarket.href}>{featuredMarket.contest.metadata.title}</Link></h2>
+            <StockLabels category={featuredMarket.contest.metadata.category} stocks={featuredMarket.contest.metadata.stocks} />
             <p>{featuredMarket.contest.metadata.description || t("discovery.fallbackDescription")}</p>
             <div className="featuredSides">
               <Link href={`${featuredMarket.href}?trade=buy&side=a`}><MarketSide market={featuredMarket} side={0} /></Link>
