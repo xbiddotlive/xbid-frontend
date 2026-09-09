@@ -1,4 +1,14 @@
 /* home market board */
+.contestScopeLabel { color: var(--muted); line-height: 1.5; font-weight: 400; }
+.contestScopeDetails { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 6px 0; }
+.contestScopeDetails a { color: var(--muted); text-decoration: underline; }
+.regionFilter { flex: 0 1 180px; min-width: 130px; }
+.regionFilter select { width: 100%; min-height: 34px; padding: 4px 8px; color: var(--text); border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+@media (max-width: 767px) {
+  .homeMarketToolbar { flex-wrap: wrap; }
+  .homeMarketToolbar .homeCategoryRail { flex-basis: 100%; }
+  .homeMarketToolbar .regionFilter { flex: 1 1 130px; }
+}
 .tokenDirectoryLink { display: inline-flex; align-items: center; min-height: 30px; margin-left: auto; color: var(--muted); white-space: nowrap; }
 .tokenDirectoryLink:hover { color: var(--text); }
 .tokenDirectoryLink:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }

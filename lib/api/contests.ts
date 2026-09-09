@@ -7,12 +7,20 @@ export type IndexedContest = ReturnType<typeof contestSchema.parse>;
 export type IndexedMarket = NonNullable<IndexedContest["market"]>;
 
 export type ContestPage = { items: IndexedContest[]; nextCursor: string | null };
-export async function getContestPage(chainId: number, cursor?: string, search = ""): Promise<ContestPage> {
+export type ContestScope = { region?: string; category?: string };
+export async function getContestPage(chainId: number, cursor?: string, search = "", scope: ContestScope = {}): Promise<ContestPage> {
   const params = new URLSearchParams({ limit: "24" });
   if (cursor) params.set("cursor", cursor);
   if (search) params.set("q", search.slice(0, 100));
+  if (scope.region) params.set("region", scope.region);
+  if (scope.category) params.set("category", scope.category);
   const response = await fetch(apiEndpoint(`/v1/chains/${chainId}/contests?${params}`), { cache: "no-store", signal: AbortSignal.timeout(8_000) });
-  return contestListSchema.parse(await apiJson(response));
+  const page = contestListSchema.parse(await apiJson(response));
+  if (page.items.some(contest => (scope.region && (scope.region === "UNSET" ? contest.metadata.region !== undefined : contest.metadata.region !== scope.region))
+    || (scope.category && contest.metadata.category !== scope.category))) {
+    throw new Error("Contest scope was not respected by the server");
+  }
+  return page;
 }
 
 const count = z.string().regex(/^\d+$/);

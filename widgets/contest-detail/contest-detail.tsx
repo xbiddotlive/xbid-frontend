@@ -6,6 +6,7 @@ import { formatUnits, type Address } from "viem";
 import { useReadContracts } from "wagmi";
 
 import { DominanceMeter } from "@/components/contest/dominance-meter";
+import { ContestScopeLabel } from "@/components/contest/contest-scope";
 import { DuelCurve } from "@/components/contest/duel-curve";
 import { SideLogo } from "@/components/contest/side-logo-pair";
 import { ArrowIcon, CrownIcon, XIcon } from "@/components/ui/icons";
@@ -165,6 +166,7 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
             <div>
               <p className="eyebrow"><span className="livePulse" />{t("contest.arena", { category: t(`category.${contest.metadata.category}` as MessageKey) })}</p>
               <h1>{contest.metadata.title}</h1>
+              <div className="contestScopeDetails"><ContestScopeLabel metadata={contest.metadata} detailed />{contest.metadata.referenceUrl && /^https?:\/\//i.test(contest.metadata.referenceUrl) && <a href={contest.metadata.referenceUrl} target="_blank" rel="noopener noreferrer">{t("launch.reference")} ↗</a>}</div>
               <a
                 aria-label={t("contest.viewVault", { address: contest.marketVault, explorer: robinhoodTestnet.blockExplorers.default.name })}
                 className="contestAddressLink mono"

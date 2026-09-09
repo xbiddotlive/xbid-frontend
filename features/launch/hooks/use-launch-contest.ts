@@ -18,6 +18,8 @@ export type LaunchContestInput = {
   title: string;
   description: string;
   category: string;
+  region?: string;
+  contentLanguage?: string;
   referenceUrl?: string;
   sideAName: string;
   sideASymbol: string;
@@ -167,6 +169,8 @@ export function useLaunchContest() {
         title: input.title,
         description: input.description,
         category: input.category,
+        region: input.region,
+        contentLanguage: input.contentLanguage,
         referenceUrl: input.referenceUrl || undefined,
         sideAName: input.sideAName,
         sideASymbol,

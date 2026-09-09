@@ -5,6 +5,8 @@ export const contestCategories = [
   { label: "finance", value: "finance" },
   { label: "tech", value: "technology" },
   { label: "culture", value: "culture" },
+  { label: "entertainment", value: "entertainment" },
+  { label: "predictions", value: "predictions" },
   { label: "other", value: "other" },
 ] as const;
 

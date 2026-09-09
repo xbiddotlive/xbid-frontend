@@ -19,6 +19,15 @@ const metrics = load("../lib/product/market-metrics.ts", { viem: { formatUnits }
 const { discoveryTokens, pairedTokens, selectTokens, priceMove } = load("../lib/product/discovery-tokens.ts", { "./market-metrics": metrics });
 const { reconcileContests, paginate, refreshContestPages } = load("../lib/product/discovery-snapshot.ts", {});
 const config = load("../next.config.ts", {}).default;
+const { contestCategories } = load("../lib/product/contest-categories.ts", {});
+
+test("shared discovery and launch categories include entertainment and predictions without losing existing categories", () => {
+  const values = Array.from(contestCategories, item => item.value);
+  assert.equal(new Set(values).size, values.length);
+  for (const value of ["crypto", "sports", "politics", "finance", "technology", "culture", "entertainment", "predictions", "other"]) {
+    assert.ok(values.includes(value), `missing category ${value}`);
+  }
+});
 
 test("shared price display distinguishes missing data from a real zero change", () => {
   assert.equal(metrics.formatPriceChange(null), "—");

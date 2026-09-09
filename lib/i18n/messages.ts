@@ -1,4 +1,14 @@
 export const en = {
+  "scope.region": "Topic region",
+  "scope.language": "Content language",
+  "scope.allRegions": "All regions",
+  "scope.global": "Global",
+  "scope.unset": "Unspecified",
+  "scope.regionHelp": "Where the topic applies, not who may participate.",
+  "scope.languageHelp": "Language of the original text; changing the site language does not translate it.",
+  "scope.filteredHelp": "Filters apply to contests only. Token prices remain worldwide.",
+  "category.entertainment": "entertainment",
+  "category.predictions": "predictions",
   "nav.primary": "primary navigation",
   "nav.mobile": "mobile navigation",
   "nav.explore": "explore",
@@ -767,6 +777,16 @@ export type Dictionary = Record<MessageKey, string>;
 export type MessageValues = Record<string, string | number>;
 
 export const zh: Record<MessageKey, string> = {
+  "scope.region": "议题地区",
+  "scope.language": "内容语言",
+  "scope.allRegions": "全部地区",
+  "scope.global": "全球",
+  "scope.unset": "未标注",
+  "scope.regionHelp": "议题适用的地区，不限制参与者所在地。",
+  "scope.languageHelp": "原文使用的语言；切换网站语言不会翻译原文。",
+  "scope.filteredHelp": "筛选仅作用于竞赛列表，顶部 Token 行情保持全球范围。",
+  "category.entertainment": "娱乐",
+  "category.predictions": "预测",
   "nav.primary": "主导航",
   "nav.mobile": "移动端导航",
   "nav.explore": "探索",
