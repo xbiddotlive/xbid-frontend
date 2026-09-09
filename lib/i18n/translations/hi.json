@@ -1,4 +1,7 @@
 {
+  "discovery.allTokens": "सभी टोकन",
+  "discovery.viewAllTokens": "सभी टोकन देखें",
+  "discovery.tokenPairsHelp": "हर पंक्ति एक प्रतियोगिता है: बाईं ओर A, दाईं ओर B।",
   "discovery.search": "टोकन या प्रतियोगिता खोजें",
   "discovery.loadMore": "और लोड करें",
   "discovery.loadedScope": "{count} प्रतियोगिताएँ लोड हुईं; फ़िल्टर लोड किए परिणामों पर लागू हैं",

@@ -1,4 +1,7 @@
 {
+  "discovery.allTokens": "alle token",
+  "discovery.viewAllTokens": "alle token ansehen",
+  "discovery.tokenPairsHelp": "Jede Zeile zeigt einen Wettbewerb: A links, B rechts.",
   "discovery.search": "token oder wettbewerbe suchen",
   "discovery.loadMore": "mehr laden",
   "discovery.loadedScope": "{count} wettbewerbe geladen; filter gelten für geladene ergebnisse",

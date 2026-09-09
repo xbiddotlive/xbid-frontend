@@ -1,4 +1,7 @@
 {
+  "discovery.allTokens": "semua token",
+  "discovery.viewAllTokens": "lihat semua token",
+  "discovery.tokenPairsHelp": "Setiap baris adalah satu kontes: A di kiri, B di kanan.",
   "discovery.search": "cari token atau kontes",
   "discovery.loadMore": "muat lainnya",
   "discovery.loadedScope": "{count} kontes dimuat; filter berlaku untuk hasil yang dimuat",

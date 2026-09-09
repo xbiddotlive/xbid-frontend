@@ -1,4 +1,7 @@
 {
+  "discovery.allTokens": "সব টোকেন",
+  "discovery.viewAllTokens": "সব টোকেন দেখুন",
+  "discovery.tokenPairsHelp": "প্রতি সারিতে একই প্রতিযোগিতা: বামে A, ডানে B।",
   "discovery.search": "টোকেন বা প্রতিযোগিতা খুঁজুন",
   "discovery.loadMore": "আরও দেখুন",
   "discovery.loadedScope": "{count} প্রতিযোগিতা লোড হয়েছে; ফিল্টার এই ফলাফলে প্রযোজ্য",

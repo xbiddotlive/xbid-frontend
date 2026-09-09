@@ -53,11 +53,10 @@ export function MarketDiscovery({ initialPage, summary, query, apiAvailable: ini
   const { t } = useI18n();
   const feed = useDiscoveryFeed(activeChain.id, query, initialPage, summary, initialApiAvailable);
   const [clockMinute, setClockMinute] = useState(0);
-  const [now, setNow] = useState(0);
   const [expandedStats, setExpandedStats] = useState(false);
   const { items: contests, available: apiAvailable } = feed;
   useEffect(() => {
-    const timer = window.setInterval(() => { setNow(Date.now()); setClockMinute(Math.floor(Date.now() / 60_000)); }, 15_000);
+    const timer = window.setInterval(() => { setClockMinute(Math.floor(Date.now() / 60_000)); }, 15_000);
     return () => window.clearInterval(timer);
   }, []);
   const stateKey = `explore:${activeChain.id}:${query}`;
@@ -92,8 +91,7 @@ export function MarketDiscovery({ initialPage, summary, query, apiAvailable: ini
       <div className="homeIntroStatus"><div><span className="livePulse" /><strong>{apiAvailable ? t("discovery.contestsLive", { count: totalContests }) : t("discovery.reconnecting")}</strong></div><span>{t("discovery.status", { count: trades24h, network: t("chain.testnet") })}</span></div>
     </section>
     <section className="homeStats" data-expanded={expandedStats} aria-label={t("discovery.protocolStats")}>{stats.map((stat, index) => <article key={stat.label} data-summary={index >= 1 && index <= 3}><div><span>{stat.label}</span><strong>{stat.value}</strong></div><div><Sparkline points="" /><b>{stat.change}</b></div></article>)}</section>
-    <div className="exploreStatus"><button className="mobileStatsToggle" type="button" aria-expanded={expandedStats} onClick={() => setExpandedStats(!expandedStats)}>{t("trade.details")}</button><span role="status">{!apiAvailable ? t("discovery.stale") : !feed.summaryAvailable ? t("discovery.summaryUnavailable") : feed.updatedAt ? t("discovery.updated", { seconds: Math.max(0, Math.floor((now - feed.updatedAt) / 1000)) }) : t("discovery.indexerConnected")}</span></div>
-    <form className="exploreSearch" role="search" action="/"><input type="search" name="q" maxLength={100} defaultValue={query} aria-label={t("discovery.search")} placeholder={t("discovery.search")} /><button className="button" type="submit">{t("discovery.search")}</button>{query && <Link href="/">{t("activity.filter.all")}</Link>}</form>
+    <div className="exploreStatus" data-healthy={apiAvailable && feed.summaryAvailable}><button className="mobileStatsToggle" type="button" aria-expanded={expandedStats} onClick={() => setExpandedStats(!expandedStats)}>{t("trade.details")}</button>{(!apiAvailable || !feed.summaryAvailable) && <span role="status">{t(!apiAvailable ? "discovery.stale" : "discovery.summaryUnavailable")}</span>}</div>
 
     {featuredMarket ? (
       <DiscoverySpotlight contests={contests} apiAvailable={apiAvailable} stateKey={stateKey} query={query} partial={feed.nextCursor !== null} onConfirmed={feed.refresh}>

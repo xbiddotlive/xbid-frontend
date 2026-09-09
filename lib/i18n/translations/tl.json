@@ -1,4 +1,7 @@
 {
+  "discovery.allTokens": "lahat ng token",
+  "discovery.viewAllTokens": "tingnan ang lahat ng token",
+  "discovery.tokenPairsHelp": "Bawat hanay ay iisang paligsahan: A sa kaliwa, B sa kanan.",
   "discovery.search": "maghanap ng token o contest",
   "discovery.loadMore": "mag-load pa",
   "discovery.loadedScope": "{count} contest ang na-load; filter para sa na-load na resulta",

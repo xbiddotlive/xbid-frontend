@@ -1,4 +1,7 @@
 {
+  "discovery.allTokens": "tous les tokens",
+  "discovery.viewAllTokens": "voir tous les tokens",
+  "discovery.tokenPairsHelp": "Chaque ligne représente un concours : A à gauche, B à droite.",
   "discovery.search": "rechercher des tokens ou concours",
   "discovery.loadMore": "charger plus",
   "discovery.loadedScope": "{count} concours chargés ; filtres sur les résultats chargés",

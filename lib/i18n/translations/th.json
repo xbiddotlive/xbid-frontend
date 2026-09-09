@@ -1,4 +1,7 @@
 {
+  "discovery.allTokens": "โทเคนทั้งหมด",
+  "discovery.viewAllTokens": "ดูโทเคนทั้งหมด",
+  "discovery.tokenPairsHelp": "แต่ละแถวคือการแข่งขันเดียวกัน: A ทางซ้าย B ทางขวา",
   "discovery.search": "ค้นหาโทเคนหรือการแข่งขัน",
   "discovery.loadMore": "โหลดเพิ่มเติม",
   "discovery.loadedScope": "โหลด {count} การแข่งขันแล้ว ตัวกรองใช้กับผลที่โหลดแล้ว",

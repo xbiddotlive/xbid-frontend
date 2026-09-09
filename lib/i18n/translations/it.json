@@ -1,4 +1,7 @@
 {
+  "discovery.allTokens": "tutti i token",
+  "discovery.viewAllTokens": "vedi tutti i token",
+  "discovery.tokenPairsHelp": "Ogni riga è un contest: A a sinistra, B a destra.",
   "discovery.search": "cerca token o contest",
   "discovery.loadMore": "carica altro",
   "discovery.loadedScope": "{count} contest caricati; filtri sui risultati caricati",

@@ -1,4 +1,7 @@
 {
+  "discovery.allTokens": "усі токени",
+  "discovery.viewAllTokens": "переглянути всі токени",
+  "discovery.tokenPairsHelp": "Кожен рядок — один конкурс: A ліворуч, B праворуч.",
   "discovery.search": "пошук токенів або конкурсів",
   "discovery.loadMore": "завантажити ще",
   "discovery.loadedScope": "завантажено конкурсів: {count}; фільтри для завантажених результатів",

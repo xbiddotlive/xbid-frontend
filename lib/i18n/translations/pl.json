@@ -1,4 +1,7 @@
 {
+  "discovery.allTokens": "wszystkie tokeny",
+  "discovery.viewAllTokens": "zobacz wszystkie tokeny",
+  "discovery.tokenPairsHelp": "Każdy wiersz to jeden konkurs: A po lewej, B po prawej.",
   "discovery.search": "szukaj tokenów lub konkursów",
   "discovery.loadMore": "wczytaj więcej",
   "discovery.loadedScope": "wczytano {count} konkursów; filtry dotyczą wczytanych wyników",

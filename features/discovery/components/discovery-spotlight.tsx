@@ -15,9 +15,8 @@ import { paginate } from "@/lib/product/discovery-snapshot";
 import { DiscoveryPager } from "./discovery-pager";
 
 const filters: { value: TokenFilter; label: MessageKey; help?: MessageKey }[] = [
-  { value: "all", label: "activity.filter.all" },
-  { value: "new", label: "filter.new", help: "discovery.tokenNewHelp" },
   { value: "hot", label: "discovery.hot", help: "discovery.tokenHotHelp" },
+  { value: "new", label: "filter.new", help: "discovery.tokenNewHelp" },
   { value: "gainers", label: "discovery.topGainers", help: "discovery.tokenGainersHelp" },
 ];
 function subscribeClock(onChange: () => void) {
@@ -46,7 +45,7 @@ export function DiscoverySpotlight({ contests, apiAvailable, children, stateKey,
   const [active, setActive] = useExploreState(stateKey + ":tab", 0, validTab);
   const [visitedFeatured, setVisitedFeatured] = useState(false);
   const [page, setPage] = useExploreState(stateKey + ":tokens-page", 0, validPage);
-  const [filter, setFilter] = useExploreState<TokenFilter>(stateKey + ":tokens-filter", "all", validFilter);
+  const [filter, setFilter] = useExploreState<TokenFilter>(stateKey + ":tokens-filter", "hot", validFilter);
   const [mobileCount, setMobileCount] = useExploreState(stateKey + ":tokens-count", 8, validPage);
   const mobile = useSyncExternalStore(subscribeMobile, mobileSnapshot, desktopSnapshot);
   const [trade, setTrade] = useState<{ contestId: string; side: 0 | 1 } | null>(null);
@@ -56,7 +55,6 @@ export function DiscoverySpotlight({ contests, apiAvailable, children, stateKey,
   const rows = useRef<HTMLDivElement>(null);
   const tokens = useMemo(() => discoveryTokens(contests), [contests]);
   const filtered = useMemo(() => selectTokens(tokens, filter, minute * 60).filter(token => !query || `${token.metadata.symbol} ${token.metadata.name}`.toLowerCase().includes(query.toLowerCase()) || contests.find(c => c.contestId === token.key.split(":")[1])?.metadata.title.toLowerCase().includes(query.toLowerCase())), [tokens, filter, minute, query, contests]);
-  const gainers = useMemo(() => selectTokens(tokens, "gainers", 0).slice(0, 6), [tokens]);
   const tokenPage = paginate(filtered, page, 18);
   const displayedTokens = mobile ? filtered.slice(0, Math.max(8, mobileCount)) : tokenPage.items;
   const labels = [t("discovery.tokenList"), t("discovery.featured")];
@@ -98,18 +96,8 @@ export function DiscoverySpotlight({ contests, apiAvailable, children, stateKey,
 
   return <section className="discoverySpotlight">
     {trade && <ExploreQuickTrade key={trade.contestId + trade.side} {...trade} onClose={closeTrade} onConfirmed={onConfirmed} />}
-    <div className="tokenTickerBand" aria-label={t("discovery.topGainers")}>
-      <span className="tokenTickerLabel">{t("discovery.topGainers")}<span>24h</span></span>
-      <div className="tokenTickerRail" tabIndex={0}>
-        {gainers.length ? gainers.map((token) => <Link key={token.key} href={token.href} prefetch={false} className="tokenTickerItem">
-          <SideLogo name={token.metadata.name} imageUrl={token.metadata.logoUrl} tone={token.side} />
-          <strong title={token.metadata.name}>{token.metadata.symbol}</strong>
-          <LivePrice price={token.price} />
-          <TokenChange change={token.change} />
-        </Link>) : <span className="tokenTickerEmpty">{t("discovery.noGainers")}</span>}
-      </div>
-    </div>
     <div className="spotlightToolbar">
+      <div className="spotlightNavigation">
       <div className="spotlightTabs" role="tablist" aria-label={t("discovery.tokenList")}>
         {labels.map((label, index) => <button key={index} ref={(element) => { tabs.current[index] = element; }} id={id + "-tab-" + index} role="tab" type="button" aria-selected={active === index} aria-controls={id + "-panel-" + index} tabIndex={active === index ? 0 : -1} onClick={() => select(index)} onKeyDown={(event) => {
           if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
@@ -119,7 +107,13 @@ export function DiscoverySpotlight({ contests, apiAvailable, children, stateKey,
           tabs.current[next]?.focus();
         }}>{label}</button>)}
       </div>
-      <span className="spotlightContext" role="status">{apiAvailable ? t("discovery.contestTokens") : t("discovery.reconnecting")}{activeChain.testnet ? " · " + t("common.testnet") : ""}</span>
+      {active === 0 && <div className="tokenFilters" role="group" aria-label={t("discovery.tokenFilters")}>
+        {filters.map((item) => <button key={item.value} type="button" aria-pressed={filter === item.value} title={item.help ? t(item.help) : undefined} onClick={() => { setFilter(item.value); changePage(0); setMobileCount(8); }}>{t(item.label)}</button>)}
+      </div>}
+      </div>
+      <div className="spotlightMeta"><span className="spotlightContext" role="status">{apiAvailable ? t("discovery.contestTokens") : t("discovery.reconnecting")}{activeChain.testnet ? " · " + t("common.testnet") : ""}</span>
+        {active === 0 && <div className="tokenPageStatus"><span title={partial ? t("discovery.loadedScope", { count: contests.length }) : undefined}>{t("discovery.tokenCount", { count: filtered.length })}{partial ? " +" : ""}</span>{!mobile && <DiscoveryPager page={tokenPage.page} pages={tokenPage.pages} onChange={changePage} />}</div>}
+      </div>
     </div>
     <div ref={rail} className="spotlightRail" onScroll={(event) => {
       const element = event.currentTarget;
@@ -129,21 +123,16 @@ export function DiscoverySpotlight({ contests, apiAvailable, children, stateKey,
       if (next === 1) setVisitedFeatured(true);
     }}>
       <div className="spotlightPanel tokenListPanel" id={id + "-panel-0"} role="tabpanel" aria-labelledby={id + "-tab-0"} inert={active !== 0}>
-        <div className="tokenFilterToolbar">
-          <div className="tokenFilters" role="group" aria-label={t("discovery.tokenFilters")}>
-            {filters.map((item) => <button key={item.value} type="button" aria-pressed={filter === item.value} title={item.help ? t(item.help) : undefined} onClick={() => { setFilter(item.value); changePage(0); setMobileCount(8); }}>{t(item.label)}</button>)}
-          </div>
-          <div className="tokenPageStatus"><span>{t("discovery.tokenCount", { count: filtered.length })}{partial ? " · " + t("discovery.loadedScope", { count: contests.length }) : ""}</span>{!mobile && <DiscoveryPager page={tokenPage.page} pages={tokenPage.pages} onChange={changePage} />}</div>
-        </div>
         <div className="tokenListHeaders">{[0, 1, 2].map((column) => <div className="tokenListHead" key={column}><span>{t("discovery.ticker")}</span><span>{t("docs.price")}</span><span title={t("contest.change24h")}>{"24h %"}</span><span title={t("discovery.volume24h") + " · " + t("common.usdc")}>{t("discovery.volume24h")}</span></div>)}</div>
         <div ref={rows} className="tokenListRows" tabIndex={active === 0 ? 0 : -1} role="region" aria-label={t("discovery.tokenList")}>
           {displayedTokens.map((token) => <TokenRow key={token.key} token={token} onTrade={openTrade} />)}
-          {!tokenPage.items.length && <div className="tokenListEmpty"><strong>{t("discovery.noTokens")}</strong><span>{filter === "all" ? t("discovery.noData") : t(filters.find((item) => item.value === filter)!.help!)}</span></div>}
+          {!tokenPage.items.length && <div className="tokenListEmpty"><strong>{t("discovery.noTokens")}</strong><span>{t(filters.find((item) => item.value === filter)!.help!)}</span></div>}
         </div>
         {mobile && displayedTokens.length < filtered.length && <button className="button tokenLoadMore" type="button" onClick={() => setMobileCount(count => count + 8)}>{t("discovery.loadMore")}</button>}
       </div>
       <div className="spotlightPanel spotlightFeatured" id={id + "-panel-1"} role="tabpanel" aria-labelledby={id + "-tab-1"} inert={active !== 1}>{visitedFeatured || active === 1 ? children : null}</div>
     </div>
+    <footer className="tokenDirectoryEntry"><Link href="/tokens" prefetch={false}>{t("discovery.viewAllTokens")} →</Link></footer>
   </section>;
 }
 

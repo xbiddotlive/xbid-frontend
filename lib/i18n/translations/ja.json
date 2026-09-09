@@ -1,4 +1,7 @@
 {
+  "discovery.allTokens": "すべてのトークン",
+  "discovery.viewAllTokens": "すべてのトークンを見る",
+  "discovery.tokenPairsHelp": "各行は同じコンテストです。左がA、右がB。",
   "discovery.search": "トークンやコンテストを検索",
   "discovery.loadMore": "さらに読み込む",
   "discovery.loadedScope": "{count} 件読込済み・フィルターは読込済みの結果に適用",

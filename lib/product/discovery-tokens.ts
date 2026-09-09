@@ -34,6 +34,15 @@ export function discoveryTokens(contests: IndexedContest[]): DiscoveryToken[] {
   return [...new Map(rows.map((row) => [row.key, row])).values()].sort(byActivity);
 }
 
+// Pair by chain + contest identity, never by ticker or independently sorted sides.
+export function pairedTokens(contests: IndexedContest[]) {
+  const tokens = new Map(discoveryTokens(contests).map(token => [token.key, token]));
+  return [...new Map(contests.map(contest => [`${contest.chainId}:${contest.contestId}`, contest])).entries()].flatMap(([key]) => {
+    const a = tokens.get(key + ":0"), b = tokens.get(key + ":1");
+    return a && b ? [{ key, a, b }] : [];
+  });
+}
+
 function byActivity(a: DiscoveryToken, b: DiscoveryToken): number {
   const left = BigInt(a.volume24hUnits), right = BigInt(b.volume24hUnits);
   return left === right ? (b.createdAt - a.createdAt || a.key.localeCompare(b.key)) : left > right ? -1 : 1;

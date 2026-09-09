@@ -1,9 +1,35 @@
 /* home market board */
+.tokenDirectoryEntry { display: flex; justify-content: center; padding: 10px; border-top: 1px solid var(--line); }
+.tokenDirectoryEntry a { color: var(--muted); padding: 4px 12px; }
+.tokenDirectoryEntry a:hover { color: var(--text); }
+.tokenDirectoryHeader { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.tokenDirectoryHeader h1 { margin: 0 0 6px; }
+.tokenDirectoryHeader p { margin: 0; color: var(--muted); }
+.tokenDirectorySearch { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 16px; }
+.tokenDirectorySearch input { flex: 1; min-width: 160px; min-height: 36px; padding: 6px 10px; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+.tokenPairBoard { border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+.tokenPairHeading, .tokenPair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tokenPairHeading { border-bottom: 1px solid var(--line); }
+.tokenPairHeading strong { padding: 10px 14px; color: var(--side-a-text); }
+.tokenPairHeading strong[data-side="b"] { color: var(--side-b-text); }
+.tokenPairHeading > :first-child, .tokenPair > :first-child { border-right: 1px solid var(--line); }
+.tokenPair:not(:last-child) { border-bottom: 1px solid var(--line); }
+.pairedToken { display: grid; grid-template-columns: minmax(0, 1fr) repeat(3, minmax(64px, auto)); gap: 14px; align-items: center; min-width: 0; padding: 12px 14px; color: var(--text); }
+.pairedToken:hover { background: var(--panel-raised); }
+.pairedTokenMetric { display: flex; flex-direction: column; gap: 3px; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pairedTokenMetric small { color: var(--muted); }
+.pairedTokenMetric [data-tone="positive"] { color: var(--positive); }
+.pairedTokenMetric [data-tone="negative"] { color: var(--negative); }
+.pairedTokenMetric [data-tone="muted"] { color: var(--muted); }
+@media (max-width: 900px) {
+  .pairedToken { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 12px 10px; }
+  .pairedToken .tokenListIdentity { grid-column: 1 / -1; }
+  .pairedTokenMetric { text-align: left; }
+  .pairedTokenMetric:last-child { grid-column: 1 / -1; }
+}
 .searchShell input { width: 100%; min-width: 0; border: 0; background: transparent; color: var(--text); outline-offset: 3px; }
-.exploreSearch { display: flex; gap: 8px; align-items: center; margin: 8px 0; }
-.exploreSearch input { flex: 1; min-width: 0; min-height: 36px; padding: 6px 10px; color: var(--text); background: var(--control-bg); border: 1px solid var(--line); border-radius: var(--radius); }
-.exploreSearch button { min-height: 36px; }
 .exploreStatus { display: flex; justify-content: flex-end; align-items: center; gap: 8px; min-height: 24px; color: var(--muted); }
+@media (min-width: 768px) { .exploreStatus[data-healthy="true"] { display: none; } }
 .mobileStatsToggle { display: none; }
 .exploreLoadMore { display: flex; gap: 12px; align-items: center; justify-content: center; padding: 16px 8px; color: var(--muted); }
 .tokenListEntry { position: relative; min-width: 0; }
@@ -27,8 +53,6 @@
   .homePage .homeStats article > div:nth-child(2) { display: none; }
   .homePage .homeStats:not([data-expanded="true"]) article:not([data-summary="true"]) { display: none; }
   .mobileStatsToggle { display: inline-block; margin-right: auto; padding: 2px 4px; background: transparent; color: var(--muted); border: 0; }
-  .exploreSearch { margin-block: 4px; }
-  .exploreSearch button { display: none; }
   .homePage .discoverySpotlight { margin-top: 6px; }
   .homePage .spotlightRail { align-items: flex-start; }
   .homePage .spotlightPanel { height: auto; }
@@ -62,8 +86,12 @@
 .homeSparkline { display: none; }
 .homeSparkline polyline { fill: none; stroke: #1be8c2; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1; vector-effect: non-scaling-stroke; }
 .featuredCarousel { position: relative; margin-top: 14px; }
-.discoverySpotlight { min-width: 0; margin-top: 14px; }
-.spotlightToolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.discoverySpotlight { min-width: 0; margin-top: 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+.spotlightToolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 10px; border-bottom: 1px solid var(--line); }
+.spotlightNavigation { display: flex; align-items: center; gap: 12px; min-width: 0; overflow-x: auto; scrollbar-width: thin; }
+.spotlightNavigation > .spotlightTabs { flex-shrink: 0; }
+.spotlightNavigation > .tokenFilters { flex-shrink: 0; width: auto; padding-left: 12px; border-left: 1px solid var(--line); }
+.spotlightNavigation .spotlightTabs button { white-space: nowrap; }
 .spotlightTabs { display: flex; gap: 4px; }
 .spotlightTabs button { min-height: 36px; padding: 6px 12px; border: 1px solid transparent; border-radius: var(--radius); color: var(--muted); background: transparent; cursor: pointer; }
 .spotlightTabs button[aria-selected="true"] { border-color: var(--line); color: var(--text); background: var(--panel-raised); }
@@ -76,7 +104,7 @@
 .discoveryPager button:focus-visible { outline: 2px solid var(--text); }
 .discoveryPager svg { width: 14px; height: 14px; }
 .homeMarkets > .discoveryPager { margin-top: 8px; }
-.spotlightRail { display: flex; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+.spotlightRail { display: flex; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; border-radius: 0 0 var(--radius) var(--radius); }
 .spotlightRail::-webkit-scrollbar { display: none; }
 .spotlightPanel { flex: 0 0 100%; min-width: 0; height: 370px; scroll-snap-align: start; scroll-snap-stop: always; }
 .tokenListPanel { display: flex; flex-direction: column; }
@@ -95,21 +123,12 @@
 .discoverySpotlight .priceChange[data-tone="muted"] { color: var(--muted); }
 .tokenListPrice { border-radius: 3px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tokenListVolume { overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }
-.tokenFilterToolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; min-height: 44px; padding: 4px 10px; border-bottom: 1px solid var(--line); }
 .tokenFilters { display: flex; gap: 3px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .tokenFilters button { flex-shrink: 0; min-height: 30px; padding: 4px 8px; border: 0; border-radius: 4px; color: var(--muted); background: transparent; cursor: pointer; white-space: nowrap; }
 .tokenFilters button[aria-pressed="true"] { color: var(--text); background: var(--panel-raised); }
 .tokenPageStatus { display: flex; align-items: center; gap: 12px; color: var(--muted); white-space: nowrap; }
 .tokenListEmpty { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 220px; padding: 24px; text-align: center; }
 .tokenListEmpty > span { max-width: 420px; color: var(--muted); }
-.tokenTickerBand { display: flex; align-items: stretch; min-width: 0; min-height: 48px; margin-bottom: 12px; border-block: 1px solid var(--line); }
-.tokenTickerLabel { display: flex; flex-direction: column; justify-content: center; flex-shrink: 0; gap: 2px; padding: 4px 12px 4px 2px; border-right: 1px solid var(--line); color: var(--text); }
-.tokenTickerLabel > span { color: var(--muted); }
-.tokenTickerRail { display: flex; align-items: center; gap: 0; min-width: 0; overflow-x: auto; scrollbar-width: thin; overscroll-behavior-x: contain; }
-.tokenTickerItem { display: flex; align-items: center; gap: 10px; flex-shrink: 0; padding: 6px 16px; border-right: 1px solid var(--line); white-space: nowrap; }
-.tokenTickerItem strong { max-width: 90px; overflow: hidden; text-overflow: ellipsis; }
-.tokenTickerItem .sideLogo { width: 22px; height: 22px; margin-left: 0; }
-.tokenTickerEmpty { padding: 8px 16px; color: var(--muted); }
 .tokenListIdentity { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .tokenListIdentity .sideLogo { flex-shrink: 0; margin-left: 0; }
 .tokenListLogo { position: relative; isolation: isolate; flex: 0 0 28px; width: 28px; height: 28px; }
@@ -123,7 +142,7 @@
 .spotlightFeatured .featuredBattle { border: 0; padding: 4px 0; }
 .spotlightFeatured .featuredCopy > p { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .spotlightTabs button:focus-visible, .tokenListRow:focus-visible, .tokenListRows:focus-visible { outline: 2px solid var(--text); outline-offset: -2px; }
-.tokenFilters button:focus-visible, .tokenTickerItem:focus-visible, .tokenTickerRail:focus-visible { outline: 2px solid var(--text); outline-offset: -2px; }
+.tokenFilters button:focus-visible { outline: 2px solid var(--text); outline-offset: -2px; }
 @media (min-width: 768px) and (max-width: 1199px) {
   .tokenListHeaders, .tokenListRows { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .tokenListHead:nth-child(3) { display: none; }
@@ -137,10 +156,8 @@
   .tokenListHead:first-child, .tokenListRow:not(:nth-child(3n)) { border-right: 0; }
   .tokenListHead, .tokenListRow { grid-template-columns: minmax(0, 1fr) 64px 58px 62px; gap: 5px; padding-inline: 8px; }
   .tokenListIdentity { gap: 6px; }
-  .tokenFilterToolbar { gap: 2px; }
-  .tokenFilters { width: 100%; }
-  .tokenPageStatus { width: 100%; justify-content: space-between; }
-  .tokenTickerItem { gap: 8px; padding-inline: 12px; }
+  .spotlightNavigation { width: 100%; }
+  .spotlightToolbar .spotlightMeta { width: 100%; justify-content: space-between; }
   .spotlightFeatured .featuredCarousel { padding-inline: 10px; }
 }
 .featuredCarouselToolbar { display: flex; align-items: center; justify-content: space-between; min-height: 32px; margin-bottom: 6px; padding: 0 2px; }

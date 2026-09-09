@@ -16,7 +16,7 @@ function load(path, dependencies) {
   return context.exports;
 }
 const metrics = load("../lib/product/market-metrics.ts", { viem: { formatUnits } });
-const { discoveryTokens, selectTokens, priceMove } = load("../lib/product/discovery-tokens.ts", { "./market-metrics": metrics });
+const { discoveryTokens, pairedTokens, selectTokens, priceMove } = load("../lib/product/discovery-tokens.ts", { "./market-metrics": metrics });
 const { reconcileContests, paginate, refreshContestPages } = load("../lib/product/discovery-snapshot.ts", {});
 const config = load("../next.config.ts", {}).default;
 
@@ -52,6 +52,23 @@ test("both sides retain unique keys and direct side-specific trade links", () =>
   assert.equal(rows.find((row) => row.key === "46630:1:1").href, "/contest/1?trade=buy&side=b");
   assert.equal(rows[0].metadata.symbol, "SAME");
   assert.equal(rows[1].metadata.symbol, "SAME");
+});
+test("all tokens keep A and B paired despite activity ranking, duplicate tickers and page overlap", () => {
+  const first = contest("1", "10"), second = contest("2", "99999");
+  second.market.sideBVolume24hUnits = "100000";
+  const pairs = pairedTokens([first, second, first, { ...contest("3"), market: null }]);
+  assert.equal(pairs.length, 2);
+  assert.equal(pairs[0].key, "46630:1");
+  for (const pair of pairs) {
+    assert.equal(pair.a.key, pair.key + ":0");
+    assert.equal(pair.b.key, pair.key + ":1");
+    assert.equal(pair.a.side, "a");
+    assert.equal(pair.b.side, "b");
+  }
+  const searchResult = pairedTokens([second]);
+  assert.equal(searchResult.length, 1);
+  assert.equal(searchResult[0].b.href, "/contest/2?trade=buy&side=b");
+  assert.equal(pairedTokens([first, { ...first, chainId: "84532" }]).length, 2);
 });
 test("prices and changes exactly match shared detail-page calculations", () => {
   const item = contest();
