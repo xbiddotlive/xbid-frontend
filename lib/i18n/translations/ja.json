@@ -1,4 +1,10 @@
 {
+  "discovery.search": "トークンやコンテストを検索",
+  "discovery.loadMore": "さらに読み込む",
+  "discovery.loadedScope": "{count} 件読込済み・フィルターは読込済みの結果に適用",
+  "discovery.updated": "{seconds} 秒前に更新",
+  "discovery.stale": "更新失敗・前回のデータを表示",
+  "discovery.summaryUnavailable": "全体の統計が未取得または古くなっています",
   "nav.primary": "主な航海",
   "nav.mobile": "モバイルナビゲーション",
   "nav.explore": "探索",

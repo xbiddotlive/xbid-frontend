@@ -1,4 +1,10 @@
 {
+  "discovery.search": "ค้นหาโทเคนหรือการแข่งขัน",
+  "discovery.loadMore": "โหลดเพิ่มเติม",
+  "discovery.loadedScope": "โหลด {count} การแข่งขันแล้ว ตัวกรองใช้กับผลที่โหลดแล้ว",
+  "discovery.updated": "อัปเดตเมื่อ {seconds} วินาทีก่อน",
+  "discovery.stale": "อัปเดตไม่สำเร็จ · แสดงข้อมูลล่าสุดที่ได้รับ",
+  "discovery.summaryUnavailable": "สถิติแพลตฟอร์มไม่พร้อมใช้งานหรือล้าสมัย",
   "nav.primary": "การนําทางหลัก",
   "nav.mobile": "การนําทางมือถือ",
   "nav.explore": "สำรวจ",

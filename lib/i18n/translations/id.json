@@ -1,4 +1,10 @@
 {
+  "discovery.search": "cari token atau kontes",
+  "discovery.loadMore": "muat lainnya",
+  "discovery.loadedScope": "{count} kontes dimuat; filter berlaku untuk hasil yang dimuat",
+  "discovery.updated": "diperbarui {seconds} detik lalu",
+  "discovery.stale": "pembaruan gagal · menampilkan data terakhir",
+  "discovery.summaryUnavailable": "statistik platform tidak tersedia atau kedaluwarsa",
   "nav.primary": "Navigasi utama",
   "nav.mobile": "Navigasi Mobile",
   "nav.explore": "Jelajahi",

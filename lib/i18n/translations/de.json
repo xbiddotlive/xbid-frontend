@@ -1,4 +1,10 @@
 {
+  "discovery.search": "token oder wettbewerbe suchen",
+  "discovery.loadMore": "mehr laden",
+  "discovery.loadedScope": "{count} wettbewerbe geladen; filter gelten für geladene ergebnisse",
+  "discovery.updated": "vor {seconds}s aktualisiert",
+  "discovery.stale": "aktualisierung fehlgeschlagen · letzte daten",
+  "discovery.summaryUnavailable": "plattformstatistik nicht verfügbar oder veraltet",
   "nav.primary": "Primäre Navigation",
   "nav.mobile": "Mobil Navigation",
   "nav.explore": "Entdecken",

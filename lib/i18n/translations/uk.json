@@ -1,4 +1,10 @@
 {
+  "discovery.search": "пошук токенів або конкурсів",
+  "discovery.loadMore": "завантажити ще",
+  "discovery.loadedScope": "завантажено конкурсів: {count}; фільтри для завантажених результатів",
+  "discovery.updated": "оновлено {seconds} с тому",
+  "discovery.stale": "помилка оновлення · останні отримані дані",
+  "discovery.summaryUnavailable": "статистика недоступна або застаріла",
   "nav.primary": "Первинна навігація",
   "nav.mobile": "Мобільна навігація",
   "nav.explore": "Огляд",

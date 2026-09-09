@@ -60,6 +60,12 @@ export function formatChange(value: number) {
   return `${value >= 0 ? "+" : ""}${value.toFixed(2)}%`;
 }
 
+export function formatPriceChange(value: number | null) {
+  if (value === null || !Number.isFinite(value)) return "—";
+  const rounded = Number(value.toFixed(2));
+  return `${rounded > 0 ? "+" : ""}${rounded.toFixed(2)}%`;
+}
+
 export function formatDuration(since: string | null | undefined) {
   if (!since) return "just crowned";
   const seconds = Math.max(0, Math.floor(Date.now() / 1_000) - Number(since));

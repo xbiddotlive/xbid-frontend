@@ -17,8 +17,28 @@ function load(path, dependencies) {
 }
 const metrics = load("../lib/product/market-metrics.ts", { viem: { formatUnits } });
 const { discoveryTokens, selectTokens, priceMove } = load("../lib/product/discovery-tokens.ts", { "./market-metrics": metrics });
-const { reconcileContests, paginate } = load("../lib/product/discovery-snapshot.ts", {});
+const { reconcileContests, paginate, refreshContestPages } = load("../lib/product/discovery-snapshot.ts", {});
 const config = load("../next.config.ts", {}).default;
+
+test("shared price display distinguishes missing data from a real zero change", () => {
+  assert.equal(metrics.formatPriceChange(null), "—");
+  assert.equal(metrics.formatPriceChange(NaN), "—");
+  assert.equal(metrics.formatPriceChange(0), "0.00%");
+  assert.equal(metrics.formatPriceChange(-0.001), "0.00%");
+  assert.equal(metrics.formatPriceChange(-1.23), "-1.23%");
+  assert.equal(metrics.formatPriceChange(1.23), "+1.23%");
+});
+
+test("loaded page refresh follows cursors, deduplicates movement, and fails closed", async () => {
+  const a = { contestId: "a" }, b = { contestId: "b" };
+  const calls = [];
+  const result = await refreshContestPages(async cursor => { calls.push(cursor); return cursor ? { items: [a, b], nextCursor: null } : { items: [a], nextCursor: "next" }; }, 4);
+  assert.deepEqual(calls, [undefined, "next"]);
+  assert.equal(result.items.length, 2);
+  assert.equal(result.nextCursor, null);
+  await assert.rejects(refreshContestPages(async () => ({ items: [a], nextCursor: "loop" }), 4), /repeated contest cursor/);
+  await assert.rejects(refreshContestPages(async cursor => { if (cursor) throw Error("offline"); return { items: [a], nextCursor: "next" }; }, 2), /offline/);
+});
 const contest = (id = "1", volume = "100") => ({
   contestId: id, chainId: "46630", marketVersion: 3, createdAt: "100000",
   metadata: { sideA: { name: "alpha", symbol: "SAME" }, sideB: { name: "beta", symbol: "SAME" } },

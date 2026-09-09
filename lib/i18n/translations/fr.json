@@ -1,4 +1,10 @@
 {
+  "discovery.search": "rechercher des tokens ou concours",
+  "discovery.loadMore": "charger plus",
+  "discovery.loadedScope": "{count} concours chargés ; filtres sur les résultats chargés",
+  "discovery.updated": "actualisé il y a {seconds}s",
+  "discovery.stale": "échec de mise à jour · dernières données reçues",
+  "discovery.summaryUnavailable": "statistiques indisponibles ou périmées",
   "nav.primary": "Navigation primaire",
   "nav.mobile": "Navigation mobile",
   "nav.explore": "Explorer",

@@ -1,4 +1,46 @@
 /* home market board */
+.searchShell input { width: 100%; min-width: 0; border: 0; background: transparent; color: var(--text); outline-offset: 3px; }
+.exploreSearch { display: flex; gap: 8px; align-items: center; margin: 8px 0; }
+.exploreSearch input { flex: 1; min-width: 0; min-height: 36px; padding: 6px 10px; color: var(--text); background: var(--control-bg); border: 1px solid var(--line); border-radius: var(--radius); }
+.exploreSearch button { min-height: 36px; }
+.exploreStatus { display: flex; justify-content: flex-end; align-items: center; gap: 8px; min-height: 24px; color: var(--muted); }
+.mobileStatsToggle { display: none; }
+.exploreLoadMore { display: flex; gap: 12px; align-items: center; justify-content: center; padding: 16px 8px; color: var(--muted); }
+.tokenListEntry { position: relative; min-width: 0; }
+.tokenListEntry .tokenListRow { padding-right: 38px; grid-template-columns: minmax(0, 1fr) 60px 58px 62px; }
+.discoverySpotlight .tokenListHead { padding-right: 38px; grid-template-columns: minmax(0, 1fr) 60px 58px 62px; }
+.tokenListEntry:not(:nth-child(3n)) { border-right: 1px solid var(--line); }
+.tokenListEntry .tokenListRow { border-right: 0; }
+.tokenTradeButton { position: absolute; right: 3px; top: 10px; width: 26px; height: 28px; color: var(--text); background: transparent; border: 1px solid var(--line); border-radius: 4px; cursor: pointer; }
+.tokenTradeButton:hover, .tokenTradeButton:focus-visible { background: var(--panel-raised); border-color: var(--text); }
+.tokenLoadMore { margin: 8px; min-height: 36px; }
+.exploreTradeLayer .tradeDrawerPanel { right: 16px; bottom: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
+.exploreTradeLayer .quickTradePanel { display: block; }
+.exploreTradeTitle { margin: 0 0 10px; color: var(--text); }
+@media (min-width: 768px) and (max-width: 1199px) {
+  .tokenListEntry:not(:nth-child(3n)) { border-right: 0; }
+  .tokenListEntry:nth-child(odd) { border-right: 1px solid var(--line); }
+}
+@media (max-width: 767px) {
+  .homePage .homeStats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+  .homePage .homeStats article { min-height: 44px; padding: 5px 8px; }
+  .homePage .homeStats article > div:nth-child(2) { display: none; }
+  .homePage .homeStats:not([data-expanded="true"]) article:not([data-summary="true"]) { display: none; }
+  .mobileStatsToggle { display: inline-block; margin-right: auto; padding: 2px 4px; background: transparent; color: var(--muted); border: 0; }
+  .exploreSearch { margin-block: 4px; }
+  .exploreSearch button { display: none; }
+  .homePage .discoverySpotlight { margin-top: 6px; }
+  .homePage .spotlightRail { align-items: flex-start; }
+  .homePage .spotlightPanel { height: auto; }
+  .homePage .spotlightPanel[inert] { height: 0; overflow: hidden; }
+  .homePage .tokenListRows { overflow: visible; }
+  .homePage .tokenListEntry { border-right: 0; }
+  .homePage .tokenListEntry .tokenListRow { grid-template-columns: minmax(0, 1fr) 56px 54px 46px; padding-right: 35px; }
+  .homePage .tokenListHead { grid-template-columns: minmax(0, 1fr) 56px 54px 46px; padding-right: 35px; }
+  .homePage .tokenPageStatus { min-height: 24px; }
+  .exploreTradeLayer .tradeDrawerPanel { bottom: calc(66px + env(safe-area-inset-bottom)); }
+  .exploreLoadMore { flex-direction: column; }
+}
 .homePage { min-height: calc(100vh - var(--header-height) - 112px); padding-top: 0; padding-bottom: 24px; }
 .homeIntro { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 64px; padding: 8px 2px; }
 .homeIntroLead, .homeIntroStatus, .homeIntroStatus > div { display: flex; align-items: center; }

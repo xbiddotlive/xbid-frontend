@@ -33,10 +33,10 @@ export function GlobalHeader() {
             <Link href="/leaderboard"><LeaderboardIcon />{t("nav.leaderboard")}</Link>
             <Link href="/portfolio"><PortfolioIcon />{t("nav.portfolio")}</Link>
           </nav>
-          <Link className="searchShell" href="/#all-markets-heading">
+          <form className="searchShell" action="/" role="search">
             <SearchIcon />
-            {t("nav.browse")}
-          </Link>
+            <input aria-label={t("discovery.search")} name="q" type="search" maxLength={100} placeholder={t("discovery.search")} />
+          </form>
           <div className="headerActions">
             <Link className="button buttonLaunch" href="/launch"><PlusIcon />{t("nav.launch")}</Link>
             <WalletButton />

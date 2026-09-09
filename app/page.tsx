@@ -1,5 +1,5 @@
 import { MarketDiscovery } from "@/features/discovery/components/market-discovery";
-import { listContests, type IndexedContest } from "@/lib/api/contests";
+import { getContestPage, getContestSummary, type ContestPage } from "@/lib/api/contests";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
 import { pageMetadata } from "@/lib/seo/site";
 
@@ -11,15 +11,19 @@ export const metadata = pageMetadata({
 
 export const dynamic = "force-dynamic";
 
-export default async function HomePage() {
-  let contests: IndexedContest[] = [];
+export default async function HomePage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const params = await searchParams;
+  const query = typeof params.q === "string" ? params.q.trim().slice(0, 100) : "";
+  let page: ContestPage = { items: [], nextCursor: null };
   let apiAvailable = true;
+  const summaryRequest = getContestSummary(robinhoodTestnet.id).catch(() => null);
 
   try {
-    contests = await listContests(robinhoodTestnet.id);
+    page = await getContestPage(robinhoodTestnet.id, undefined, query);
   } catch {
     apiAvailable = false;
   }
 
-  return <main className="pageShell homePage"><MarketDiscovery contests={contests} apiAvailable={apiAvailable} /></main>;
+  const summary = await summaryRequest;
+  return <main className="pageShell homePage"><MarketDiscovery key={query} initialPage={page} summary={summary} query={query} apiAvailable={apiAvailable} /></main>;
 }

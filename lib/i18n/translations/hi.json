@@ -1,4 +1,10 @@
 {
+  "discovery.search": "टोकन या प्रतियोगिता खोजें",
+  "discovery.loadMore": "और लोड करें",
+  "discovery.loadedScope": "{count} प्रतियोगिताएँ लोड हुईं; फ़िल्टर लोड किए परिणामों पर लागू हैं",
+  "discovery.updated": "{seconds} सेकंड पहले अपडेट",
+  "discovery.stale": "रिफ्रेश विफल · पिछला डेटा दिख रहा है",
+  "discovery.summaryUnavailable": "प्लेटफ़ॉर्म आँकड़े अनुपलब्ध या पुराने हैं",
   "nav.primary": "प्राथमिक नाविगेशन",
   "nav.mobile": "मोबाइल नाविगेशन",
   "nav.explore": "एक्सप्लोर करें",

@@ -1,4 +1,10 @@
 {
+  "discovery.search": "maghanap ng token o contest",
+  "discovery.loadMore": "mag-load pa",
+  "discovery.loadedScope": "{count} contest ang na-load; filter para sa na-load na resulta",
+  "discovery.updated": "na-refresh {seconds}s ang nakalipas",
+  "discovery.stale": "nabigo ang pag-refresh · huling natanggap na datos",
+  "discovery.summaryUnavailable": "hindi available o luma ang estadistika",
   "nav.primary": "Ang primary navigation",
   "nav.mobile": "Mga Mobile Navigation",
   "nav.explore": "Tuklasin",
