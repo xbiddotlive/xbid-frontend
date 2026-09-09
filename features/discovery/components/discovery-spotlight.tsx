@@ -113,6 +113,7 @@ export function DiscoverySpotlight({ contests, apiAvailable, children, stateKey,
       </div>
       <div className="spotlightMeta"><span className="spotlightContext" role="status">{apiAvailable ? t("discovery.contestTokens") : t("discovery.reconnecting")}{activeChain.testnet ? " · " + t("common.testnet") : ""}</span>
         {active === 0 && <div className="tokenPageStatus"><span title={partial ? t("discovery.loadedScope", { count: contests.length }) : undefined}>{t("discovery.tokenCount", { count: filtered.length })}{partial ? " +" : ""}</span>{!mobile && <DiscoveryPager page={tokenPage.page} pages={tokenPage.pages} onChange={changePage} />}</div>}
+        <Link className="tokenDirectoryLink" href="/tokens" prefetch={false}>{t("discovery.viewAllTokens")} →</Link>
       </div>
     </div>
     <div ref={rail} className="spotlightRail" onScroll={(event) => {
@@ -132,7 +133,6 @@ export function DiscoverySpotlight({ contests, apiAvailable, children, stateKey,
       </div>
       <div className="spotlightPanel spotlightFeatured" id={id + "-panel-1"} role="tabpanel" aria-labelledby={id + "-tab-1"} inert={active !== 1}>{visitedFeatured || active === 1 ? children : null}</div>
     </div>
-    <footer className="tokenDirectoryEntry"><Link href="/tokens" prefetch={false}>{t("discovery.viewAllTokens")} →</Link></footer>
   </section>;
 }
 

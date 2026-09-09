@@ -1,7 +1,7 @@
 /* home market board */
-.tokenDirectoryEntry { display: flex; justify-content: center; padding: 10px; border-top: 1px solid var(--line); }
-.tokenDirectoryEntry a { color: var(--muted); padding: 4px 12px; }
-.tokenDirectoryEntry a:hover { color: var(--text); }
+.tokenDirectoryLink { display: inline-flex; align-items: center; min-height: 30px; margin-left: auto; color: var(--muted); white-space: nowrap; }
+.tokenDirectoryLink:hover { color: var(--text); }
+.tokenDirectoryLink:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
 .tokenDirectoryHeader { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
 .tokenDirectoryHeader h1 { margin: 0 0 6px; }
 .tokenDirectoryHeader p { margin: 0; color: var(--muted); }
@@ -96,7 +96,7 @@
 .spotlightTabs button { min-height: 36px; padding: 6px 12px; border: 1px solid transparent; border-radius: var(--radius); color: var(--muted); background: transparent; cursor: pointer; }
 .spotlightTabs button[aria-selected="true"] { border-color: var(--line); color: var(--text); background: var(--panel-raised); }
 .spotlightContext { color: var(--muted); }
-.spotlightMeta { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.spotlightMeta { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-left: auto; }
 .discoveryPager { display: flex; align-items: center; justify-content: flex-end; gap: 6px; min-height: 32px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .discoveryPager button { display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 4px; color: var(--text); background: var(--panel); cursor: pointer; }
 .discoveryPager button:first-child svg { transform: rotate(180deg); }
@@ -104,9 +104,10 @@
 .discoveryPager button:focus-visible { outline: 2px solid var(--text); }
 .discoveryPager svg { width: 14px; height: 14px; }
 .homeMarkets > .discoveryPager { margin-top: 8px; }
-.spotlightRail { display: flex; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; border-radius: 0 0 var(--radius) var(--radius); }
+.spotlightRail { display: flex; align-items: flex-start; width: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; border-radius: 0 0 var(--radius) var(--radius); }
 .spotlightRail::-webkit-scrollbar { display: none; }
-.spotlightPanel { flex: 0 0 100%; min-width: 0; height: 370px; scroll-snap-align: start; scroll-snap-stop: always; }
+.spotlightPanel { flex: 0 0 100%; min-width: 0; height: auto; scroll-snap-align: start; scroll-snap-stop: always; }
+.spotlightPanel[inert] { height: 0; overflow: hidden; }
 .tokenListPanel { display: flex; flex-direction: column; }
 .tokenListHead, .tokenListRow { display: grid; grid-template-columns: minmax(0, 1fr) 68px 64px 72px; align-items: center; gap: 8px; padding: 0 12px; }
 .tokenListHeaders { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); flex: 0 0 36px; border-bottom: 1px solid var(--line); }
@@ -114,7 +115,7 @@
 .tokenListHead:not(:last-child) { border-right: 1px solid var(--line); }
 .tokenListHead > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tokenListHead > :not(:first-child), .tokenListRow > :not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
-.tokenListRows { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-content: start; min-height: 0; flex: 1; overflow-y: auto; scrollbar-width: thin; }
+.tokenListRows { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-content: start; min-height: 0; flex: 0 0 auto; }
 .tokenListRow { min-width: 0; min-height: 48px; border-bottom: 1px solid var(--line); color: var(--text); }
 .tokenListRow:not(:nth-child(3n)) { border-right: 1px solid var(--line); }
 .tokenListRow:hover { background: var(--panel-raised); }
@@ -127,7 +128,7 @@
 .tokenFilters button { flex-shrink: 0; min-height: 30px; padding: 4px 8px; border: 0; border-radius: 4px; color: var(--muted); background: transparent; cursor: pointer; white-space: nowrap; }
 .tokenFilters button[aria-pressed="true"] { color: var(--text); background: var(--panel-raised); }
 .tokenPageStatus { display: flex; align-items: center; gap: 12px; color: var(--muted); white-space: nowrap; }
-.tokenListEmpty { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 220px; padding: 24px; text-align: center; }
+.tokenListEmpty { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 88px; padding: 16px; text-align: center; }
 .tokenListEmpty > span { max-width: 420px; color: var(--muted); }
 .tokenListIdentity { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .tokenListIdentity .sideLogo { flex-shrink: 0; margin-left: 0; }
@@ -137,7 +138,7 @@
 .tokenListName { font-size: 11px; color: var(--muted); }
 .tokenSideBadge { position: absolute; z-index: 2; right: -2px; bottom: -2px; display: grid; width: 14px; height: 14px; place-items: center; border: 1px solid currentColor; border-radius: 50%; font-size: 10px; line-height: 1; font-weight: 700; color: var(--side-a-text); background: var(--panel); box-shadow: 0 0 0 1px var(--panel); }
 .tokenSideBadge[data-tone="b"] { color: var(--side-b-text); }
-.spotlightFeatured { overflow-y: auto; scrollbar-width: thin; }
+.spotlightFeatured { max-height: 370px; overflow-y: auto; scrollbar-width: thin; }
 .spotlightFeatured .featuredCarousel { margin-top: 0; padding: 8px 12px; }
 .spotlightFeatured .featuredBattle { border: 0; padding: 4px 0; }
 .spotlightFeatured .featuredCopy > p { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -150,7 +151,7 @@
   .tokenListRow:nth-child(odd) { border-right: 1px solid var(--line); }
 }
 @media (max-width: 767px) {
-  .spotlightPanel { height: 410px; }
+  .spotlightFeatured { max-height: none; }
   .tokenListHeaders, .tokenListRows { grid-template-columns: minmax(0, 1fr); }
   .tokenListHead:not(:first-child) { display: none; }
   .tokenListHead:first-child, .tokenListRow:not(:nth-child(3n)) { border-right: 0; }
