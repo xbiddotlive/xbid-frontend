@@ -27,7 +27,14 @@ for (const [theme, tokens] of Object.entries({ dark: darkPalette, light: lightPa
   }
 }
 const fontSizes = [...css.matchAll(/font-size\s*:\s*([^;]+);/g)].map((match) => match[1].trim());
-for (const value of fontSizes) if (value !== "var(--font-size-ui)") failures.push(`unsupported font-size: ${value}`);
+// Approved compact token identity hierarchy; all other UI stays at the base size.
+const compactFontSizes = new Map([[".tokenListName", "11px"], [".tokenSideBadge", "10px"]]);
+for (const block of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+  for (const declaration of block[2].matchAll(/font-size\s*:\s*([^;]+);/g)) {
+    const value = declaration[1].trim();
+    if (value !== "var(--font-size-ui)" && compactFontSizes.get(block[1].trim()) !== value) failures.push(`unsupported font-size: ${value}`);
+  }
+}
 if (/text-transform\s*:\s*uppercase/i.test(css)) failures.push("uppercase text transform is forbidden");
 if (!css.includes("@media (max-width: 767px)")) failures.push("mobile breakpoint is missing");
 

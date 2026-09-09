@@ -18,11 +18,12 @@ export function SideLogo({ imageUrl, name, tone }: SideLogoData & { tone: "a" | 
   const resolvedImageUrl = displayAssetUrl(imageUrl);
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
   const showImage = Boolean(resolvedImageUrl && failedUrl !== resolvedImageUrl);
+  const optimize = /^\/api\/backend\/v1\/assets\/0x[0-9a-f]{64}$/.test(resolvedImageUrl ?? "");
 
   return (
     <span className="sideLogo" data-tone={tone}>
       {resolvedImageUrl && showImage
-        ? <Image alt="" height={64} onError={() => setFailedUrl(resolvedImageUrl)} src={resolvedImageUrl} unoptimized width={64} />
+        ? <Image alt="" height={64} onError={() => setFailedUrl(resolvedImageUrl)} src={resolvedImageUrl} unoptimized={!optimize} width={64} loading="lazy" decoding="async" />
         : <b aria-hidden="true">{initialFor(name)}</b>}
     </span>
   );

@@ -5,6 +5,15 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   turbopack: {},
+  images: {
+    localPatterns: [
+      { pathname: "/api/backend/v1/assets/*", search: "" },
+      { pathname: "/icons/robinhood-chain-avatar.jpg", search: "" },
+    ],
+    remotePatterns: [],
+    maximumRedirects: 0,
+    qualities: [75],
+  },
   async headers() {
     return [{
       source: "/:path*",
