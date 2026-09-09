@@ -68,7 +68,7 @@ export const en = {
   "discovery.protocolStats": "live protocol stats",
   "discovery.totalVolume": "total volume",
   "discovery.liveContests": "live contests",
-  "discovery.volume24h": "24h volume",
+  "discovery.volume24h": "24h vol",
   "discovery.trades24h": "24h trades",
   "discovery.leadFlips": "lead flips",
   "discovery.liquidity": "liquidity",
