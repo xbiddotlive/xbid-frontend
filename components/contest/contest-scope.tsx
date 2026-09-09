@@ -24,6 +24,10 @@ export function ContestScopeLabel({ metadata, detailed = false }: { metadata: { 
   const region = !metadata.region ? t("scope.unset") : metadata.region === "GLOBAL" ? t("scope.global")
     : new Intl.DisplayNames([localeInfo(locale).htmlLang], { type: "region" }).of(metadata.region) ?? metadata.region;
   const language = locales.find(item => item.code === metadata.contentLanguage)?.name;
+  if (!detailed) {
+    const label = [metadata.region ? region : undefined, language].filter(Boolean).join(" · ");
+    return label ? <span className="contestScopeLabel" title={t("scope.regionHelp")}>{label}</span> : null;
+  }
   return <span className="contestScopeLabel" title={t("scope.regionHelp")}>
     {detailed ? `${t("scope.region")}: ${region}` : region}
     {(language || detailed) && <> · {detailed ? t("scope.language") + ": " : ""}{language ?? t("scope.unset")}</>}

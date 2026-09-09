@@ -4,10 +4,12 @@ import vm from "node:vm";
 import test from "node:test";
 import ts from "typescript";
 import { z } from "zod";
+import * as jsxRuntime from "react/jsx-runtime";
+import { renderToStaticMarkup } from "react-dom/server";
 
 function load(path, dependencies = {}, globals = {}) {
   const source = readFileSync(new URL(path, import.meta.url), "utf8");
-  const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } });
+  const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } });
   const context = { exports: {}, require: id => { if (!(id in dependencies)) throw Error(`unexpected import ${id}`); return dependencies[id]; }, ...globals };
   vm.runInNewContext(output.outputText, context);
   return context.exports;
@@ -17,6 +19,25 @@ const schemas = load("../lib/api/schemas.ts", { zod: { z }, "@/lib/product/conte
 const metadata = { title: "Local scope test", description: "A test", category: "culture", sideA: { name: "A", symbol: "A" }, sideB: { name: "B", symbol: "B" } };
 const address = "0x" + "ab".repeat(20), hash = "0x" + "ab".repeat(32);
 const item = { chainId: "46630", contestId: hash, metadataHash: hash, marketVault: address, creator: address, sideAToken: address, sideBToken: address, marketVersion: 3, createdBlock: "1", createdAt: "1", metadata, market: null };
+
+test("card scope hides missing fields while detail retains explicit unspecified labels", () => {
+  const labels = { "scope.unset": "Unspecified", "scope.global": "Global", "scope.region": "Topic region", "scope.language": "Content language", "scope.regionHelp": "Topic scope" };
+  const { ContestScopeLabel } = load("../components/contest/contest-scope.tsx", {
+    "react/jsx-runtime": jsxRuntime,
+    react: {},
+    "@/lib/i18n/locale-context": { useI18n: () => ({ locale: "en", t: key => labels[key] }) },
+    "@/lib/i18n/locales": load("../lib/i18n/locales.ts"),
+    "@/lib/product/contest-scope": scope,
+  });
+  const render = (metadata, detailed = false) => renderToStaticMarkup(ContestScopeLabel({ metadata, detailed }));
+  assert.equal(render({}), "");
+  assert.match(render({ contentLanguage: "zh" }), />中文</);
+  assert.doesNotMatch(render({ contentLanguage: "zh" }), /Unspecified/);
+  assert.match(render({ region: "CN", contentLanguage: "zh" }), /China · 中文/);
+  assert.match(render({ region: "GLOBAL" }), />Global</);
+  assert.match(render({}, true), /Topic region: Unspecified/);
+  assert.match(render({}, true), /Content language: Unspecified/);
+});
 
 test("scope catalogs are explicit, unique and consistent across frontend/backend", () => {
   assert.equal(scope.countryCodes.length, 249);

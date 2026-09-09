@@ -229,7 +229,8 @@
 .homeMarketCard:hover { border-color: var(--line-strong); transform: translateY(-1px); }
 .homeMarketCardOpen { position: absolute; z-index: 1; inset: 0; border-radius: var(--radius); }
 .homeMarketCardOpen:focus-visible { box-shadow: var(--focus); }
-.homeMarketCard > header { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; align-content: start; gap: 3px; min-height: 60px; }
+.homeMarketCard > header { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; align-content: start; gap: 6px; min-height: 60px; padding-bottom: 10px; }
+.homeMarketCardMeta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; min-width: 0; }
 .marketCode { display: grid; width: 36px; height: 36px; grid-row: 1 / span 2; place-items: center; border: 1px solid var(--line-strong); border-radius: var(--radius); font-weight: 850; }
 .homeMarketCard h3 { margin: 0; line-height: 1.5; font-weight: 800; }
 .marketSignal { display: inline-flex; align-self: start; align-items: center; justify-self: start; min-height: 20px; padding: 0 7px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--muted); background: transparent; font-weight: 450; line-height: 18px; white-space: nowrap; }
@@ -254,7 +255,7 @@
 .featuredCapitalStrip { margin-top: 8px; }
 .homeMarketGrid[data-view="list"] { grid-template-columns: 1fr; }
 .homeMarketGrid[data-view="list"] .homeMarketCard { display: grid; grid-template-columns: minmax(240px, 1.2fr) minmax(360px, 1fr) minmax(220px, .8fr); align-items: center; gap: 14px; min-height: 94px; }
-.homeMarketGrid[data-view="list"] .homeMarketCard > header { min-height: 0; }
+.homeMarketGrid[data-view="list"] .homeMarketCard > header { min-height: 0; padding-bottom: 0; }
 .homeMarketGrid[data-view="list"] .homeBattleBar { grid-column: 2; }
 .homeMarketGrid[data-view="list"] .marketCapitalStrip { grid-template-columns: 1fr 1fr; margin: 0; padding: 0 0 0 14px; border-top: 0; border-left: 1px solid var(--line); row-gap: 6px; }
 .homeMarketGrid[data-view="list"] .marketCapitalStrip > div { padding: 0 8px; border: 0; }
