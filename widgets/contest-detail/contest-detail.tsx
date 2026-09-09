@@ -6,6 +6,7 @@ import { formatUnits, type Address } from "viem";
 import { useReadContracts } from "wagmi";
 
 import { DominanceMeter } from "@/components/contest/dominance-meter";
+import { ContestDescription } from "@/components/contest/contest-description";
 import { ContestScopeLabel } from "@/components/contest/contest-scope";
 import { DuelCurve } from "@/components/contest/duel-curve";
 import { SideLogo } from "@/components/contest/side-logo-pair";
@@ -184,6 +185,8 @@ export function ContestDetail({ indexedContest, initialHistory, initialMode, ini
               <span className={riskMode === 0 ? "statusOk" : "statusWarning"}>{riskMode === 0 ? t("contest.tradingActive") : t("contest.riskMode", { mode: riskMode })}</span>
             </div>
           </div>
+
+          <ContestDescription key={contest.contestId} description={contest.metadata.description} />
 
           <section className="liveArena" aria-label={t("contest.liveArena")}>
             <div className="arenaSides">

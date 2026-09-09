@@ -1,4 +1,11 @@
 /* contest arena */
+.contestDescription { margin: 0 0 14px; min-width: 0; }
+.contestDescriptionBody, .contestDescriptionDisclosure { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; }
+.contestDescriptionBody { color: var(--text); }
+.contestDescriptionBody[data-expanded="false"] { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+.contestDescriptionToggle { display: inline-flex; align-items: center; min-height: 32px; padding: 4px 0; background: transparent; border: 0; color: var(--muted); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.contestDescriptionToggle:hover { color: var(--text); }
+.contestDescriptionDisclosure { margin-top: 8px; padding-left: 10px; border-left: 2px solid var(--line-strong); color: var(--muted); }
 .contestPageShell { width: min(var(--container), calc(100% - 32px)); margin: 0 auto; padding: 8px 0 80px; }
 .contestWorkspace { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 8px; align-items: start; }
 .contestMain, .liveCommentary { border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel-glass); }

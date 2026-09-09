@@ -1,4 +1,6 @@
 {
+  "contest.descriptionMore": "全文を読む",
+  "contest.descriptionLess": "折りたたむ",
   "scope.region": "議題の地域",
   "scope.language": "コンテンツの言語",
   "scope.allRegions": "すべての地域",
