@@ -11,4 +11,9 @@ if [ "${XBID_ENVIRONMENT}" != "${XBID_IMAGE_ENVIRONMENT}" ]; then
   exit 1
 fi
 
+if [ -z "${CHAIN_ID:-}" ] || [ "${CHAIN_ID}" != "${XBID_IMAGE_CHAIN_ID:-}" ]; then
+  echo "Refusing to start: runtime CHAIN_ID must match the frontend build chain ID." >&2
+  exit 1
+fi
+
 exec node server.js

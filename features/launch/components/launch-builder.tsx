@@ -5,14 +5,19 @@ import { useEffect, useMemo, useState } from "react";
 import { formatUnits } from "viem";
 
 import { ContestCard } from "@/components/contest/contest-card";
+import { StockPicker } from "./stock-picker";
+import { selectedStocks, validStockSelection } from "@/lib/product/stock-catalog";
 import { SideLogo } from "@/components/contest/side-logo-pair";
 import { PlusIcon } from "@/components/ui/icons";
+import { SettlementFaucetLink } from "@/components/navigation/settlement-faucet-link";
 import type { IndexedContest } from "@/lib/api/contests";
 import { referenceContest } from "@/lib/blockchain/contracts";
 import { contestCategories } from "@/lib/product/contest-categories";
 import { robinhoodTestnet, settlementTokenLabel } from "@/lib/blockchain/chain";
 import { useI18n } from "@/lib/i18n/locale-context";
-import { localeInfo } from "@/lib/i18n/locales";
+import { localeInfo, locales } from "@/lib/i18n/locales";
+import { RegionSelect } from "@/components/contest/contest-scope";
+import { isRegion, isContentLanguage } from "@/lib/product/contest-scope";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { normalizeTokenSymbol, tokenSymbol, useLaunchContest } from "../hooks/use-launch-contest";
 
@@ -97,7 +102,7 @@ function LogoUploadField({ draft, error, name, onRemove, onSelect, side }: {
 }
 
 const previewContest: IndexedContest = {
-  chainId: "46630", contestId: referenceContest.contestId, marketVault: referenceContest.marketVault,
+  chainId: String(robinhoodTestnet.id), contestId: referenceContest.contestId, marketVault: referenceContest.marketVault,
   creator: "0x0000000000000000000000000000000000000000", sideAToken: referenceContest.sideAToken,
   sideBToken: referenceContest.sideBToken, marketVersion: 2, metadataHash: "0x", createdBlock: "0", createdAt: "0",
   metadata: { title: referenceContest.title, description: "", category: referenceContest.category, sideA: referenceContest.sideA, sideB: referenceContest.sideB },
@@ -114,6 +119,10 @@ export function LaunchBuilder() {
   const [description, setDescription] = useState("");
   const [referenceUrl, setReferenceUrl] = useState("");
   const [category, setCategory] = useState("crypto");
+  const [stockIds, setStockIds] = useState<string[]>([]);
+  const [region, setRegion] = useState("GLOBAL");
+  const [languageOverride, setLanguageOverride] = useState<string | null>(null);
+  const contentLanguage = languageOverride ?? locale;
   const [initialSide, setInitialSide] = useState<"none" | "a" | "b">("none");
   const [initialAmount, setInitialAmount] = useState("");
   const [sideALogo, setSideALogo] = useState<LogoDraft | null>(null);
@@ -137,12 +146,14 @@ export function LaunchBuilder() {
     && description.trim().length >= 10
     && description.trim().length <= 800
     && contestCategories.some((item) => item.value === category)
+    && (category !== "stocks" || validStockSelection(stockIds))
+    && isRegion(region) && isContentLanguage(contentLanguage)
     && validReferenceUrl(referenceUrl)
     && validInitialPosition(initialSide, initialAmount)
     && !logoErrors.a
     && !logoErrors.b;
   const canSubmit = launchContest.isConnected && formIsValid && !launchContest.isBusy;
-  const preview = useMemo(() => ({ title: title || t("launch.previewTitle"), sideA: sideA || t("common.sideA"), sideASymbol: resolvedSideASymbol, sideALogoUrl: sideALogo?.url, sideB: sideB || t("common.sideB"), sideBSymbol: resolvedSideBSymbol, sideBLogoUrl: sideBLogo?.url, category }), [category, resolvedSideASymbol, resolvedSideBSymbol, sideA, sideALogo, sideB, sideBLogo, t, title]);
+  const preview = useMemo(() => ({ title: title || t("launch.previewTitle"), sideA: sideA || t("common.sideA"), sideASymbol: resolvedSideASymbol, sideALogoUrl: sideALogo?.url, sideB: sideB || t("common.sideB"), sideBSymbol: resolvedSideBSymbol, sideBLogoUrl: sideBLogo?.url, category, stocks: category === "stocks" ? selectedStocks(stockIds) : undefined }), [stockIds, category, resolvedSideASymbol, resolvedSideBSymbol, sideA, sideALogo, sideB, sideBLogo, t, title]);
 
   useEffect(() => () => { if (sideALogo) URL.revokeObjectURL(sideALogo.url); }, [sideALogo]);
   useEffect(() => () => { if (sideBLogo) URL.revokeObjectURL(sideBLogo.url); }, [sideBLogo]);
@@ -168,6 +179,9 @@ export function LaunchBuilder() {
       title: title.trim(),
       description: description.trim(),
       category,
+      ...(category === "stocks" ? { stockIds } : {}),
+      region,
+      contentLanguage,
       referenceUrl: referenceUrl.trim() || undefined,
       sideAName: sideA.trim(),
       sideASymbol: resolvedSideASymbol,
@@ -202,9 +216,13 @@ export function LaunchBuilder() {
           </div>
           <label className="field fieldWide"><span>{t("launch.descriptionLabel")} <em aria-label={t("launch.required")} className="fieldRequirement" data-kind="required">※</em></span><textarea maxLength={800} minLength={10} name="description" onChange={(event) => setDescription(event.target.value)} placeholder={t("launch.descriptionPlaceholder")} rows={4} required value={description} /></label>
           <label className="field"><span>{t("launch.category")} <em aria-label={t("launch.required")} className="fieldRequirement" data-kind="required">※</em></span><select name="category" onChange={(event) => setCategory(event.target.value)} required value={category}>{contestCategories.map((item) => <option key={item.value} value={item.value}>{t(`category.${item.value}` as MessageKey)}</option>)}</select></label>
+          {category === "stocks" && <StockPicker value={stockIds} onChange={setStockIds} disabled={launchContest.isBusy} />}
           <label className="field"><span>{t("launch.reference")} <em className="fieldRequirement">{t("launch.optional")}</em></span><input maxLength={500} name="reference" onChange={(event) => setReferenceUrl(event.target.value)} placeholder="https://…" type="url" value={referenceUrl} /></label>
+          <label className="field"><span>{t("scope.region")}</span><RegionSelect value={region} onChange={setRegion} /><small>{t("scope.regionHelp")}</small></label>
+          <label className="field"><span>{t("scope.language")}</span><select name="contentLanguage" value={contentLanguage} onChange={event => setLanguageOverride(event.target.value)}>{locales.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select><small>{t("scope.languageHelp")}</small></label>
           <label className="field fieldWide"><span>{t("launch.initialPosition")} <em className="fieldRequirement">{t("launch.optional")}</em></span><div className="initialPosition"><select aria-label={t("launch.initialSide")} onChange={(event) => setInitialSide(event.target.value as "none" | "a" | "b")} value={initialSide}><option value="none">{t("launch.noInitial")}</option><option value="a">{t("common.sideA")}</option><option value="b">{t("common.sideB")}</option></select><input disabled={initialSide === "none"} inputMode="decimal" min="0.01" name="initialAmount" onChange={(event) => setInitialAmount(event.target.value)} placeholder="0 usdc" required={initialSide !== "none"} step="0.01" type="number" value={initialAmount} /></div></label>
           <div className="launchSummary"><div><span>{t("launch.network")}</span><strong>{t("chain.testnet")}</strong></div><div><span>{t("launch.walletBalance")}</span><strong>{launchContest.isConnected ? `${walletBalance} ${settlementTokenLabel}` : t("launch.connectToRead")}</strong></div><div><span>{t("launch.marketCurve")}</span><strong>b = 150k</strong></div></div>
+          <SettlementFaucetLink />
           <button className="button launchSubmit" disabled={!canSubmit} type="submit">{launchContest.isBusy ? t("launch.launching") : launchContest.isConnected && launchContest.chainId !== robinhoodTestnet.id ? t("launch.switchAndLaunch") : launchContest.isConnected ? t("launch.submit") : t("launch.connectAndLaunch")}</button>
           <p aria-live="polite" className="formFootnote">{launchContest.status}</p>
           {launchContest.transactionHash ? <a className="explorerLink" href={`${robinhoodTestnet.blockExplorers.default.url}/tx/${launchContest.transactionHash}`} rel="noreferrer" target="_blank">{t("launch.latestTransaction")}</a> : null}

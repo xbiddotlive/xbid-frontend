@@ -3,6 +3,7 @@ import Link from "next/link";
 import { JsonLd } from "@/components/seo/json-ld";
 import { ArrowIcon, CrownIcon, InfoIcon } from "@/components/ui/icons";
 import { contracts } from "@/lib/blockchain/contracts";
+import { activeChain } from "@/lib/blockchain/chain";
 import { I18nText } from "@/lib/i18n/locale-context";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { feeRows } from "@/lib/product/education";
@@ -25,7 +26,7 @@ const docsSchema = {
   mainEntityOfPage: `${siteUrl}/docs`,
 };
 
-const explorer = "https://explorer.testnet.chain.robinhood.com/address";
+const explorer = `${activeChain.blockExplorers.default.url}/address`;
 const docSections = ["overview", "trading", "pricing", "fees", "crown", "referrals", "launch", "comments", "risk", "contracts"] as const;
 const feeKeys = ["trading", "protocol", "creator", "referrer", "creation"] as const;
 

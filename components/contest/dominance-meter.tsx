@@ -2,6 +2,13 @@
 
 import { useI18n } from "@/lib/i18n/locale-context";
 
+export function SideShareTrack({ sideAPercent, label }: { sideAPercent: number; label: string }) {
+  return <svg className="sideShareTrack" width="100%" height="5" role="img" aria-label={label}>
+    <rect className="sideShareTrackB" width="100%" height="100%" />
+    <rect className="sideShareTrackA" width={`${sideAPercent}%`} height="100%" />
+  </svg>;
+}
+
 type DominanceMeterProps = {
   sideAPercent: number;
   sideBPercent: number;
@@ -23,9 +30,7 @@ export function DominanceMeter({
         <span>{t("common.sideA")} · {sideAPercent}%</span>
         <span>{t("common.sideB")} · {sideBPercent}%</span>
       </div>
-      <progress max="100" value={sideAPercent}>
-        {t("common.sideA")} {sideAPercent}%
-      </progress>
+      <SideShareTrack sideAPercent={sideAPercent} label={`${t("common.sideA")} ${sideAPercent}%, ${t("common.sideB")} ${sideBPercent}%`} />
     </div>
   );
 }

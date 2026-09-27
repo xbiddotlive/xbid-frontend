@@ -16,9 +16,38 @@ function load(path, dependencies) {
   return context.exports;
 }
 const metrics = load("../lib/product/market-metrics.ts", { viem: { formatUnits } });
-const { discoveryTokens, selectTokens, priceMove } = load("../lib/product/discovery-tokens.ts", { "./market-metrics": metrics });
-const { reconcileContests, paginate } = load("../lib/product/discovery-snapshot.ts", {});
+const { discoveryTokens, pairedTokens, selectTokens, priceMove } = load("../lib/product/discovery-tokens.ts", { "./market-metrics": metrics });
+const { reconcileContests, paginate, refreshContestPages } = load("../lib/product/discovery-snapshot.ts", {});
 const config = load("../next.config.ts", {}).default;
+const { contestCategories } = load("../lib/product/contest-categories.ts", {});
+
+test("shared discovery and launch categories include entertainment and predictions without losing existing categories", () => {
+  const values = Array.from(contestCategories, item => item.value);
+  assert.equal(new Set(values).size, values.length);
+  for (const value of ["crypto", "sports", "politics", "finance", "technology", "culture", "entertainment", "predictions", "other"]) {
+    assert.ok(values.includes(value), `missing category ${value}`);
+  }
+});
+
+test("shared price display distinguishes missing data from a real zero change", () => {
+  assert.equal(metrics.formatPriceChange(null), "—");
+  assert.equal(metrics.formatPriceChange(NaN), "—");
+  assert.equal(metrics.formatPriceChange(0), "0.00%");
+  assert.equal(metrics.formatPriceChange(-0.001), "0.00%");
+  assert.equal(metrics.formatPriceChange(-1.23), "-1.23%");
+  assert.equal(metrics.formatPriceChange(1.23), "+1.23%");
+});
+
+test("loaded page refresh follows cursors, deduplicates movement, and fails closed", async () => {
+  const a = { contestId: "a" }, b = { contestId: "b" };
+  const calls = [];
+  const result = await refreshContestPages(async cursor => { calls.push(cursor); return cursor ? { items: [a, b], nextCursor: null } : { items: [a], nextCursor: "next" }; }, 4);
+  assert.deepEqual(calls, [undefined, "next"]);
+  assert.equal(result.items.length, 2);
+  assert.equal(result.nextCursor, null);
+  await assert.rejects(refreshContestPages(async () => ({ items: [a], nextCursor: "loop" }), 4), /repeated contest cursor/);
+  await assert.rejects(refreshContestPages(async cursor => { if (cursor) throw Error("offline"); return { items: [a], nextCursor: "next" }; }, 2), /offline/);
+});
 const contest = (id = "1", volume = "100") => ({
   contestId: id, chainId: "46630", marketVersion: 3, createdAt: "100000",
   metadata: { sideA: { name: "alpha", symbol: "SAME" }, sideB: { name: "beta", symbol: "SAME" } },
@@ -32,6 +61,23 @@ test("both sides retain unique keys and direct side-specific trade links", () =>
   assert.equal(rows.find((row) => row.key === "46630:1:1").href, "/contest/1?trade=buy&side=b");
   assert.equal(rows[0].metadata.symbol, "SAME");
   assert.equal(rows[1].metadata.symbol, "SAME");
+});
+test("all tokens keep A and B paired despite activity ranking, duplicate tickers and page overlap", () => {
+  const first = contest("1", "10"), second = contest("2", "99999");
+  second.market.sideBVolume24hUnits = "100000";
+  const pairs = pairedTokens([first, second, first, { ...contest("3"), market: null }]);
+  assert.equal(pairs.length, 2);
+  assert.equal(pairs[0].key, "46630:1");
+  for (const pair of pairs) {
+    assert.equal(pair.a.key, pair.key + ":0");
+    assert.equal(pair.b.key, pair.key + ":1");
+    assert.equal(pair.a.side, "a");
+    assert.equal(pair.b.side, "b");
+  }
+  const searchResult = pairedTokens([second]);
+  assert.equal(searchResult.length, 1);
+  assert.equal(searchResult[0].b.href, "/contest/2?trade=buy&side=b");
+  assert.equal(pairedTokens([first, { ...first, chainId: "84532" }]).length, 2);
 });
 test("prices and changes exactly match shared detail-page calculations", () => {
   const item = contest();

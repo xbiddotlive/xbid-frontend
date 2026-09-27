@@ -10,6 +10,8 @@ import {
   defineChain,
   decodeEventLog,
   http,
+  keccak256,
+  parseAbi,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
@@ -166,7 +168,10 @@ async function main() {
   const projectDirectory = process.cwd();
   const inputPath = path.resolve(projectDirectory, inputArgument);
   const input = JSON.parse(await readFile(inputPath, "utf8"));
+  const expectedMarketVersion = input.expectedMarketVersion ?? 2;
+  if (![2, 3].includes(expectedMarketVersion)) throw new Error("Unsupported expected testnet market version.");
   const artifactDirectory = path.resolve(projectDirectory, "content/x-posts", input.campaign);
+  if (!/^[a-z0-9-]+$/.test(input.campaign)) throw new Error("Invalid campaign directory name.");
   await mkdir(artifactDirectory, { recursive: true });
   const destinations = {
     logoA: path.join(artifactDirectory, "side-a.png"),
@@ -174,9 +179,25 @@ async function main() {
     card: path.join(artifactDirectory, "post.png"),
     record: path.join(artifactDirectory, "record.json"),
   };
+  if (!process.argv.includes("--render-only")) {
+    for (const name of ["record.json", "creation-submitted.json"]) {
+      const exists = await readFile(path.join(artifactDirectory, name)).then(() => true).catch(error => {
+        if (error.code === "ENOENT") return false;
+        throw error;
+      });
+      if (exists) throw new Error(`Campaign already has ${name}; inspect it before creating again.`);
+    }
+  }
+  async function prepareLogo(sourcePath, symbol, label, color, destination) {
+    if (!sourcePath) return logo(symbol, label, color, destination);
+    const source = await readFile(path.resolve(path.dirname(inputPath), sourcePath));
+    const png = await sharp(source).resize(256, 256, { fit: "contain", background: "#00000000" }).png({ compressionLevel: 9 }).toBuffer();
+    if (png.length >= 100_000) throw new Error("Custom logo exceeds 100 KB.");
+    await writeFile(destination, png);
+  }
   await Promise.all([
-    logo(input.sideASymbol, input.sideALogoLabel, "#3478f6", destinations.logoA),
-    logo(input.sideBSymbol, input.sideBLogoLabel, "#ff603d", destinations.logoB),
+    prepareLogo(input.sideALogoPath, input.sideASymbol, input.sideALogoLabel, "#3478f6", destinations.logoA),
+    prepareLogo(input.sideBLogoPath, input.sideBSymbol, input.sideBLogoLabel, "#ff603d", destinations.logoB),
   ]);
 
   if (process.argv.includes("--render-only")) {
@@ -195,6 +216,20 @@ async function main() {
   const chain = defineChain({ id: CHAIN_ID, name: "Robinhood Chain Testnet", nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 }, rpcUrls: { default: { http: [rpcUrl] } } });
   const publicClient = createPublicClient({ chain, transport: http(rpcUrl) });
   const walletClient = createWalletClient({ account, chain, transport: http(rpcUrl) });
+  if (await publicClient.getChainId() !== CHAIN_ID) throw new Error("RPC is not Robinhood Testnet.");
+  const preflightAbi = parseAbi(['function settlementToken() view returns (address)', 'function defaultMarketVersion() view returns (uint32)', 'function CONTEST_CREATION_FEE_UNITS() view returns (uint256)']);
+  const [settlement, version, fee, gasBalance] = await Promise.all([
+    publicClient.readContract({address:FACTORY,abi:preflightAbi,functionName:'settlementToken'}),
+    publicClient.readContract({address:FACTORY,abi:preflightAbi,functionName:'defaultMarketVersion'}),
+    publicClient.readContract({address:FACTORY,abi:preflightAbi,functionName:'CONTEST_CREATION_FEE_UNITS'}),
+    publicClient.getBalance({address:account.address}),
+  ]);
+  if (settlement.toLowerCase() !== SETTLEMENT_TOKEN.toLowerCase() || version !== expectedMarketVersion || fee !== CREATION_FEE || gasBalance === 0n) throw new Error('Unexpected factory config or no testnet gas.');
+  if (version === 3) {
+    const manifest = JSON.parse(await readFile(path.resolve(projectDirectory, "../contracts-solidity-foundry/deployments/robinhood-testnet/market-v3.json"), "utf8"));
+    const code = await publicClient.getCode({ address: manifest.marketVaultImplementation });
+    if (manifest.chainId !== CHAIN_ID || manifest.factoryProxy.toLowerCase() !== FACTORY.toLowerCase() || !code || keccak256(code) !== manifest.marketVaultImplementationCodeHash) throw new Error("V3 deployment manifest verification failed.");
+  }
 
   const challenge = await api(`/v1/chains/${CHAIN_ID}/write-session/challenge`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ walletAddress: account.address }) });
   const signature = await account.signMessage({ message: challenge.message });
@@ -208,6 +243,9 @@ async function main() {
       title: input.title,
       description: input.description,
       category: input.category,
+      ...(input.category === "stocks" ? { stockIds: input.stockIds } : {}),
+      ...(input.region !== undefined ? { region: input.region } : {}),
+      ...(input.contentLanguage !== undefined ? { contentLanguage: input.contentLanguage } : {}),
       referenceUrl: input.referenceUrl,
       sideAName: input.sideAName,
       sideASymbol: input.sideASymbol,
@@ -217,6 +255,21 @@ async function main() {
       sideBLogoHash: sideBAsset.contentHash,
     }),
   });
+
+  const metadata = prepared.metadata;
+  if (input.category === "stocks" && (!Array.isArray(input.stockIds) || !input.stockIds.length
+    || metadata?.stocks?.length !== input.stockIds.length
+    || input.stockIds.some((id, index) => metadata.stocks[index]?.id !== id))) {
+    throw new Error("Prepared associated stocks mismatch; no creation transaction sent.");
+  }
+  if (!metadata || keccak256(new TextEncoder().encode(JSON.stringify(metadata))) !== prepared.metadataHash
+    || metadata.title !== input.title || metadata.description !== input.description
+    || metadata.sideA?.name !== input.sideAName || metadata.sideA?.symbol !== input.sideASymbol
+    || metadata.sideB?.name !== input.sideBName || metadata.sideB?.symbol !== input.sideBSymbol
+    || (input.region !== undefined && metadata.region !== input.region)
+    || (input.contentLanguage !== undefined && metadata.contentLanguage !== input.contentLanguage)) {
+    throw new Error("Prepared contest metadata verification failed; no creation transaction sent.");
+  }
 
   const userSalt = bytesToHex(randomBytes(32));
   const contestId = await publicClient.readContract({ address: FACTORY, abi: factoryAbi, functionName: "computeContestId", args: [account.address, userSalt, prepared.metadataHash] });
@@ -233,6 +286,8 @@ async function main() {
   const params = { userSalt, metadataHash: prepared.metadataHash, metadataURI: prepared.metadataUri, sideAName: input.sideAName, sideASymbol: input.sideASymbol, sideBName: input.sideBName, sideBSymbol: input.sideBSymbol };
   const simulation = await publicClient.simulateContract({ account, address: FACTORY, abi: factoryAbi, functionName: "createContest", args: [params] });
   const transactionHash = await walletClient.writeContract(simulation.request);
+  await writeFile(path.join(artifactDirectory,'creation-submitted.json'), JSON.stringify({contestId,transactionHash,creator:account.address,chainId:CHAIN_ID,metadataHash:prepared.metadataHash,metadataUri:prepared.metadataUri,submittedAt:new Date().toISOString()},null,2)+'\n',{flag:'wx'});
+  console.log(JSON.stringify({stage:'creation_submitted',contestId,transactionHash}));
   const receipt = await publicClient.waitForTransactionReceipt({ hash: transactionHash, confirmations: 1 });
   if (receipt.status !== "success") throw new Error("Contest creation reverted.");
   const created = receipt.logs.flatMap((log) => {
@@ -247,7 +302,7 @@ async function main() {
     await new Promise((resolve) => setTimeout(resolve, 2_000));
   }
   if (!contest) throw new Error("Contest was confirmed but did not become publicly indexed in time.");
-  await renderPostImage(input, contest, destinations);
+  if (!process.argv.includes("--skip-card")) await renderPostImage(input, contest, destinations);
   const record = {
     campaign: input.campaign,
     createdAt: new Date().toISOString(),
@@ -261,7 +316,7 @@ async function main() {
     metadataUri: prepared.metadataUri,
     sources: input.sources,
     mentions: input.mentions,
-    imagePath: path.relative(projectDirectory, destinations.card),
+    imagePath: process.argv.includes("--skip-card") ? null : path.relative(projectDirectory, destinations.card),
   };
   await writeFile(destinations.record, `${JSON.stringify(record, null, 2)}\n`, { mode: 0o600 });
   console.log(JSON.stringify(record, null, 2));

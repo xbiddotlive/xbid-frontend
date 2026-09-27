@@ -4,10 +4,8 @@ import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
 import { useAccount, useSwitchChain } from "wagmi";
 
-import { robinhoodTestnet } from "@/lib/blockchain/chain";
+import { robinhoodTestnet, chainFamilyLabel, chainIconPath, plannedMainnetId } from "@/lib/blockchain/chain";
 import { useI18n } from "@/lib/i18n/locale-context";
-
-const robinhoodMainnetId = 4663;
 
 export function ChainSelector() {
   const [open, setOpen] = useState(false);
@@ -19,7 +17,7 @@ export function ChainSelector() {
   const { isPending, switchChainAsync } = useSwitchChain();
   const selectedChainId = isConnected ? chainId : robinhoodTestnet.id;
   const isTestnet = selectedChainId === robinhoodTestnet.id;
-  const isMainnet = selectedChainId === robinhoodMainnetId;
+  const isMainnet = selectedChainId === plannedMainnetId;
 
   useEffect(() => {
     if (!open) return;
@@ -62,10 +60,10 @@ export function ChainSelector() {
           setSwitchError("");
           setOpen((current) => !current);
         }}
-        title={isMainnet ? t("chain.mainnetSoon") : t("chain.testnet")}
+        title={isMainnet && !isTestnet ? `${chainFamilyLabel} · ${t("chain.comingSoon")}` : robinhoodTestnet.name}
         type="button"
       >
-        <Image alt="" height={24} priority src="/icons/robinhood-chain-avatar.jpg" width={24} />
+        <Image alt="" height={24} priority src={chainIconPath} width={24} />
         <span aria-hidden="true" className="chainSelectorStatus" />
       </button>
 
@@ -73,7 +71,7 @@ export function ChainSelector() {
         <div className="chainSelectorMenu" id={menuId} role="menu">
           <div className="chainSelectorHeading">
             <span>{t("chain.network")}</span>
-            <small>{t("chain.name")}</small>
+            <small>{chainFamilyLabel}</small>
           </div>
 
           <button
@@ -84,28 +82,28 @@ export function ChainSelector() {
             role="menuitem"
             type="button"
           >
-            <Image alt="" height={24} src="/icons/robinhood-chain-avatar.jpg" width={24} />
+            <Image alt="" height={24} src={chainIconPath} width={24} />
             <span className="chainOptionCopy">
-              <strong>{t("chain.testnet")}</strong>
-              <small>{t("chain.id", { id: 46630 })}</small>
+              <strong>{robinhoodTestnet.name}</strong>
+              <small>{t("chain.id", { id: robinhoodTestnet.id })}</small>
             </span>
             <span className="chainOptionState">{isPending ? t("chain.switching") : isTestnet ? t("chain.active") : t("chain.switch")}</span>
           </button>
 
-          <button
+          {robinhoodTestnet.testnet ? <button
             aria-current={isMainnet ? "true" : undefined}
             className="chainOption isComingSoon"
             disabled
             role="menuitem"
             type="button"
           >
-            <Image alt="" height={24} src="/icons/robinhood-chain-avatar.jpg" width={24} />
+            <Image alt="" height={24} src={chainIconPath} width={24} />
             <span className="chainOptionCopy">
               <strong>{t("chain.mainnet")}</strong>
-              <small>{t("chain.id", { id: 4663 })}</small>
+              <small>{t("chain.id", { id: plannedMainnetId })}</small>
             </span>
             <span className="chainOptionState">{t("chain.comingSoon")}</span>
-          </button>
+          </button> : null}
 
           {switchError ? <p className="chainSelectorError" role="status">{switchError}</p> : null}
         </div>

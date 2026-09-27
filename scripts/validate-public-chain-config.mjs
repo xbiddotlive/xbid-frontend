@@ -28,6 +28,31 @@ if ((environment === "testnet") !== chainIsTestnet) {
   throw new Error("XBID_ENVIRONMENT and NEXT_PUBLIC_CHAIN_TESTNET disagree.");
 }
 
+const configuredChainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID ?? TESTNET.NEXT_PUBLIC_CHAIN_ID);
+if (!Number.isSafeInteger(configuredChainId) || configuredChainId <= 0) throw new Error("NEXT_PUBLIC_CHAIN_ID must be a positive safe integer.");
+if ((configuredChainId === 84532 && !chainIsTestnet) || (configuredChainId === 8453 && chainIsTestnet)) {
+  throw new Error("Base chain ID and NEXT_PUBLIC_CHAIN_TESTNET disagree.");
+}
+if (environment === "testnet" && configuredChainId !== 46630) {
+  const required = [...Object.keys(TESTNET), "NEXT_PUBLIC_CHAIN_NAME", "NEXT_PUBLIC_CHAIN_EXPLORER_NAME"];
+  const missing = required.filter((key) => !process.env[key]);
+  if (missing.length) throw new Error(`non-Robinhood testnet frontend must explicitly set: ${missing.join(", ")}`);
+  for (const [key, defaultValue] of Object.entries(TESTNET)) {
+    const value = process.env[key];
+    if (key.endsWith("_URL")) {
+      if (!URL.canParse(value) || !["https:", "http:"].includes(new URL(value).protocol)) throw new Error(`${key} must be an HTTP(S) URL.`);
+      if (new URL(value).hostname.replace(/\.$/, "") === new URL(defaultValue).hostname) throw new Error(`non-Robinhood testnet cannot use the Robinhood URL for ${key}`);
+    } else if (key.endsWith("_ADDRESS")) {
+      if (!/^0x[0-9a-fA-F]{40}$/.test(value) || /^0x0{40}$/.test(value) || value.toLowerCase() === defaultValue.toLowerCase()) {
+        throw new Error(`non-Robinhood testnet requires its own non-zero ${key}`);
+      }
+    }
+  }
+  if (configuredChainId === 84532 && process.env.NEXT_PUBLIC_XBID_SETTLEMENT_TOKEN_ADDRESS.toLowerCase() !== "0x036cbd53842c5426634e7929541ec2318f3dcf7e") {
+    throw new Error("Base Sepolia requires the official Circle test USDC address.");
+  }
+}
+
 if (environment === "mainnet") {
   const required = [
     "NEXT_PUBLIC_CHAIN_ID",

@@ -18,6 +18,30 @@ const mainnet = {
   NEXT_PUBLIC_XBID_SETTLEMENT_TOKEN_ADDRESS: "0x5555555555555555555555555555555555555555",
 };
 
+test("Base Sepolia build rejects cross-chain defaults and mock settlement tokens", async () => {
+  const cwd = await mkdtemp(join(tmpdir(), "xbid-base-build-guard-"));
+  const baseSepolia = {
+    ...mainnet, XBID_ENVIRONMENT: "testnet", NEXT_PUBLIC_CHAIN_TESTNET: "true", NEXT_PUBLIC_CHAIN_ID: "84532",
+    NEXT_PUBLIC_CHAIN_NAME: "Base Sepolia", NEXT_PUBLIC_CHAIN_RPC_URL: "https://sepolia.base.org",
+    NEXT_PUBLIC_CHAIN_EXPLORER_NAME: "Basescan", NEXT_PUBLIC_CHAIN_EXPLORER_URL: "https://sepolia.basescan.org",
+    NEXT_PUBLIC_XBID_SETTLEMENT_TOKEN_ADDRESS: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+  };
+  const run = (env) => spawnSync(process.execPath, [script], { cwd, env: { PATH: process.env.PATH, NODE_ENV: "production", ...env }, encoding: "utf8" });
+  try {
+    assert.equal(run(baseSepolia).status, 0);
+    for (const key of Object.keys(baseSepolia).filter((key) => key.includes("_ADDRESS") || key === "NEXT_PUBLIC_CHAIN_RPC_URL")) {
+      assert.notEqual(run({ ...baseSepolia, [key]: "" }).status, 0);
+    }
+    for (const override of [
+      { NEXT_PUBLIC_CHAIN_ID: "8453" },
+      { NEXT_PUBLIC_CHAIN_RPC_URL: "https://rpc.testnet.chain.robinhood.com./" },
+      { NEXT_PUBLIC_XBID_FACTORY_ADDRESS: "0x8f9208FD358c62FB4052e4C2FBbCA3152A17E4b6" },
+      { NEXT_PUBLIC_XBID_FACTORY_ADDRESS: `0x${"0".repeat(40)}` },
+      { NEXT_PUBLIC_XBID_SETTLEMENT_TOKEN_ADDRESS: mainnet.NEXT_PUBLIC_XBID_SETTLEMENT_TOKEN_ADDRESS },
+    ]) assert.notEqual(run({ ...baseSepolia, ...override }).status, 0);
+  } finally { await rm(cwd, { recursive: true, force: true }); }
+});
+
 test("build guard validates the same local production env files as Next", async () => {
   const cwd = await mkdtemp(join(tmpdir(), "xbid-build-guard-"));
   const run = (env = {}) => spawnSync(process.execPath, [script], {

@@ -1,0 +1,40 @@
+/* Color-only polish: no layout, typography metrics or interaction changes.
+ * Dark theme keeps primary content white and limits accents to market meaning.
+ */
+:root:not([data-theme="light"]) :is(.homeMarketCard h3, .contestTitleRow h1, .arenaSideSummary > span, .arenaSideSummary > strong, .marketSideCopy strong, .marketSidePerformance b, .tokenListIdentity strong) {
+  color: var(--text);
+}
+:root:not([data-theme="light"]) :is(.contestDescriptionBody, .userComment p) {
+  color: #bdc4ce;
+}
+:root:not([data-theme="light"]) :is(.statusOk, .arenaVersus span, .liveDot) {
+  color: var(--muted);
+}
+:root:not([data-theme="light"]) .arenaVersus i { background: var(--positive); }
+:root:not([data-theme="light"]) .statusOk {
+  border-color: var(--line);
+  background: var(--control-bg);
+}
+:root:not([data-theme="light"]) :is(.statusWarning, .contestCrownedStatus, .crownedBadge, .portfolioDemoNotice, .crownSequence) {
+  border-color: color-mix(in srgb, var(--crown) 25%, var(--panel));
+  background: color-mix(in srgb, var(--crown) 4%, var(--panel));
+}
+:root:not([data-theme="light"]) :is(.commentPosition[data-side="a"], .commentPosition[data-side="b"], .commentPosition[data-side="both"]) {
+  color: var(--muted);
+  border-color: var(--line-strong);
+  background: var(--surface);
+}
+:root:not([data-theme="light"]) .slippagePresets button[aria-pressed="true"] {
+  color: var(--text);
+  border-color: var(--line-strong);
+  background: var(--panel-raised);
+}
+:root:not([data-theme="light"]) .battleAction[data-action="buy"] { background: color-mix(in srgb, var(--positive) 7%, transparent); }
+:root:not([data-theme="light"]) .battleAction[data-action="sell"] { color: var(--negative); background: color-mix(in srgb, var(--negative) 7%, transparent); }
+:root:not([data-theme="light"]) .battleAction[data-action="flip"] { background: color-mix(in srgb, var(--crown) 7%, transparent); }
+:root:not([data-theme="light"]) :is(.battleTx, .battleTx:hover, .atomicNote, .portfolioStats .portfolioClaimLink, .earningsClaim) {
+  color: var(--text);
+  border-color: var(--line-strong);
+  background: var(--surface);
+}
+:root:not([data-theme="light"]) .terminalBattleRow:hover { background: var(--panel-raised); }

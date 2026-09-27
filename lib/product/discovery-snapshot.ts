@@ -1,4 +1,16 @@
-import type { IndexedContest } from "@/lib/api/contests";
+import type { IndexedContest, ContestPage } from "@/lib/api/contests";
+
+export async function refreshContestPages(load: (cursor?: string) => Promise<ContestPage>, count: number) {
+  let latest = await load();
+  const seen = new Set<string>();
+  for (let page = 1; page < count && latest.nextCursor; page += 1) {
+    if (seen.has(latest.nextCursor)) throw new Error("repeated contest cursor");
+    seen.add(latest.nextCursor);
+    const next = await load(latest.nextCursor);
+    latest = { items: [...latest.items, ...next.items], nextCursor: next.nextCursor };
+  }
+  return { ...latest, items: [...new Map(latest.items.map(item => [item.contestId, item])).values()] };
+}
 
 // Retain unchanged identities so polling does not invalidate every row's memo.
 export function reconcileContests(previous: IndexedContest[], incoming: IndexedContest[]) {

@@ -2,11 +2,11 @@ import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import ts from "typescript";
 
-const cssFiles = ["styles/base.css", "styles/discovery.css", "styles/contest.css", "styles/utility.css"];
+const cssFiles = ["styles/base.css", "styles/discovery.css", "styles/contest.css", "styles/utility.css", "styles/quiet-theme.css"];
 const css = cssFiles.map((file) => readFileSync(new URL(`../${file}`, import.meta.url), "utf8")).join("\n");
 const requiredTokens = [
-  "--bg: #101113", "--panel: #181a1d", "--line: #2c2f33", "--text: #eceef0", "--muted: #a1a6ad",
-  "--side-a: #6386bd", "--side-b: #bd786b", "--crown: #c8ad74", "--positive: #80ba9b", "--font-size-ui: 12px",
+  "--bg: #14161b", "--panel: #181a20", "--line: #22262e", "--text: #eaecef", "--muted: #929aa5",
+  "--side-a: #6e8fb6", "--side-b: #aa817b", "--crown: #c2ad7a", "--positive: #45b395", "--font-size-ui: 12px",
 ];
 
 const failures = requiredTokens.filter((token) => !css.includes(token)).map((token) => `missing token ${token}`);

@@ -18,7 +18,8 @@ import { useAccount, useConnect, usePublicClient, useReadContract, useSwitchChai
 import { CloseIcon, InfoIcon } from "@/components/ui/icons";
 import type { IndexedContest } from "@/lib/api/contests";
 import { robinhoodTestnet, settlementTokenLabel } from "@/lib/blockchain/chain";
-import { contracts, erc20Abi, marketVaultAbi } from "@/lib/blockchain/contracts";
+import { contracts, erc20Abi, marketVaultAbi, supportsPermissionlessMint } from "@/lib/blockchain/contracts";
+import { SettlementFaucetLink } from "@/components/navigation/settlement-faucet-link";
 import { useI18n } from "@/lib/i18n/locale-context";
 import { localeInfo } from "@/lib/i18n/locales";
 import { normalizeDecimalInput } from "@/lib/i18n/decimal-input";
@@ -245,7 +246,7 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
 
       if (balance < input) {
         if (mode !== "buy") throw new Error(t("trade.insufficientSide", { side: side === 0 ? "A" : "B" }));
-        if (!robinhoodTestnet.testnet) throw new Error(t("trade.insufficientBalance", { symbol: settlementTokenLabel }));
+        if (!supportsPermissionlessMint) throw new Error(t("trade.insufficientBalance", { symbol: settlementTokenLabel }));
         const hash = await writeContractAsync({
           address: contracts.settlementToken, abi: erc20Abi, functionName: "mint",
           args: [address, parseUnits("10000", 6)], chainId: robinhoodTestnet.id,
@@ -291,7 +292,7 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
   let actionLabel = mode === "buy" ? t("trade.buyOutput", { amount: formattedOutput, symbol: effectiveSymbol }) : mode === "sell" ? t("trade.sellOutput", { amount: formattedOutput, symbol: effectiveSymbol }) : t("trade.flipOutput", { amount: formattedOutput, symbol: effectiveSymbol });
   if (!isConnected) actionLabel = t("wallet.connect");
   else if (chainId !== robinhoodTestnet.id) actionLabel = t("trade.switchNetwork", { network: t("chain.testnet") });
-  else if (mode === "buy" && balance < input && robinhoodTestnet.testnet) actionLabel = t("trade.mintAmount", { symbol: settlementTokenLabel });
+  else if (mode === "buy" && balance < input && supportsPermissionlessMint) actionLabel = t("trade.mintAmount", { symbol: settlementTokenLabel });
   else if (mode === "buy" && balance < input) actionLabel = t("trade.insufficientBalance", { symbol: settlementTokenLabel });
   else if (mode !== "buy" && balance < input) actionLabel = t("trade.insufficientToken");
   else if (flipQuoteIssue) actionLabel = t("trade.recheckFlip");
@@ -312,6 +313,7 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
         {onClose ? <button aria-label={t("trade.closeDrawer")} className="iconButton" onClick={onClose} type="button"><CloseIcon /></button> : <span className="liveDot">{t("common.live")}</span>}
       </div>}
       <div className="ticketTabs">{(["buy", "sell", "flip"] as const).map((item) => <button className={mode === item ? "active" : ""} key={item} onClick={() => changeMode(item)} type="button">{t(`trade.${item}` as MessageKey)}</button>)}</div>
+      {mode === "buy" && balance < input ? <SettlementFaucetLink /> : null}
       <div className="sideSelector">
         <button className={side === 0 ? "sideA selected" : "sideA"} onClick={() => changeSide(0)} type="button">{mode === "flip" ? t("trade.fromSide", { side: "A" }) : t("common.sideA")}</button>
         <button className={side === 1 ? "sideB selected" : "sideB"} onClick={() => changeSide(1)} type="button">{mode === "flip" ? t("trade.fromSide", { side: "B" }) : t("common.sideB")}</button>

@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { type PropsWithChildren, useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { WagmiProvider } from "wagmi";
 
-import { robinhoodTestnet } from "@/lib/blockchain/chain";
+import { robinhoodTestnet, chainFamilyLabel } from "@/lib/blockchain/chain";
 import { wagmiConfig } from "@/lib/blockchain/config";
 import { LocaleContext } from "@/lib/i18n/locale-context";
 import type { Dictionary, Locale } from "@/lib/i18n/messages";
@@ -115,7 +115,7 @@ export function AppProviders({ children, initialLocale, initialDictionary }: Pro
   }, [initialLocale, setLocale]);
 
   const translate = useCallback(
-    (key: Parameters<typeof message>[1], values?: Parameters<typeof message>[2]) => message(dictionary, key, values),
+    (key: Parameters<typeof message>[1], values?: Parameters<typeof message>[2]) => message(dictionary, key, { chainName: chainFamilyLabel, chainId: robinhoodTestnet.id, ...values }),
     [dictionary],
   );
 

@@ -1,4 +1,5 @@
 import type { Address, Hex } from "viem";
+import { activeChain } from "./chain";
 
 export const contracts = {
   factory: (process.env.NEXT_PUBLIC_XBID_FACTORY_ADDRESS ?? "0x8f9208FD358c62FB4052e4C2FBbCA3152A17E4b6") as Address,
@@ -7,6 +8,21 @@ export const contracts = {
   feeVault: (process.env.NEXT_PUBLIC_XBID_FEE_VAULT_ADDRESS ?? "0x82D9159cB488175cAcdcD145A7285d80563e69d0") as Address,
   settlementToken: (process.env.NEXT_PUBLIC_XBID_SETTLEMENT_TOKEN_ADDRESS ?? "0xAc80194dc1aE8eF52df73e7e1864fB3C62290fe0") as Address,
 } as const satisfies Record<string, Address>;
+
+// Only the existing Robinhood mock has permissionless mint(address,uint256).
+// Circle's Base Sepolia USDC must be obtained from its official faucet.
+export const supportsPermissionlessMint = activeChain.testnet === true
+  && activeChain.id === 46630
+  && contracts.settlementToken.toLowerCase() === "0xac80194dc1ae8ef52df73e7e1864fb3c62290fe0";
+
+if (activeChain.id !== 46630) {
+  const addresses = [process.env.NEXT_PUBLIC_XBID_FACTORY_ADDRESS, process.env.NEXT_PUBLIC_XBID_REGISTRY_ADDRESS,
+    process.env.NEXT_PUBLIC_XBID_RISK_CONTROLLER_ADDRESS, process.env.NEXT_PUBLIC_XBID_FEE_VAULT_ADDRESS,
+    process.env.NEXT_PUBLIC_XBID_SETTLEMENT_TOKEN_ADDRESS];
+  if (addresses.some((address) => !address || !/^0x[0-9a-fA-F]{40}$/.test(address) || /^0x0{40}$/.test(address))) {
+    throw new Error("All contract addresses must be explicitly configured for this chain.");
+  }
+}
 
 export const contestCreationFeeUnits = 5_000_000n;
 

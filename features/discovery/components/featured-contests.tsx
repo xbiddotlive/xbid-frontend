@@ -1,13 +1,15 @@
 "use client";
 import Link from "next/link";
+import { StockLabels } from "@/components/contest/stock-labels";
 import { useState } from "react";
+import { SideShareTrack } from "@/components/contest/dominance-meter";
 import { ChevronIcon } from "@/components/ui/icons";
 import { useI18n } from "@/lib/i18n/locale-context";
 import { MarketSide, CapitalStrip, type MarketView } from "./market-presentation";
 
 function BattleBar({ sideAPercent }: { sideAPercent: number }) {
   const { t } = useI18n();
-  return <div className="homeBattleBar" role="img" aria-label={`${t("common.sideA")} ${sideAPercent.toFixed(1)}%, ${t("common.sideB")} ${(100 - sideAPercent).toFixed(1)}%`}><progress max="100" value={sideAPercent}>{t("common.sideA")} {sideAPercent.toFixed(1)}%</progress></div>;
+  return <div className="homeBattleBar"><SideShareTrack sideAPercent={sideAPercent} label={`${t("common.sideA")} ${sideAPercent.toFixed(1)}%, ${t("common.sideB")} ${(100 - sideAPercent).toFixed(1)}%`} /></div>;
 }
 
 
@@ -30,6 +32,7 @@ export default function FeaturedContests({ featured }: { featured: MarketView[] 
           <div className="featuredCopy" aria-live="polite">
             <div className="featuredBadges"><span data-crowned={featuredMarket.badge === "filter.crowned"}>{t(featuredMarket.badge)}</span><span>{t("market.tradeCount", { count: featuredMarket.contest.market?.tradeCount24h ?? "0" })} · 24h</span><span>{featuredMarket.contest.market?.uniqueTraders24h ?? "0"} {t("common.traders")}</span></div>
             <h2><Link href={featuredMarket.href}>{featuredMarket.contest.metadata.title}</Link></h2>
+            <StockLabels category={featuredMarket.contest.metadata.category} stocks={featuredMarket.contest.metadata.stocks} />
             <p>{featuredMarket.contest.metadata.description || t("discovery.fallbackDescription")}</p>
             <div className="featuredSides">
               <Link href={`${featuredMarket.href}?trade=buy&side=a`}><MarketSide market={featuredMarket} side={0} /></Link>

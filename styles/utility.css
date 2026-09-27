@@ -18,6 +18,18 @@
 .formHeader h2 { margin: 0; font-weight: 800; }
 .fieldGrid { display: grid; grid-column: 1 / -1; grid-template-columns: 1fr 1fr; gap: 8px; }
 .field { display: block; }
+.stockPicker { min-width: 0; margin: 0; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius); }
+.stockPicker legend { padding: 0 5px; font-weight: 650; }
+.stockPickerResults { display: grid; gap: 4px; max-height: 184px; overflow-y: auto; margin-top: 8px; }
+.stockPickerResults button { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 40px; padding: 8px; text-align: left; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); cursor: pointer; }
+.stockPickerResults strong { min-width: 0; overflow-wrap: anywhere; }
+.stockPickerResults span { color: var(--muted); }
+.stockPickerResults button:hover, .stockSelection button:hover { border-color: var(--muted); }
+.stockSelection { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.stockSelection button { min-height: 32px; padding: 4px 8px; color: var(--text); border: 1px solid var(--line-strong); background: var(--panel); border-radius: var(--radius); cursor: pointer; }
+.stockLabels { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; color: var(--muted); }
+.stockLabels > span { padding: 2px 6px; border: 1px solid var(--line); border-radius: var(--radius); overflow-wrap: anywhere; }
+.stockNotice { margin: 8px 0 12px; padding-left: 10px; border-left: 2px solid var(--line-strong); color: var(--muted); line-height: 1.7; overflow-wrap: anywhere; }
 .fieldWide { grid-column: 1 / -1; }
 .field > span { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 5px; color: var(--text); font-weight: 650; }
 .fieldRequirement { color: var(--faint); font-style: normal; font-weight: 450; }
@@ -472,6 +484,7 @@
 
 @media (max-width: 767px) {
   :root { --header-height: 44px; }
+  html { scroll-padding-bottom: calc(var(--footer-height, 67px) + 74px + env(safe-area-inset-bottom)); }
   body { padding-bottom: calc(58px + env(safe-area-inset-bottom)); background-size: 44px 44px, 44px 44px, auto, auto, auto; }
   .headerInner, .pageShell, .contestPageShell { width: calc(100% - 20px); }
   .globalHeader { height: 44px; }
@@ -510,9 +523,11 @@
   .marketCapitalStrip > div:nth-child(n+3), .homeMarketGrid[data-view="list"] .marketCapitalStrip > div:nth-child(n+3) { padding-top: 7px; border-top: 1px solid var(--line); }
   .realMarketStrip { align-items: flex-start; flex-wrap: wrap; justify-content: flex-start; gap: 5px 12px; padding: 10px; }
   .realMarketStrip > div { width: 100%; margin-right: 0; }
-  .exploreFooterMain { grid-template-columns: 1fr auto; gap: 10px; }
-  .exploreFooterBrand { grid-column: 1 / -1; grid-row: 1; align-items: flex-start; justify-content: flex-start; flex-direction: column; gap: 1px; text-align: left; }
-  .exploreFooterBrand > div { align-items: flex-start; flex-direction: column; gap: 1px; }
+  .exploreFooter { bottom: calc(58px + env(safe-area-inset-bottom)); }
+  .exploreFooterMain { grid-template-columns: 1fr auto; gap: 4px 10px; }
+  .exploreFooterBrand { grid-column: 1 / -1; grid-row: 1; align-items: center; justify-content: space-between; flex-direction: row; flex-wrap: wrap; gap: 4px 8px; text-align: left; }
+  .exploreFooterBrand > div { align-items: center; flex-direction: row; gap: 4px; }
+  .exploreFooterBrand > div > span { display: none; }
   .exploreFooterBrand nav { padding-left: 0; border-left: 0; }
   .exploreSocials { grid-column: 1; grid-row: 2; }
   .exploreFooterControls { grid-column: 2; grid-row: 2; }
@@ -565,8 +580,8 @@
   .contestRightRail { display: block; }
   .contestRightRail > .quickTradePanel { display: none; }
   .contestRightRail .liveCommentary { height: 380px; }
-  .tradeDock { position: fixed; z-index: 55; right: 6px; bottom: calc(66px + env(safe-area-inset-bottom)); left: 6px; display: grid; grid-template-columns: 1fr; height: 48px; margin: 0; }
-  .tradeDrawerPanel { right: 6px; bottom: calc(66px + env(safe-area-inset-bottom)); left: 6px; width: auto; max-height: calc(100dvh - 78px - env(safe-area-inset-bottom)); }
+  .tradeDock { position: fixed; z-index: 55; right: 6px; bottom: calc(66px + var(--footer-height, 67px) + env(safe-area-inset-bottom)); left: 6px; display: grid; grid-template-columns: 1fr; height: 48px; margin: 0; }
+  .tradeDrawerPanel, .exploreTradeLayer .tradeDrawerPanel { right: 6px; bottom: calc(66px + var(--footer-height, 67px) + env(safe-area-inset-bottom)); left: 6px; width: auto; max-height: calc(100dvh - 78px - var(--footer-height, 67px) - env(safe-area-inset-bottom)); }
   .tradeDrawerPanel .quickTradePanel { display: block; }
   .tradeDrawerPanel .tradeTicketEmbedded { padding: 0; }
   .tradeTicket { padding: 14px; }

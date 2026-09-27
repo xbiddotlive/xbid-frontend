@@ -1,4 +1,4 @@
-const uploadedAssetPath = /^\/v1\/assets\/(0x[0-9a-fA-F]{64})$/;
+const uploadedAssetPath = /^(?:\/api\/backend)?\/v1\/assets\/(0x[0-9a-fA-F]{64})$/;
 
 export function displayAssetUrl(value?: string) {
   if (!value) return value;

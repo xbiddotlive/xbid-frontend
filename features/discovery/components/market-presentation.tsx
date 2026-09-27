@@ -2,7 +2,7 @@
 import { SideLogo } from "@/components/contest/side-logo-pair";
 import { MessageIcon } from "@/components/ui/icons";
 import type { IndexedContest } from "@/lib/api/contests";
-import { contestMetrics, formatChange, formatUsdc } from "@/lib/product/market-metrics";
+import { contestMetrics, formatPriceChange, formatUsdc } from "@/lib/product/market-metrics";
 import { useI18n } from "@/lib/i18n/locale-context";
 import type { MessageKey } from "@/lib/i18n/messages";
 export type MarketFilter = "trending" | "new" | "close battles" | "comebacks" | "crowned";
@@ -17,11 +17,11 @@ export function toMarketView(contest: IndexedContest, clockMinute = 0) {
   const crowned = Boolean(market?.crownActivated);
   const volume = BigInt(market?.volume24hUnits ?? "0");
   const tags: MarketFilter[] = ["trending"];
-  if (age <= 86_400) tags.push("new");
+  if (age >= 0 && age <= 86_400) tags.push("new");
   if (close) tags.push("close battles");
   if (comeback) tags.push("comebacks");
   if (crowned) tags.push("crowned");
-  const badge: MessageKey = crowned ? "filter.crowned" : comeback ? "market.badge.leadFlipped" : close ? "market.badge.close" : volume > 0n ? "market.badge.active" : "market.badge.new";
+  const badge: MessageKey = crowned ? "filter.crowned" : comeback ? "market.badge.leadFlipped" : close ? "market.badge.close" : volume > 0n || age > 86_400 ? "market.badge.active" : "market.badge.new";
   return {
     contest,
     metrics,
@@ -40,7 +40,8 @@ export function MarketSide({ market, side }: { market: MarketView; side: 0 | 1 }
   const change = market.metrics.changes[side];
   const changeTone = Number(change.toFixed(2)) === 0 ? "muted" : change < 0 ? "negative" : "positive";
   const tone = side === 0 ? "a" : "b";
-  const changeLabel = formatChange(change);
+  const hasAnchor = market.contest.market?.qA24hAgoWei != null && market.contest.market?.qB24hAgoWei != null;
+  const changeLabel = formatPriceChange(hasAnchor ? change : null);
   return <div className="homeMarketSide" data-tone={tone}><div className="marketSideIdentity"><SideLogo imageUrl={metadata.logoUrl} name={metadata.name} tone={tone} /><div className="marketSideCopy"><strong>{metadata.name}</strong><span>${market.metrics.current[side].toFixed(4)}</span></div></div><div className="marketSidePerformance"><b>{percent.toFixed(1)}%</b><em className="priceChange" data-tone={changeTone}>{changeLabel === "flat" ? t("common.flat") : changeLabel} · 24h</em></div></div>;
 }
 

@@ -10,7 +10,7 @@ import { getContest } from "@/lib/api/contests";
 import { prepareContestMetadata, uploadContestLogo } from "@/lib/api/metadata";
 import { ensureWriteSession as getWriteSession } from "@/lib/api/write-session";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
-import { contestCreationFeeUnits, contracts, erc20Abi, factoryAbi, marketVaultAbi } from "@/lib/blockchain/contracts";
+import { contestCreationFeeUnits, contracts, erc20Abi, factoryAbi, marketVaultAbi, supportsPermissionlessMint } from "@/lib/blockchain/contracts";
 import { useI18n } from "@/lib/i18n/locale-context";
 import type { MessageKey, MessageValues } from "@/lib/i18n/messages";
 
@@ -18,6 +18,9 @@ export type LaunchContestInput = {
   title: string;
   description: string;
   category: string;
+  stockIds?: string[];
+  region?: string;
+  contentLanguage?: string;
   referenceUrl?: string;
   sideAName: string;
   sideASymbol: string;
@@ -110,7 +113,7 @@ export function useLaunchContest() {
 
   async function ensureTestUsdc(requiredUnits: bigint, account: Address) {
     if (balance >= requiredUnits) return;
-    if (!robinhoodTestnet.testnet) throw new Error("insufficient usdc balance.");
+    if (!supportsPermissionlessMint) throw new Error(t("trade.insufficientBalance", { symbol: "USDC" }));
     setLocalizedStatus("launch.status.faucet");
     const mintAmount = requiredUnits > parseUnits("10000", 6) ? requiredUnits : parseUnits("10000", 6);
     await confirm(await writeContractAsync({
@@ -167,6 +170,9 @@ export function useLaunchContest() {
         title: input.title,
         description: input.description,
         category: input.category,
+        ...(input.category === "stocks" ? { stockIds: input.stockIds } : {}),
+        region: input.region,
+        contentLanguage: input.contentLanguage,
         referenceUrl: input.referenceUrl || undefined,
         sideAName: input.sideAName,
         sideASymbol,
