@@ -30,7 +30,7 @@ export default async function ContestOpenGraphImage({ params }: { params: Promis
       <div style={{ alignItems: "center", display: "flex", fontSize: 26, fontWeight: 800, position: "relative" }}>
         <span style={{ background: "#ff603d", borderRadius: 999, boxShadow: "0 0 20px #ff603d", height: 12, marginRight: 13, width: 12 }} />
         <span>xbid</span><span style={{ color: "#ff603d" }}>.live</span>
-        <span style={{ background: "#142219", border: "1px solid #2f9f5e", borderRadius: 999, color: "#5ce292", fontSize: 15, fontWeight: 750, marginLeft: "auto", padding: "8px 14px", textTransform: "uppercase" }}>● live · testnet</span>
+        <span style={{ background: "#142219", border: "1px solid #2f9f5e", borderRadius: 999, color: "#5ce292", fontSize: 15, fontWeight: 750, marginLeft: "auto", padding: "8px 14px", textTransform: "uppercase" }}>● live · {robinhoodTestnet.testnet ? "testnet" : "mainnet"}</span>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", marginTop: 20, position: "relative" }}>

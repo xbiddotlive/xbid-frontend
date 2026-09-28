@@ -1,5 +1,6 @@
 import type { Dictionary } from "./messages";
 import type { Locale } from "./locales";
+import { activeChain } from "../blockchain/chain";
 
 // Static import paths let Next split language packs; never put all 16 in the entry bundle.
 const loaders = {
@@ -22,5 +23,8 @@ const loaders = {
 } satisfies Record<Locale, () => Promise<Dictionary>>;
 
 export async function loadDictionary(locale: Locale): Promise<Dictionary> {
-  return loaders[locale]();
+  const dictionary = await loaders[locale]();
+  if (activeChain.testnet) return dictionary;
+  const { mainnetDictionary } = await import("./mainnet-copy");
+  return mainnetDictionary(dictionary, locale, activeChain.nativeCurrency.symbol);
 }

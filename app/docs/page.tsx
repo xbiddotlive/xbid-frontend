@@ -11,14 +11,14 @@ import { companyName, pageMetadata, siteUrl } from "@/lib/seo/site";
 
 export const metadata = pageMetadata({
   title: "docs",
-  description: "XBID business rules, live market mechanics, fees, crown thresholds, referrals and Testnet safety information.",
+  description: "XBID business rules, live market mechanics, fees, crown thresholds, referrals and network safety information.",
   path: "/docs",
 });
 
 const docsSchema = {
   "@context": "https://schema.org",
   "@type": "TechArticle",
-  headline: "xbid.live product rules and Testnet documentation",
+  headline: "xbid.live product rules and network documentation",
   description: "Business rules, market mechanics, fees, crown thresholds and safety information for xbid.live.",
   dateModified: "2026-09-03",
   author: { "@type": "Organization", name: companyName },

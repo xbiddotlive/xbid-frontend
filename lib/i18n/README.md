@@ -43,6 +43,13 @@ This work does not change chain, asset, pricing or protocol parameters.
 
 ## Updating a message
 
+Arc mainnet applies `mainnet-copy.ts` after loading a dictionary. Network-sensitive
+copy uses Chinese or English (English fallback in other locales) until reviewed
+mainnet translations are available. Testnet dictionaries remain unchanged. The
+override includes real-funds risks, USDC gas and the approved 50/40/10 fee split;
+it never rewrites user-authored contest metadata. Run
+`node --test scripts/mainnet-copy.test.mjs` when changing this adaptation.
+
 1. Update the English key in `messages.ts`, its Chinese equivalent, and all 14
    `translations/*.json` entries. Preserve each placeholder exactly.
 2. Keep protocol numbers, units, risk qualifications and branded names intact.

@@ -1,3 +1,5 @@
+import { activeChain } from "../blockchain/chain";
+
 export const howSteps = [
   { index: "01", title: "connect", description: "connect an evm wallet and switch to robinhood chain testnet." },
   { index: "02", title: "choose a side", description: "read the live price, dominance, liquidity and recent trades before taking a position." },
@@ -13,13 +15,13 @@ export const tradeActions = [
 
 export const feeRows = [
   { label: "trading fee", value: "1%", note: "applies to buy, sell and flip; rounded up to the smallest test usdc unit" },
-  { label: "protocol share", value: "70%", note: "share of the trading fee under fee split version 1" },
-  { label: "creator share", value: "20%", note: "claimable by the contest creator" },
+  { label: "protocol share", value: activeChain.testnet ? "70%" : "50%", note: "share of the trading fee under fee split version 1" },
+  { label: "creator share", value: activeChain.testnet ? "20%" : "40%", note: "claimable by the contest creator" },
   { label: "referrer share", value: "10%", note: "claimable by the wallet's bound referrer; otherwise assigned to protocol" },
-  { label: "contest creation", value: "5 test usdc", note: "one-time testnet fee paid when a contest is launched" },
+  { label: "contest creation", value: activeChain.testnet ? "5 test usdc" : "5 usdc", note: "one-time fee paid when a contest is launched" },
 ] as const;
 
-export const frequentlyAskedQuestions = [
+const testnetFrequentlyAskedQuestions = [
   {
     question: "what is xbid?",
     answer: "XBID is a live two-sided onchain contest market. Traders back one side, exit, or flip sides while confirmed trades continuously move price and control.",
@@ -49,3 +51,10 @@ export const frequentlyAskedQuestions = [
     answer: "No. XBID is currently a Testnet application. Tokens have no monetary value, returns are not guaranteed, and users should account for contract, liquidity, market and wallet risk.",
   },
 ] as const;
+
+export const frequentlyAskedQuestions = testnetFrequentlyAskedQuestions.map((item, index) => activeChain.testnet ? item : ({
+  ...item,
+  answer: index === 6
+    ? "No. Mainnet uses real USDC and funds can be lost. Deployment is not an independent audit. Contract, liquidity, market and wallet risks remain; returns are never guaranteed."
+    : item.answer.replace(/Test USDC/g, "USDC"),
+}));
