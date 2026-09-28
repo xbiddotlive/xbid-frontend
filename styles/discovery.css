@@ -65,6 +65,7 @@
   .homePage .homeStats:not([data-expanded="true"]) article:not([data-summary="true"]) { display: none; }
   .mobileStatsToggle { display: inline-block; margin-right: auto; padding: 2px 4px; background: transparent; color: var(--muted); border: 0; }
   .homePage .discoverySpotlight { margin-top: 6px; }
+  .homePage .discoveryEmpty { margin-top: 6px; }
   .homePage .spotlightRail { align-items: flex-start; }
   .homePage .spotlightPanel { height: auto; }
   .homePage .spotlightPanel[inert] { height: 0; overflow: hidden; }
@@ -98,6 +99,7 @@
 .homeSparkline polyline { fill: none; stroke: #1be8c2; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1; vector-effect: non-scaling-stroke; }
 .featuredCarousel { position: relative; margin-top: 14px; }
 .discoverySpotlight { min-width: 0; margin-top: 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+.discoveryEmpty { margin-top: 14px; }
 .spotlightToolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 10px; border-bottom: 1px solid var(--line); }
 .spotlightNavigation { display: flex; align-items: center; gap: 12px; min-width: 0; overflow-x: auto; scrollbar-width: thin; }
 .spotlightNavigation > .spotlightTabs { flex-shrink: 0; }

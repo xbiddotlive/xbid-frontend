@@ -6,6 +6,7 @@ const marketVersions = {
   1: { b: 270_000, neutralWeight: 98 },
   2: { b: 150_000, neutralWeight: 98 },
   3: { b: 150_000, neutralWeight: 98 },
+  4: { b: 150_000, neutralWeight: 98 },
 } as const;
 
 export function marketPrices(qAWei: string, qBWei: string, marketVersion = 1) {
