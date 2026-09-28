@@ -31,6 +31,13 @@ for (const locale of ["en", "zh", "ja"]) {
     assert.match(actual["docs.exampleText"], /0\.50/);
     assert.match(actual["docs.exampleText"], /0\.40/);
     assert.match(actual["docs.testnetNoticeText"], /真实 USDC|real USDC/);
+    assert.match(actual["how.activateValue"], /15,000 USDC/);
+    assert.match(actual["how.activateDescription"], /V4/);
+    assert.match(actual["docs.crown.activationText"], /15,000 USDC/);
+    assert.match(actual["docs.crown.activationText"], /旧版本竞赛|Older contests/);
+    assert.doesNotMatch(actual["how.activateValue"], /70,000/);
+    assert.match(actual["docs.eyebrow"], /4/);
+    assert.match(actual["docs.pricingText"], /V4/);
     assert.equal(JSON.stringify(original), before, "testnet dictionary must stay unchanged");
     assert.equal(actual["nav.explore"], original["nav.explore"]);
   });
