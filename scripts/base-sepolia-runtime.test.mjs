@@ -48,3 +48,24 @@ test("only the existing Robinhood test mock has permissionless mint", () => {
   assert.equal(configuration({ NEXT_PUBLIC_XBID_SETTLEMENT_TOKEN_ADDRESS: base.NEXT_PUBLIC_XBID_SETTLEMENT_TOKEN_ADDRESS }).tokens.supportsPermissionlessMint, false);
   assert.throws(() => configuration({ NEXT_PUBLIC_CHAIN_ID: "84532" }), /explicitly configured/);
 });
+
+test("Arc uses native USDC gas with 18 decimals and explicit ERC-20 settlement", () => {
+  for (const testnet of [false, true]) {
+    const { chain, tokens } = configuration({
+      ...base, NEXT_PUBLIC_CHAIN_ID: testnet ? "5042002" : "5042",
+      NEXT_PUBLIC_CHAIN_TESTNET: String(testnet),
+      NEXT_PUBLIC_XBID_SETTLEMENT_TOKEN_ADDRESS: "0x3600000000000000000000000000000000000000",
+    });
+    assert.equal(chain.activeChain.name, testnet ? "Arc Testnet" : "Arc");
+    assert.equal(chain.activeChain.nativeCurrency.symbol, "USDC");
+    assert.equal(chain.activeChain.nativeCurrency.decimals, 18);
+    assert.equal(chain.activeChain.testnet, testnet);
+    assert.equal(chain.activeChain.rpcUrls.default.http[0], testnet ? "https://rpc.testnet.arc.io" : "https://rpc.mainnet.arc.io");
+    assert.equal(chain.activeChain.blockExplorers.default.url, testnet ? "https://explorer.testnet.arc.io" : "https://explorer.arc.io");
+    assert.equal(chain.chainFamilyLabel, "Arc");
+    assert.equal(chain.plannedMainnetId, 5042);
+    assert.equal(chain.chainIconPath, "/icons/arc-chain.svg");
+    assert.equal(tokens.supportsPermissionlessMint, false);
+  }
+  assert.throws(() => configuration({ NEXT_PUBLIC_CHAIN_ID: "5042" }), /explicitly configured/);
+});

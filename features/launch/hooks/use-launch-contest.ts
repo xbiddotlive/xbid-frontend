@@ -10,6 +10,7 @@ import { getContest } from "@/lib/api/contests";
 import { prepareContestMetadata, uploadContestLogo } from "@/lib/api/metadata";
 import { ensureWriteSession as getWriteSession } from "@/lib/api/write-session";
 import { robinhoodTestnet } from "@/lib/blockchain/chain";
+import { assertArcGasBudget, isArcChain } from "@/lib/blockchain/arc-gas-budget";
 import { contestCreationFeeUnits, contracts, erc20Abi, factoryAbi, marketVaultAbi, supportsPermissionlessMint } from "@/lib/blockchain/contracts";
 import { useI18n } from "@/lib/i18n/locale-context";
 import type { MessageKey, MessageValues } from "@/lib/i18n/messages";
@@ -190,6 +191,9 @@ export function useLaunchContest() {
       });
 
       await ensureTestUsdc(contestCreationFeeUnits + initialUnits, address);
+      if (isArcChain(robinhoodTestnet.id)) {
+        await assertArcGasBudget(publicClient, address, contestCreationFeeUnits + initialUnits, initialUnits > 0n ? 4_500_000n : 3_000_000n);
+      }
       if (factoryAllowance < contestCreationFeeUnits) {
         setLocalizedStatus("launch.status.feeApproval");
         await confirm(await writeContractAsync({
@@ -219,6 +223,10 @@ export function useLaunchContest() {
         functionName: "createContest",
         args: [params],
       });
+      if (isArcChain(robinhoodTestnet.id)) {
+        const gas = await publicClient.estimateContractGas(simulation.request);
+        await assertArcGasBudget(publicClient, address, contestCreationFeeUnits + initialUnits, gas + (initialUnits > 0n ? 1_500_000n : 0n));
+      }
       const receipt = await confirm(await writeContractAsync(simulation.request), "launch.status.contestLaunch");
 
       if (initialUnits > 0n) {
@@ -235,6 +243,7 @@ export function useLaunchContest() {
         const marketVault = decoded?.eventName === "ContestCreated" ? decoded.args.marketVault : undefined;
         if (!marketVault) throw new Error("contest launched, but its market address was not found in the receipt.");
         setLocalizedStatus("launch.status.initialApproval");
+        if (isArcChain(robinhoodTestnet.id)) await assertArcGasBudget(publicClient, address, initialUnits, 1_500_000n);
         await confirm(await writeContractAsync({
           address: contracts.settlementToken,
           abi: erc20Abi,
@@ -247,6 +256,7 @@ export function useLaunchContest() {
         const minimumOutput = quote.tokenOutputWei * 9_950n / 10_000n;
         const deadline = BigInt(Math.floor(Date.now() / 1_000) + 10 * 60);
         const buy = await publicClient.simulateContract({ account: address, address: marketVault, abi: marketVaultAbi, functionName: "buy", args: [side, initialUnits, minimumOutput, deadline, zeroAddress] });
+        if (isArcChain(robinhoodTestnet.id)) await assertArcGasBudget(publicClient, address, initialUnits, await publicClient.estimateContractGas(buy.request));
         await confirm(await writeContractAsync(buy.request), "launch.status.initialPosition");
       }
 

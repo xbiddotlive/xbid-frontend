@@ -18,6 +18,9 @@ import { useAccount, useConnect, usePublicClient, useReadContract, useSwitchChai
 import { CloseIcon, InfoIcon } from "@/components/ui/icons";
 import type { IndexedContest } from "@/lib/api/contests";
 import { robinhoodTestnet, settlementTokenLabel } from "@/lib/blockchain/chain";
+import { createTradeGasActions } from "../lib/trade-gas-budget";
+import { errorMessage, parseAmount } from "../lib/trade-input";
+import { isArcChain } from "@/lib/blockchain/arc-gas-budget";
 import { contracts, erc20Abi, marketVaultAbi, supportsPermissionlessMint } from "@/lib/blockchain/contracts";
 import { SettlementFaucetLink } from "@/components/navigation/settlement-faucet-link";
 import { useI18n } from "@/lib/i18n/locale-context";
@@ -40,20 +43,6 @@ type TradeTicketProps = {
   onClose?: () => void;
   onConfirmed: () => void;
 };
-
-function parseAmount(value: string, decimals: number) {
-  try {
-    return parseUnits(value || "0", decimals);
-  } catch {
-    return 0n;
-  }
-}
-
-function errorMessage(error: unknown): MessageKey | string {
-  if (!(error instanceof Error)) return "trade.failed";
-  if (error.message.toLowerCase().includes("rejected")) return "trade.rejected";
-  return error.message.split("\n")[0].slice(0, 180).toLowerCase();
-}
 
 function flipQuoteErrorMessage(error: Error | null, locale: string, t: ReturnType<typeof useI18n>["t"]) {
   if (!error) return null;
@@ -214,6 +203,15 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
     await refetchAllowance();
   }
 
+  const { checkArcBudget, fillMaximumAmount } = createTradeGasActions({
+    client: publicClient, account: address, chainId: robinhoodTestnet.id, mode, balance, input,
+    onMaximum: changeAmount,
+    onError(error) {
+      const message = errorMessage(error);
+      setStatus(message.startsWith("trade.") ? t(message as MessageKey) : message);
+    },
+  });
+
   async function freshFlipOutput() {
     setActingLabel(t("trade.checkingFlip"));
     const refreshed = await refetchFlip();
@@ -256,6 +254,7 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
         return;
       }
 
+      await checkArcBudget();
       if (allowance < input) {
         await approveInput();
         if (mode === "flip") executionOutput = await freshFlipOutput();
@@ -268,12 +267,15 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
       if (!publicClient) throw new Error(t("trade.rpc"));
       if (mode === "buy") {
         const simulation = await publicClient.simulateContract({ account: address, address: marketVault, abi: marketVaultAbi, functionName: "buy", args: [side, input, minimumOutput, deadline, referrer] });
+        if (isArcChain(robinhoodTestnet.id)) await checkArcBudget(await publicClient.estimateContractGas(simulation.request));
         await submitAndWait(await writeContractAsync(simulation.request), t("trade.backSide", { side: side === 0 ? "A" : "B" }));
       } else if (mode === "sell") {
         const simulation = await publicClient.simulateContract({ account: address, address: marketVault, abi: marketVaultAbi, functionName: "sell", args: [side, input, minimumOutput, deadline] });
+        if (isArcChain(robinhoodTestnet.id)) await checkArcBudget(await publicClient.estimateContractGas(simulation.request));
         await submitAndWait(await writeContractAsync(simulation.request), t("trade.sellSide", { side: side === 0 ? "A" : "B" }));
       } else {
         const simulation = await publicClient.simulateContract({ account: address, address: marketVault, abi: marketVaultAbi, functionName: "flip", args: [side, input, executionMinimumOutput, deadline] });
+        if (isArcChain(robinhoodTestnet.id)) await checkArcBudget(await publicClient.estimateContractGas(simulation.request));
         await submitAndWait(await writeContractAsync(simulation.request), t("trade.flipSides", { source: side === 0 ? "A" : "B", destination: side === 0 ? "B" : "A" }));
       }
       const refetchActiveQuote = mode === "buy" ? refetchBuy : mode === "sell" ? refetchSell : refetchFlip;
@@ -325,7 +327,7 @@ export function TradeTicket({ contest, embedded = false, initialAmount, initialM
           <input aria-label={`${t(mode === "buy" ? "trade.youPay" : "trade.tokenAmount")} ${amountSymbol}`} inputMode="decimal" onChange={(event) => changeAmount(event.target.value)} value={amount} />
           <b>{amountSymbol}</b>
         </label>
-        <div className="compactBalance"><span>{t("trade.balance", { amount: balanceLabel })}</span><button disabled={!isConnected || balance === 0n} onClick={() => changeAmount(formatUnits(balance, balanceDecimals))} type="button">{t("trade.max")}</button></div>
+        <div className="compactBalance"><span>{t("trade.balance", { amount: balanceLabel })}</span><button disabled={!isConnected || balance === 0n || isActing} onClick={() => void fillMaximumAmount()} type="button">{t("trade.max")}</button></div>
         <button className={side === 0 ? "tradeAction actionA" : "tradeAction actionB"} disabled={isActing || input <= 0n || quoteBlocked || (mode !== "buy" && balance < input)} onClick={() => void act()} type="button">{isActing ? actingLabel : isDirectTrade && quoteLoading && !flipQuoteIssue ? t("trade.updatingQuote") : actionLabel}</button>
         <div className="compactTradeFooter">
           <SlippageControl onChange={setSlippageBps} value={slippageBps} />

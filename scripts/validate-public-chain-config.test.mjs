@@ -18,6 +18,30 @@ const mainnet = {
   NEXT_PUBLIC_XBID_SETTLEMENT_TOKEN_ADDRESS: "0x5555555555555555555555555555555555555555",
 };
 
+test("Arc build requires correct chain mode, USDC interface and isolated contracts", async () => {
+  const cwd = await mkdtemp(join(tmpdir(), "xbid-arc-build-guard-"));
+  const arc = {
+    ...mainnet, NEXT_PUBLIC_CHAIN_ID: "5042", NEXT_PUBLIC_CHAIN_NAME: "Arc",
+    NEXT_PUBLIC_CHAIN_RPC_URL: "https://rpc.mainnet.arc.io",
+    NEXT_PUBLIC_CHAIN_EXPLORER_URL: "https://explorer.arc.io", NEXT_PUBLIC_CHAIN_EXPLORER_NAME: "Arc Explorer",
+    NEXT_PUBLIC_XBID_SETTLEMENT_TOKEN_ADDRESS: "0x3600000000000000000000000000000000000000",
+  };
+  const run = (env) => spawnSync(process.execPath, [script], { cwd, env: { PATH: process.env.PATH, NODE_ENV: "production", ...env }, encoding: "utf8" });
+  try {
+    assert.equal(run(arc).status, 0);
+    assert.equal(run({ ...arc, XBID_ENVIRONMENT: "testnet", NEXT_PUBLIC_CHAIN_ID: "5042002", NEXT_PUBLIC_CHAIN_TESTNET: "true", NEXT_PUBLIC_CHAIN_RPC_URL: "https://rpc.testnet.arc.io", NEXT_PUBLIC_CHAIN_EXPLORER_URL: "https://explorer.testnet.arc.io" }).status, 0);
+    for (const override of [
+      { NEXT_PUBLIC_CHAIN_ID: "5042002" },
+      { XBID_ENVIRONMENT: "testnet", NEXT_PUBLIC_CHAIN_TESTNET: "true" },
+      { NEXT_PUBLIC_XBID_SETTLEMENT_TOKEN_ADDRESS: mainnet.NEXT_PUBLIC_XBID_SETTLEMENT_TOKEN_ADDRESS },
+      { NEXT_PUBLIC_CHAIN_RPC_URL: "https://rpc.testnet.arc.io./" },
+      { NEXT_PUBLIC_CHAIN_EXPLORER_URL: "https://explorer.testnet.arc.io" },
+      { NEXT_PUBLIC_XBID_FACTORY_ADDRESS: "" },
+      { NEXT_PUBLIC_XBID_FACTORY_ADDRESS: "0x8f9208FD358c62FB4052e4C2FBbCA3152A17E4b6" },
+    ]) assert.notEqual(run({ ...arc, ...override }).status, 0, JSON.stringify(override));
+  } finally { await rm(cwd, { recursive: true, force: true }); }
+});
+
 test("Base Sepolia build rejects cross-chain defaults and mock settlement tokens", async () => {
   const cwd = await mkdtemp(join(tmpdir(), "xbid-base-build-guard-"));
   const baseSepolia = {

@@ -33,6 +33,23 @@ if (!Number.isSafeInteger(configuredChainId) || configuredChainId <= 0) throw ne
 if ((configuredChainId === 84532 && !chainIsTestnet) || (configuredChainId === 8453 && chainIsTestnet)) {
   throw new Error("Base chain ID and NEXT_PUBLIC_CHAIN_TESTNET disagree.");
 }
+if ((configuredChainId === 5042002 && !chainIsTestnet) || (configuredChainId === 5042 && chainIsTestnet)) {
+  throw new Error("Arc chain ID and NEXT_PUBLIC_CHAIN_TESTNET disagree.");
+}
+if ([5042, 5042002].includes(configuredChainId)) {
+  if (process.env.NEXT_PUBLIC_XBID_SETTLEMENT_TOKEN_ADDRESS?.toLowerCase() !== "0x3600000000000000000000000000000000000000") {
+    throw new Error("Arc requires the native USDC ERC-20 interface address.");
+  }
+  for (const key of ["NEXT_PUBLIC_CHAIN_RPC_URL", "NEXT_PUBLIC_CHAIN_EXPLORER_URL"]) {
+    const value = process.env[key];
+    if (value && URL.canParse(value)) {
+      const host = new URL(value).hostname.replace(/\.$/, "");
+      if ((host === "arc.io" || host.endsWith(".arc.io")) && host.split(".").includes("testnet") !== chainIsTestnet) {
+        throw new Error(`Arc endpoint and chain environment disagree for ${key}.`);
+      }
+    }
+  }
+}
 if (environment === "testnet" && configuredChainId !== 46630) {
   const required = [...Object.keys(TESTNET), "NEXT_PUBLIC_CHAIN_NAME", "NEXT_PUBLIC_CHAIN_EXPLORER_NAME"];
   const missing = required.filter((key) => !process.env[key]);
