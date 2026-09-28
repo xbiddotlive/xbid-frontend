@@ -193,7 +193,10 @@ export function LaunchBuilder() {
       initialAmount,
     });
   };
-  const walletBalance = Number(formatUnits(launchContest.balance, 6)).toLocaleString(localeInfo(locale).htmlLang, { maximumFractionDigits: 2 });
+  const walletBalance = !launchContest.isConnected ? t("launch.connectToRead")
+    : launchContest.balanceError ? t("launch.balanceError")
+    : launchContest.balance === undefined ? t("launch.balanceLoading")
+    : `${Number(formatUnits(launchContest.balance, 6)).toLocaleString(localeInfo(locale).htmlLang, { maximumFractionDigits: 2 })} ${settlementTokenLabel}`;
 
   return (
     <main className="pageShell launchPage">
@@ -221,7 +224,7 @@ export function LaunchBuilder() {
           <label className="field"><span>{t("scope.region")}</span><RegionSelect value={region} onChange={setRegion} /><small>{t("scope.regionHelp")}</small></label>
           <label className="field"><span>{t("scope.language")}</span><select name="contentLanguage" value={contentLanguage} onChange={event => setLanguageOverride(event.target.value)}>{locales.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select><small>{t("scope.languageHelp")}</small></label>
           <label className="field fieldWide"><span>{t("launch.initialPosition")} <em className="fieldRequirement">{t("launch.optional")}</em></span><div className="initialPosition"><select aria-label={t("launch.initialSide")} onChange={(event) => setInitialSide(event.target.value as "none" | "a" | "b")} value={initialSide}><option value="none">{t("launch.noInitial")}</option><option value="a">{t("common.sideA")}</option><option value="b">{t("common.sideB")}</option></select><input disabled={initialSide === "none"} inputMode="decimal" min="0.01" name="initialAmount" onChange={(event) => setInitialAmount(event.target.value)} placeholder="0 usdc" required={initialSide !== "none"} step="0.01" type="number" value={initialAmount} /></div></label>
-          <div className="launchSummary"><div><span>{t("launch.network")}</span><strong>{t("chain.testnet")}</strong></div><div><span>{t("launch.walletBalance")}</span><strong>{launchContest.isConnected ? `${walletBalance} ${settlementTokenLabel}` : t("launch.connectToRead")}</strong></div><div><span>{t("launch.marketCurve")}</span><strong>b = 150k</strong></div></div>
+          <div className="launchSummary"><div><span>{t("launch.network")}</span><strong>{t("chain.testnet")}</strong></div><div><span>{t("launch.walletBalance")}</span><strong>{walletBalance}</strong></div><div><span>{t("launch.marketCurve")}</span><strong>b = 150k</strong></div></div>
           <SettlementFaucetLink />
           <button className="button launchSubmit" disabled={!canSubmit} type="submit">{launchContest.isBusy ? t("launch.launching") : launchContest.isConnected && launchContest.chainId !== robinhoodTestnet.id ? t("launch.switchAndLaunch") : launchContest.isConnected ? t("launch.submit") : t("launch.connectAndLaunch")}</button>
           <p aria-live="polite" className="formFootnote">{launchContest.status}</p>

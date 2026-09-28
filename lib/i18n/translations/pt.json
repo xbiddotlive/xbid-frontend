@@ -1,4 +1,6 @@
 {
+  "launch.balanceLoading": "lendo saldo…",
+  "launch.balanceError": "falha ao ler saldo · tente novamente em breve",
   "category.stocks": "ações",
   "stocks.label": "Ações associadas",
   "stocks.search": "Pesquisar empresa ou ticker",

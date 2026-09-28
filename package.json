@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test:rpc": "node --test scripts/rpc-proxy.test.mjs",
     "check:ui": "node scripts/check-ui-contract.mjs",
     "check:architecture": "node scripts/check-architecture.mjs",
     "check:performance": "node scripts/check-performance-budget.mjs",

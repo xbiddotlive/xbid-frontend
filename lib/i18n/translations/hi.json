@@ -1,4 +1,6 @@
 {
+  "launch.balanceLoading": "शेष राशि पढ़ी जा रही है…",
+  "launch.balanceError": "शेष राशि पढ़ने में विफल · थोड़ी देर में पुनः प्रयास करें",
   "category.stocks": "शेयर",
   "stocks.label": "संबंधित शेयर",
   "stocks.search": "कंपनी या टिकर खोजें",

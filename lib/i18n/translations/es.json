@@ -1,4 +1,6 @@
 {
+  "launch.balanceLoading": "leyendo saldo…",
+  "launch.balanceError": "no se pudo leer el saldo · vuelve a intentarlo en breve",
   "category.stocks": "acciones",
   "stocks.label": "Acciones asociadas",
   "stocks.search": "Buscar empresa o símbolo",

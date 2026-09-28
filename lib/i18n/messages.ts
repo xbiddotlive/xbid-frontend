@@ -1,4 +1,6 @@
 export const en = {
+  "launch.balanceLoading": "reading balance…",
+  "launch.balanceError": "balance read failed · retry shortly",
   "category.stocks": "stocks",
   "stocks.label": "associated stocks",
   "stocks.search": "Search company or ticker",
@@ -786,6 +788,8 @@ export type Dictionary = Record<MessageKey, string>;
 export type MessageValues = Record<string, string | number>;
 
 export const zh: Record<MessageKey, string> = {
+  "launch.balanceLoading": "正在读取余额…",
+  "launch.balanceError": "余额读取失败 · 请稍后重试",
   "category.stocks": "股票",
   "stocks.label": "关联股票",
   "stocks.search": "搜索公司名称或股票代码",

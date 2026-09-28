@@ -36,6 +36,12 @@ export const wagmiConfig = createConfig({
   ssr: true,
   storage,
   transports: {
-    [robinhoodTestnet.id]: http(robinhoodTestnet.rpcUrls.default.http[0]),
+    // Keep the real RPC URL in chain metadata for wallets. Browser reads use
+    // our same-origin boundary so privacy extensions do not block the RPC host.
+    [robinhoodTestnet.id]: http(
+      typeof window !== "undefined" && [5042, 5042002].includes(robinhoodTestnet.id)
+        ? "/api/chain" : robinhoodTestnet.rpcUrls.default.http[0],
+      { timeout: 20_000 },
+    ),
   },
 });

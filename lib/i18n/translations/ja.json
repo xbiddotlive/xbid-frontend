@@ -1,4 +1,6 @@
 {
+  "launch.balanceLoading": "残高を読み込み中…",
+  "launch.balanceError": "残高の読み込みに失敗 · しばらくして再試行",
   "category.stocks": "株式",
   "stocks.label": "関連銘柄",
   "stocks.search": "企業名・ティッカーを検索",

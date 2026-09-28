@@ -1,4 +1,6 @@
 {
+  "launch.balanceLoading": "membaca saldo…",
+  "launch.balanceError": "gagal membaca saldo · coba lagi sebentar",
   "category.stocks": "saham",
   "stocks.label": "Saham terkait",
   "stocks.search": "Cari perusahaan atau ticker",

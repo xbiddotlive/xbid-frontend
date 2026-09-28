@@ -1,4 +1,6 @@
 {
+  "launch.balanceLoading": "odczytywanie salda…",
+  "launch.balanceError": "nie udało się odczytać salda · spróbuj ponownie za chwilę",
   "category.stocks": "akcje",
   "stocks.label": "Powiązane akcje",
   "stocks.search": "Szukaj spółki lub symbolu",

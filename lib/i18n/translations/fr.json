@@ -1,4 +1,6 @@
 {
+  "launch.balanceLoading": "lecture du solde…",
+  "launch.balanceError": "échec de lecture du solde · réessayez bientôt",
   "category.stocks": "actions",
   "stocks.label": "Actions associées",
   "stocks.search": "Rechercher une entreprise ou un symbole",

@@ -1,4 +1,6 @@
 {
+  "launch.balanceLoading": "ব্যালেন্স পড়া হচ্ছে…",
+  "launch.balanceError": "ব্যালেন্স পড়া যায়নি · একটু পরে আবার চেষ্টা করুন",
   "category.stocks": "শেয়ার",
   "stocks.label": "সংশ্লিষ্ট শেয়ার",
   "stocks.search": "কোম্পানি বা টিকার খুঁজুন",

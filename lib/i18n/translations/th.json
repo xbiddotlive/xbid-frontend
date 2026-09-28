@@ -1,4 +1,6 @@
 {
+  "launch.balanceLoading": "กำลังอ่านยอดคงเหลือ…",
+  "launch.balanceError": "อ่านยอดคงเหลือไม่สำเร็จ · โปรดลองอีกครั้งในสักครู่",
   "category.stocks": "หุ้น",
   "stocks.label": "หุ้นที่เกี่ยวข้อง",
   "stocks.search": "ค้นหาบริษัทหรือสัญลักษณ์หุ้น",

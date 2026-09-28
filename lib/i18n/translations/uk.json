@@ -1,4 +1,6 @@
 {
+  "launch.balanceLoading": "завантаження балансу…",
+  "launch.balanceError": "не вдалося завантажити баланс · повторіть трохи пізніше",
   "category.stocks": "акції",
   "stocks.label": "Пов’язані акції",
   "stocks.search": "Пошук компанії або тикера",

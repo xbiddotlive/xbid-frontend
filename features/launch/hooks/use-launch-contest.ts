@@ -74,11 +74,12 @@ export function useLaunchContest() {
   const [statusMessage, setStatusMessage] = useState<{ key: MessageKey; values?: MessageValues } | { raw: string }>({ key: "launch.status.connect" });
   const [transactionHash, setTransactionHash] = useState<Hash>();
 
-  const { data: balance = 0n, refetch: refetchBalance } = useReadContract({
+  const { data: balance, isError: balanceError, refetch: refetchBalance } = useReadContract({
     address: contracts.settlementToken,
     abi: erc20Abi,
     functionName: "balanceOf",
     args: [address ?? zeroAddress],
+    chainId: robinhoodTestnet.id,
     query: { enabled: Boolean(address), refetchInterval: 10_000 },
   });
   const { data: factoryAllowance = 0n, refetch: refetchFactoryAllowance } = useReadContract({
@@ -113,7 +114,9 @@ export function useLaunchContest() {
   }
 
   async function ensureTestUsdc(requiredUnits: bigint, account: Address) {
-    if (balance >= requiredUnits) return;
+    const fresh = await refetchBalance();
+    if (fresh.error || fresh.data === undefined) throw new Error(t("launch.balanceError"));
+    if (fresh.data >= requiredUnits) return;
     if (!supportsPermissionlessMint) throw new Error(t("trade.insufficientBalance", { symbol: "USDC" }));
     setLocalizedStatus("launch.status.faucet");
     const mintAmount = requiredUnits > parseUnits("10000", 6) ? requiredUnits : parseUnits("10000", 6);
@@ -158,6 +161,10 @@ export function useLaunchContest() {
       if (sideASymbol === sideBSymbol) throw new Error("side a and side b token tickers must be different.");
       const initialUnits = input.initialSide === "none" ? 0n : parseUnits(input.initialAmount || "0", 6);
       if (input.initialSide !== "none" && initialUnits <= 0n) throw new Error("enter an initial position amount or select no initial position.");
+
+      // Fail reads before asking for a metadata signature or uploading logos.
+      const balanceRead = await refetchBalance();
+      if (balanceRead.error || balanceRead.data === undefined) throw new Error(t("launch.balanceError"));
 
       const writeToken = await ensureWriteSession(address);
       setLocalizedStatus("launch.status.uploading");
@@ -272,5 +279,5 @@ export function useLaunchContest() {
     }
   }
 
-  return { address, balance, chainId, isConnected, isBusy, launch, status, transactionHash };
+  return { address, balance, balanceError, chainId, isConnected, isBusy, launch, status, transactionHash };
 }
