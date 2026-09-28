@@ -60,6 +60,8 @@ export function createRpcProxy(upstream: string, options: {
       return failure(null, 400, -32600, "Single JSON-RPC request required");
     }
     const rpc = payload as Partial<RpcRequest>;
+    // JSON-RPC permits omitted params; viem omits them for chainId/gasPrice.
+    if (rpc.params === undefined) rpc.params = [];
     if (rpc.jsonrpc !== "2.0" || !(typeof rpc.id === "string" || typeof rpc.id === "number")
       || typeof rpc.method !== "string" || !Array.isArray(rpc.params)) {
       return failure(null, 400, -32600, "Invalid JSON-RPC request");

@@ -40,6 +40,17 @@ test("deployment origin works behind internal reverse proxy URLs", async () => {
   assert.equal((await proxy(request(rpc(), { origin: "https://evil.example" }))).status, 403);
 });
 
+test("viem parameterless methods accept omitted params, but not null or objects", async () => {
+  const proxy = createRpcProxy(upstream, { intervalMs: 0, fetcher: async (_url, options) => {
+    assert.deepEqual(JSON.parse(options.body).params, []);
+    return success("0x13b2");
+  } });
+  for (const method of ["eth_chainId", "eth_blockNumber", "eth_gasPrice", "eth_maxPriorityFeePerGas"]) {
+    assert.equal((await proxy(request({ jsonrpc: "2.0", id: 1, method }))).status, 200);
+  }
+  for (const params of [null, {}]) assert.equal((await proxy(request(rpc(1, "eth_chainId", params)))).status, 400);
+});
+
 test("rejects signing, sending, log scans, batches, state overrides and large bodies without upstream calls", async () => {
   const proxy = createRpcProxy(upstream, { fetcher: async () => { assert.fail("must not call upstream"); } });
   for (const method of ["eth_sendRawTransaction", "eth_sendTransaction", "personal_sign", "debug_traceTransaction", "eth_getLogs", "eth_newFilter"]) {
