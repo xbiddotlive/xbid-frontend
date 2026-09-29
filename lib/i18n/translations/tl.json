@@ -1,4 +1,11 @@
 {
+  "trade.buyMinimum": "Minimum na pagbili: 1 USDC",
+  "trade.sellMinimum": "Minimum na benta: 1 USDC bago ang bayad",
+  "trade.quotePaused": "Nakahinto ang transaksyong ito",
+  "trade.quoteReverted": "Tinanggihan ng kontrata ang quote: {reason}",
+  "trade.quoteBusy": "Abala o limitado ang RPC. Subukan muli mamaya.",
+  "trade.quoteConnection": "Hindi makakonekta sa chain. Subukan muli ang quote.",
+  "trade.retryQuote": "Subukan muli ang quote",
   "launch.balanceLoading": "binabasa ang balanse…",
   "launch.balanceError": "hindi mabasa ang balanse · subukan muli maya-maya",
   "category.stocks": "mga stock",

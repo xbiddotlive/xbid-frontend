@@ -168,6 +168,9 @@ export const feeVaultAbi = [
 ] as const;
 
 export const marketVaultAbi = [
+  { type: "error", name: "BuyGrossBelowMinimum", inputs: [{ name: "grossInputUnits", type: "uint256" }] },
+  { type: "error", name: "SellGrossBelowMinimum", inputs: [{ name: "grossOutputUnits", type: "uint256" }] },
+  { type: "error", name: "ContestPaused", inputs: [{ name: "mode", type: "uint8" }] },
   {
     type: "error",
     name: "FlipGrossBelowMinimum",

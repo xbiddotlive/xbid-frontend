@@ -1,4 +1,11 @@
 {
+  "trade.buyMinimum": "न्यूनतम खरीद: 1 USDC",
+  "trade.sellMinimum": "न्यूनतम बिक्री मूल्य: शुल्क से पहले 1 USDC",
+  "trade.quotePaused": "यह ट्रेडिंग कार्रवाई रोकी गई है",
+  "trade.quoteReverted": "अनुबंध ने कोट अस्वीकार किया: {reason}",
+  "trade.quoteBusy": "RPC व्यस्त है या सीमित है। थोड़ी देर बाद प्रयास करें।",
+  "trade.quoteConnection": "चेन से कनेक्ट नहीं हो सका। कोट फिर से प्राप्त करें।",
+  "trade.retryQuote": "कोट फिर से प्राप्त करें",
   "launch.balanceLoading": "शेष राशि पढ़ी जा रही है…",
   "launch.balanceError": "शेष राशि पढ़ने में विफल · थोड़ी देर में पुनः प्रयास करें",
   "category.stocks": "शेयर",

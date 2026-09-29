@@ -1,4 +1,11 @@
 {
+  "trade.buyMinimum": "Mindestkauf: 1 USDC",
+  "trade.sellMinimum": "Mindestverkauf: 1 USDC vor Gebühren",
+  "trade.quotePaused": "Diese Handelsaktion ist pausiert",
+  "trade.quoteReverted": "Kurs vom Vertrag abgelehnt: {reason}",
+  "trade.quoteBusy": "RPC ausgelastet oder limitiert. Bitte später erneut versuchen.",
+  "trade.quoteConnection": "Keine Verbindung zur Blockchain. Kurs erneut abrufen.",
+  "trade.retryQuote": "Kurs erneut abrufen",
   "launch.balanceLoading": "Guthaben wird geladen…",
   "launch.balanceError": "Guthaben konnte nicht geladen werden · später erneut versuchen",
   "category.stocks": "Aktien",

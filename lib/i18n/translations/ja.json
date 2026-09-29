@@ -1,4 +1,11 @@
 {
+  "trade.buyMinimum": "最低購入額：1 USDC",
+  "trade.sellMinimum": "最低売却額：手数料控除前 1 USDC",
+  "trade.quotePaused": "この取引操作は一時停止中です",
+  "trade.quoteReverted": "コントラクトが見積もりを拒否：{reason}",
+  "trade.quoteBusy": "RPC が混雑中、または制限中です。後でもう一度お試しください。",
+  "trade.quoteConnection": "チェーンに接続できません。見積もりを再取得してください。",
+  "trade.retryQuote": "見積もりを再取得",
   "launch.balanceLoading": "残高を読み込み中…",
   "launch.balanceError": "残高の読み込みに失敗 · しばらくして再試行",
   "category.stocks": "株式",

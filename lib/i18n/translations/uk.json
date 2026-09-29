@@ -1,4 +1,11 @@
 {
+  "trade.buyMinimum": "Мінімальна купівля: 1 USDC",
+  "trade.sellMinimum": "Мінімальний продаж: 1 USDC до комісії",
+  "trade.quotePaused": "Цю торгову операцію призупинено",
+  "trade.quoteReverted": "Контракт відхилив котирування: {reason}",
+  "trade.quoteBusy": "RPC перевантажений або обмежений. Повторіть пізніше.",
+  "trade.quoteConnection": "Не вдалося підключитися до мережі. Запитайте котирування знову.",
+  "trade.retryQuote": "Повторити котирування",
   "launch.balanceLoading": "завантаження балансу…",
   "launch.balanceError": "не вдалося завантажити баланс · повторіть трохи пізніше",
   "category.stocks": "акції",

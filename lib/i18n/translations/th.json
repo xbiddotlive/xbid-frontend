@@ -1,4 +1,11 @@
 {
+  "trade.buyMinimum": "ยอดซื้อขั้นต่ำ: 1 USDC",
+  "trade.sellMinimum": "มูลค่าขายขั้นต่ำ: 1 USDC ก่อนหักค่าธรรมเนียม",
+  "trade.quotePaused": "การซื้อขายนี้ถูกระงับชั่วคราว",
+  "trade.quoteReverted": "สัญญาปฏิเสธราคาเสนอ: {reason}",
+  "trade.quoteBusy": "RPC ไม่ว่างหรือถูกจำกัด โปรดลองอีกครั้งภายหลัง",
+  "trade.quoteConnection": "ไม่สามารถเชื่อมต่อบล็อกเชนได้ โปรดขอราคาเสนออีกครั้ง",
+  "trade.retryQuote": "ขอราคาเสนออีกครั้ง",
   "launch.balanceLoading": "กำลังอ่านยอดคงเหลือ…",
   "launch.balanceError": "อ่านยอดคงเหลือไม่สำเร็จ · โปรดลองอีกครั้งในสักครู่",
   "category.stocks": "หุ้น",

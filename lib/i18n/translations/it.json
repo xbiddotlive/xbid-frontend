@@ -1,4 +1,11 @@
 {
+  "trade.buyMinimum": "Acquisto minimo: 1 USDC",
+  "trade.sellMinimum": "Vendita minima: 1 USDC prima delle commissioni",
+  "trade.quotePaused": "Questa operazione è sospesa",
+  "trade.quoteReverted": "Quotazione rifiutata dal contratto: {reason}",
+  "trade.quoteBusy": "RPC occupato o limitato. Riprova tra poco.",
+  "trade.quoteConnection": "Impossibile connettersi alla blockchain. Riprova la quotazione.",
+  "trade.retryQuote": "Riprova quotazione",
   "launch.balanceLoading": "lettura del saldo…",
   "launch.balanceError": "lettura del saldo non riuscita · riprova tra poco",
   "category.stocks": "azioni",

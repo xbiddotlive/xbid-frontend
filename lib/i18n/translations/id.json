@@ -1,4 +1,11 @@
 {
+  "trade.buyMinimum": "Pembelian minimum: 1 USDC",
+  "trade.sellMinimum": "Nilai jual minimum: 1 USDC sebelum biaya",
+  "trade.quotePaused": "Transaksi ini dijeda",
+  "trade.quoteReverted": "Penawaran ditolak kontrak: {reason}",
+  "trade.quoteBusy": "RPC sibuk atau dibatasi. Coba lagi nanti.",
+  "trade.quoteConnection": "Tidak dapat terhubung ke blockchain. Minta penawaran lagi.",
+  "trade.retryQuote": "Coba penawaran lagi",
   "launch.balanceLoading": "membaca saldo…",
   "launch.balanceError": "gagal membaca saldo · coba lagi sebentar",
   "category.stocks": "saham",

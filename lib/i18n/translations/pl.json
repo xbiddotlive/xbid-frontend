@@ -1,4 +1,11 @@
 {
+  "trade.buyMinimum": "Minimalny zakup: 1 USDC",
+  "trade.sellMinimum": "Minimalna sprzedaż: 1 USDC przed opłatami",
+  "trade.quotePaused": "Ta operacja handlowa jest wstrzymana",
+  "trade.quoteReverted": "Kontrakt odrzucił wycenę: {reason}",
+  "trade.quoteBusy": "RPC jest przeciążony lub ograniczony. Spróbuj za chwilę.",
+  "trade.quoteConnection": "Nie można połączyć się z siecią. Ponów wycenę.",
+  "trade.retryQuote": "Ponów wycenę",
   "launch.balanceLoading": "odczytywanie salda…",
   "launch.balanceError": "nie udało się odczytać salda · spróbuj ponownie za chwilę",
   "category.stocks": "akcje",

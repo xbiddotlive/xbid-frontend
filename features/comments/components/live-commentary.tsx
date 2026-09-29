@@ -169,15 +169,15 @@ export function LiveCommentary({ contestId }: { contestId: string }) {
       </div>
 
       <form className="commentComposer" onSubmit={(event) => void submit(event)}>
-        <div className="commentComposerHeading">
-          <label htmlFor="comment-input">{replyingTo ? t("comments.replyTo", { author: authorLabel(replyingTo) }) : t("comments.makeCase")}</label>
-          {replyingTo && <button aria-label={t("comments.cancelReply")} onClick={() => setReplyingTo(null)} type="button">{t("comments.cancel")}</button>}
-        </div>
+        {replyingTo && <div className="commentComposerHeading">
+          <label htmlFor="comment-input">{t("comments.replyTo", { author: authorLabel(replyingTo) })}</label>
+          <button aria-label={t("comments.cancelReply")} onClick={() => setReplyingTo(null)} type="button">{t("comments.cancel")}</button>
+        </div>}
         <div className="commentComposerRow">
-          <input disabled={!canComment || sendComment.isPending} id="comment-input" maxLength={240} onChange={(event) => setBody(event.target.value)} placeholder={composerPlaceholder} value={body} />
+          <input aria-label={t("comments.placeholder")} disabled={!canComment || sendComment.isPending} id="comment-input" maxLength={240} onChange={(event) => setBody(event.target.value)} placeholder={composerPlaceholder} value={body} />
           <button disabled={!canComment || sendComment.isPending || body.trim().length === 0} type="submit">{sendComment.isPending ? t("comments.authorizing") : t("comments.send")}</button>
         </div>
-        <span>{composerNote}</span>
+        <span className={canComment && !sendComment.isError ? "commentComposerLimits" : undefined}>{composerNote}</span>
       </form>
     </aside>
   );

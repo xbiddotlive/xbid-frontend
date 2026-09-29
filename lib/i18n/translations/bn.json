@@ -1,4 +1,11 @@
 {
+  "trade.buyMinimum": "সর্বনিম্ন ক্রয়: 1 USDC",
+  "trade.sellMinimum": "সর্বনিম্ন বিক্রয়মূল্য: ফি কাটার আগে 1 USDC",
+  "trade.quotePaused": "এই ট্রেডিং কার্যক্রম স্থগিত আছে",
+  "trade.quoteReverted": "চুক্তি কোট প্রত্যাখ্যান করেছে: {reason}",
+  "trade.quoteBusy": "RPC ব্যস্ত বা সীমিত। একটু পরে আবার চেষ্টা করুন।",
+  "trade.quoteConnection": "চেইনে সংযোগ করা যায়নি। আবার কোট নিন।",
+  "trade.retryQuote": "আবার কোট নিন",
   "launch.balanceLoading": "ব্যালেন্স পড়া হচ্ছে…",
   "launch.balanceError": "ব্যালেন্স পড়া যায়নি · একটু পরে আবার চেষ্টা করুন",
   "category.stocks": "শেয়ার",
